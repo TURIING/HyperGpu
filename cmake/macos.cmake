@@ -1,0 +1,2 @@
+add_definitions(-DVK_USE_PLATFORM_MACOS_MVK)
+add_definitions(-DPLATFORM_MACOS)
