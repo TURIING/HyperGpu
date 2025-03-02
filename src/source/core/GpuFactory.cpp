@@ -6,7 +6,7 @@
 * @description: 
 ********************************************************************************/
 
-#include "core/CoreDefine.h"
+#include "core/GpuDevice.h"
 #include "OpenGL/core/OpenGlDevice.h"
 #include "Vulkan/core/VulkanDevice.h"
 

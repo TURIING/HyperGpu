@@ -1,16 +1,13 @@
 /********************************************************************************
 * @author: TURIING
 * @email: turiing@163.com
-* @date: 2025/2/22 22:33
+* @date: 2025/3/1 23:16
 * @version: 1.0
 * @description: 
 ********************************************************************************/
 
-#include "OpenGL/core/OpenGlDevice.h"
+#include "Vulkan/core/VulkanPipeline.h"
 
-OpenGlDevice::OpenGlDevice(const DeviceCreateInfo& info) {
-}
+std::shared_ptr<Pipeline> PipelineManager::CreateRenderPipeline(const RenderEnvInfo& renderEnvInfo) {
 
-std::shared_ptr<PipelineManager> OpenGlDevice::GetPipelineManager() {
-    return nullptr;
 }

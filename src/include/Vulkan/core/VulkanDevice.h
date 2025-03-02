@@ -9,20 +9,26 @@
 #define VULKANDEVICE_H
 
 #include "common/common.h"
-#include "core/CoreDefine.h"
+#include "core/GpuDevice.h"
 
+class VulLogicDevice;
 class VulSurface;
 class VulInstance;
+class VulPhysicalDevice;
 
-class VulkanDevice final : public Device {
+class VulkanDevice final : public Device, public std::enable_shared_from_this<VulkanDevice> {
 public:
     explicit VulkanDevice(const DeviceCreateInfo &info);
     ~VulkanDevice() override;
-    [[nodiscard]] std::shared_ptr<PipelineManager> GetPipelineManager() const override;
+    [[nodiscard]] std::shared_ptr<PipelineManager> GetPipelineManager() override;
+    [[nodiscard]] std::shared_ptr<VulPhysicalDevice> GetPhysicalDevice() const { return m_pPhysicalDevice; }
+    [[nodiscard]] std::shared_ptr<VulLogicDevice> GetLogicDevice() const { return m_pLogicDevice; }
 
 private:
     std::shared_ptr<VulInstance> m_pInstance;
     std::shared_ptr<VulSurface> m_pSurface;
+    std::shared_ptr<VulPhysicalDevice> m_pPhysicalDevice;
+    std::shared_ptr<VulLogicDevice> m_pLogicDevice;
 };
 
 #endif //VULKANDEVICE_H

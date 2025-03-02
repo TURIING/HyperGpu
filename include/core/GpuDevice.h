@@ -12,12 +12,7 @@
 #include <string>
 
 #include "Types.h"
-
-class PipelineManager {
-
-};
-
-
+#include "core/GpuPipeline.h"
 
 struct DeviceSupportInfo {
 
@@ -26,7 +21,7 @@ struct DeviceSupportInfo {
 class Device {
 public:
     virtual ~Device() = default;
-    [[nodiscard]] virtual std::shared_ptr<PipelineManager> GetPipelineManager() const = 0;
+    [[nodiscard]] virtual std::shared_ptr<PipelineManager> GetPipelineManager() = 0;
 };
 
 
@@ -41,7 +36,7 @@ struct DeviceCreateInfo {
     PlatformWindowInfo platformWindowInfo;
 };
 
-class GpuFactory {
+class GpuFactory final {
 public:
     enum GpuType { OPENGL, VULKAN };
 

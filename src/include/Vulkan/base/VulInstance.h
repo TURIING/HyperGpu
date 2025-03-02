@@ -10,7 +10,7 @@
 #define VULINSTANCE_H
 
 #include "common/common.h"
-#include "base/VulObject.h"
+#include "Vulkan/base/VulObject.h"
 
 class VulInstance;
 

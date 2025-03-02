@@ -16,7 +16,7 @@ class VulInstance;
 class VulSurface final : public VulObject<VkSurfaceKHR>{
 public:
     VulSurface(const std::shared_ptr<VulInstance> &instance, const void *handle);
-    ~VulSurface();
+    ~VulSurface() override;
 
 private:
     VkSurfaceKHR m_pSurface = nullptr;

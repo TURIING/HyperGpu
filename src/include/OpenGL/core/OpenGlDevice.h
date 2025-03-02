@@ -9,10 +9,11 @@
 #define OPENGLDEVICE_H
 
 #include "common/common.h"
-#include "core/CoreDefine.h"
+#include "core/GpuDevice.h"
 
 class OpenGlDevice final : public Device {
 public:
     OpenGlDevice(const DeviceCreateInfo &info);
+    [[nodiscard]] std::shared_ptr<PipelineManager> GetPipelineManager() override;
 };
 #endif //OPENGLDEVICE_H

@@ -10,6 +10,9 @@
 
 #include "Vulkan/base/VulInstance.h"
 #include "Vulkan/base/VulSurface.h"
+#include "Vulkan/base/VulPhysicalDevice.h"
+#include "Vulkan/base/VulLogicDevice.h"
+#include "Vulkan/core/VulkanPipelineManager.h"
 
 #ifdef NODEBUG
 constexpr bool ENABLE_VALIDATION_LAYER = false;
@@ -37,11 +40,37 @@ VulkanDevice::VulkanDevice(const DeviceCreateInfo &info) {
                     .AddExtensions(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME)
 #endif
                     .Build();
+
     m_pSurface = std::make_shared<VulSurface>(m_pInstance, info.platformWindowInfo.handle);
+
+    m_pPhysicalDevice = VulPhysicalDevice::Builder()
+                            .SetVulInstance(m_pInstance)
+                            .SetVulSurface(m_pSurface)
+                            .AddExtension(VK_KHR_SWAPCHAIN_EXTENSION_NAME)
+#if PLATFORM_MACOS
+                            .AddExtension("VK_KHR_portability_subset")
+#endif
+                            .Build();
+
+    constexpr VkPhysicalDeviceFeatures deviceFeatures {
+        .samplerAnisotropy = VK_TRUE,
+    };
+    m_pLogicDevice = VulLogicDevice::Builder()
+                        .SetInstance(m_pInstance)
+                        .SetSurface(m_pSurface)
+                        .SetPhysicalDevice(m_pPhysicalDevice)
+                        .AddExtension(VK_KHR_SWAPCHAIN_EXTENSION_NAME)
+#if PLATFORM_MACOS
+                        .AddExtension("VK_KHR_portability_subset")
+#endif
+                        .SetDeviceFeatures(deviceFeatures)
+                        .Build();
+
 }
 
 VulkanDevice::~VulkanDevice() {
 }
 
-std::shared_ptr<PipelineManager> VulkanDevice::GetPipelineManager() const {
+std::shared_ptr<PipelineManager> VulkanDevice::GetPipelineManager() {
+    return std::make_shared<VulkanPipelineManager>(shared_from_this());
 }

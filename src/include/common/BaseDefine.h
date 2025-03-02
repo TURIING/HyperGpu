@@ -17,13 +17,6 @@
 
 /************************************************* Type *************************************************************/
 
-
-
-struct PlatformWindowInfo {
-    void *handle = nullptr;
-    Size size;
-};
-
 enum class MouseButton {
     None = 0,
     Left = BIT(0),
