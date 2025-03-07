@@ -32,8 +32,8 @@
 *.app
 
 bin/
-external/
 cmake-build-debug/
 cmake-build-release/
 build/
 .idea/
+.DS_Store
