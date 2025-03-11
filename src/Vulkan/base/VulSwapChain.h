@@ -10,12 +10,5 @@
 
 #include "../../common/common.h"
 
-struct SwapChainSupportDetails {
-    VkSurfaceCapabilitiesKHR capabilities {};
-    std::vector<VkSurfaceFormatKHR> formats;
-    std::vector<VkPresentModeKHR> presentModes;
-
-    static SwapChainSupportDetails GetSwapChainSupportDetails(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface);
-};
 
 #endif //VULSWAPCHAIN_H

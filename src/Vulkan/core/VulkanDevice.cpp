@@ -8,6 +8,8 @@
 
 #include "VulkanDevice.h"
 
+#include "VulkanCmd.h"
+#include "VulkanCmdManager.h"
 #include "../base/VulInstance.h"
 #include "../base/VulSurface.h"
 #include "../base/VulPhysicalDevice.h"
@@ -58,6 +60,8 @@ VulkanDevice::VulkanDevice(const DeviceCreateInfo &info) {
                         .SetDeviceFeatures(deviceFeatures)
                         .Build();
 
+    m_pCmdManager = std::make_shared<VulkanCmdManager>(shared_from_this());
+    m_pLogicDevice->SetCmdManager(std::dynamic_pointer_cast<VulkanCmdManager>(m_pCmdManager));
 }
 
 VulkanDevice::~VulkanDevice() {

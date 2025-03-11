@@ -11,6 +11,8 @@
 #include "VulObject.h"
 #include "../../common/common.h"
 
+class VulCommandBuffer;
+class VulkanCmdManager;
 class VulLogicDevice;
 class VulSurface;
 class VulPhysicalDevice;
@@ -41,10 +43,15 @@ class VulLogicDevice final : public VulObject<VkDevice>{
 public:
     VulLogicDevice(const std::shared_ptr<VulInstance> &pInstance, const std::shared_ptr<VulPhysicalDevice> &pPhysicalDevice, const std::shared_ptr<VulSurface>& surface, const VulLogicDeviceCreateInfo &info);
     ~VulLogicDevice() override;
+    [[nodiscard]] std::shared_ptr<VulPhysicalDevice> GetPhysicalDevice() const { return m_pPhysicalDevice; }
+    void SetCmdManager(const std::shared_ptr<VulkanCmdManager> &pCmdManager) { m_pCmdManager = pCmdManager; }
+    void WithSingleCmdBuffer(const std::function<void(const std::shared_ptr<VulCommandBuffer> &cmd)> &func) const;
+    [[nodiscard]] VkQueue GetGraphicsQueue() const { return m_pGraphicsQueue; }
+    [[nodiscard]] VkQueue GetPresentQueue() const { return m_pPresentQueue; }
     static VulLogicDeviceBuilder Builder();
 
 private:
-    bool checkPresentSupport(uint32_t queueFamilyIndex) const;
+    [[nodiscard]] bool checkPresentSupport(uint32_t queueFamilyIndex) const;
 
 private:
     std::shared_ptr<VulInstance> m_pInstance;
@@ -52,6 +59,7 @@ private:
     std::shared_ptr<VulSurface> m_pSurface;
     VkQueue m_pGraphicsQueue = nullptr;
     VkQueue m_pPresentQueue = nullptr;
+    std::shared_ptr<VulkanCmdManager> m_pCmdManager;
 };
 
 #endif //VULLOGICDEVICE_H

@@ -6,15 +6,18 @@
 * @description: 
 ********************************************************************************/
 #include "VulLogicDevice.h"
+
+#include "VulCommandBuffer.h"
 #include "VulInstance.h"
 #include "VulPhysicalDevice.h"
 #include "VulQueue.h"
 #include "VulSurface.h"
+#include "../core/VulkanCmdManager.h"
 
 
 VulLogicDevice::VulLogicDevice(const std::shared_ptr<VulInstance> &pInstance, const std::shared_ptr<VulPhysicalDevice> &pPhysicalDevice, const std::shared_ptr<VulSurface>& surface, const VulLogicDeviceCreateInfo &info)
     : m_pInstance(pInstance), m_pPhysicalDevice(pPhysicalDevice), m_pSurface(surface) {
-    const auto indices = QueueFamilyIndices::GetQueueFamilyIndices(m_pPhysicalDevice->GetHandle(), m_pSurface->GetHandle());
+    const auto indices = pPhysicalDevice->GetQueueFamilyIndices();
     std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
     std::set<uint32_t> uniqueQueueFamilies = { indices.graphicsFamily.value(), indices.presentFamily.value() };
 
@@ -58,6 +61,14 @@ VulLogicDevice::~VulLogicDevice() {
     vkDestroyDevice(m_pHandle, nullptr);
 }
 
+void VulLogicDevice::WithSingleCmdBuffer(const std::function<void(const std::shared_ptr<VulCommandBuffer>& cmd)>& func) const {
+    const auto cmd = std::dynamic_pointer_cast<VulCommandBuffer>(m_pCmdManager->CreateCommandBuffer());
+    cmd->BeginRecord();
+    func(cmd);
+    cmd->EndRecord();
+    cmd->Submit();
+}
+
 VulLogicDeviceBuilder VulLogicDevice::Builder() {
     return VulLogicDeviceBuilder{ };
 }
@@ -77,3 +88,4 @@ VulLogicDeviceBuilder& VulLogicDeviceBuilder::AddExtension(const char* ext) {
 std::shared_ptr<VulLogicDevice> VulLogicDeviceBuilder::Build() {
     return std::make_shared<VulLogicDevice>(m_pInstance, m_pPhysicalDevice, m_pSurface, m_createInfo);
 }
+

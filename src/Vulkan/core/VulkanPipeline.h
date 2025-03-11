@@ -11,6 +11,8 @@
 #include "../../common/common.h"
 #include "GpuPipeline.h"
 
+class VulPipeline;
+class VulRenderPass;
 using namespace HyperGpu;
 
 class VulPipeLineLayout;
@@ -22,7 +24,10 @@ public:
     ~VulkanPipeline() override;
 
 private:
+    std::shared_ptr<VulkanDevice> m_pVulkanDevice;
     std::unique_ptr<VulPipeLineLayout> m_pPipelineLayout;
+    std::unique_ptr<VulRenderPass> m_pRenderPass;
+    std::unique_ptr<VulPipeline> m_pPipeline;
 };
 
 #endif //VULKANPIPELINE_H

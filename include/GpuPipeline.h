@@ -14,16 +14,17 @@ namespace HyperGpu
 {
     struct ShaderInfo {
         uint8_t *pSpvVertexCode = nullptr;
-        uint32_t spvVertexCodeSize = 0;
+        size_t spvVertexCodeSize = 0;
 
         uint8_t *pSpvFragCode = nullptr;
-        uint32_t spvFragCodeSize = 0;
+        size_t spvFragCodeSize = 0;
     };
 
     enum class PrimitiveType { POINT, LINE, LINE_STRIP, TRIANGLE, TRIANGLE_STRIP };
     enum class PolygonMode { FILL, LINE, POINT };
     enum class CullMode { NONE, FRONT, BACK };
     enum class FrontFace { COUNTER_CLOCK_WISE, CLOCK_WISE };
+    enum class AttachmentType { COLOR, DEPTH };
 
     struct RasterizationInfo {
         PrimitiveType primitiveType = PrimitiveType::TRIANGLE;
@@ -33,9 +34,15 @@ namespace HyperGpu
         FrontFace frontFace = FrontFace::COUNTER_CLOCK_WISE;
     };
 
+    struct AttachmentInfo {
+        AttachmentType type;
+        uint32_t index;
+    };
+
     struct RenderEnvInfo {
         ShaderInfo shaderInfo;
         RasterizationInfo rasterInfo;
+        std::vector<AttachmentInfo> attachments;
     };
 
     class Pipeline {

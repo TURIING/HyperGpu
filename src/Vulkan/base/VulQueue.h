@@ -10,13 +10,7 @@
 
 #include "../../common/common.h"
 
-struct QueueFamilyIndices{
-    std::optional<uint32_t> graphicsFamily;
-    std::optional<uint32_t> presentFamily;
 
-    [[nodiscard]] bool isComplete() const { return graphicsFamily.has_value() && presentFamily.has_value(); }
-    static QueueFamilyIndices GetQueueFamilyIndices(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface);
-};
 
 class VulQueue {
 

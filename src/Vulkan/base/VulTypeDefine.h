@@ -165,6 +165,27 @@ struct VulPipelineDynamicState
     }
 };
 
+struct VulPipelineDepthStencilState {
+    bool depthTestEnable = true;
+    bool depthWriteEnable = true;
+    VkCompareOp depthOpFunc = VK_COMPARE_OP_LESS;
+    bool stencilTestEnable = false;
+
+    [[nodiscard]] VkPipelineDepthStencilStateCreateInfo GetCreateInfo() const {
+        const VkPipelineDepthStencilStateCreateInfo depthStencilState{
+            .sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO,
+            .depthTestEnable = depthTestEnable ? VK_TRUE : VK_FALSE,
+            .depthWriteEnable = depthWriteEnable ? VK_TRUE : VK_FALSE,
+            .depthCompareOp = depthOpFunc,
+            .depthBoundsTestEnable = VK_FALSE,
+            .minDepthBounds = 0.0f,
+            .maxDepthBounds = 1.0f,
+            .stencilTestEnable = stencilTestEnable ? VK_TRUE : VK_FALSE,
+        };
+        return depthStencilState;
+    }
+};
+
 enum class VulDescriptorType
 {
     Sampler,

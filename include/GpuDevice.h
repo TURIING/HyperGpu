@@ -13,6 +13,7 @@
 
 #include "Types.h"
 #include "GpuPipeline.h"
+#include "GpuCmd.h"
 
 namespace HyperGpu
 {
@@ -24,6 +25,7 @@ namespace HyperGpu
     public:
         virtual ~GpuDevice() = default;
         [[nodiscard]] virtual std::shared_ptr<PipelineManager> GetPipelineManager() = 0;
+        [[nodiscard]] virtual std::shared_ptr<GpuCmdManager> GetCmdManager() = 0;
     };
 
 
