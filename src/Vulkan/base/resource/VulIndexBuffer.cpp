@@ -1,33 +1,38 @@
 /********************************************************************************
-* @author: TURIING
-* @email: turiing@163.com
-* @date: 2025/3/10 21:33
-* @version: 1.0
-* @description: 
-********************************************************************************/
+ * @author: TURIING
+ * @email: turiing@163.com
+ * @date: 2025/3/10 21:33
+ * @version: 1.0
+ * @description:
+ ********************************************************************************/
 #include "VulIndexBuffer.h"
-
 #include "VulBuffer.h"
 
-VulIndexBuffer::VulIndexBuffer(const std::shared_ptr<VulLogicDevice>& device, const std::vector<uint8_t>& bufferVertex): m_pLogicDevice(device){
-    auto stageBuffer = VulBuffer::Builder()
-                                    .SetLogicDevice(m_pLogicDevice)
-                                    .SetSize(bufferVertex.size())
-                                    .SetUsage(VK_BUFFER_USAGE_TRANSFER_SRC_BIT)
-                                    .SetProperties(VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT)
-                                    .Build();
-    stageBuffer->MapData(0, bufferVertex.size(), bufferVertex.data());
+VulIndexBuffer::VulIndexBuffer(VulLogicDevice* device, const uint8_t* data, uint64_t size) {
+	const auto stageBuffer = VulBuffer::Builder()
+								 .SetLogicDevice(device)
+								 .SetSize(size)
+								 .SetUsage(VK_BUFFER_USAGE_TRANSFER_SRC_BIT)
+								 .SetProperties(VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT)
+								 .Build();
+	stageBuffer->MapData(0, size, data);
 
-    m_pBuffer = VulBuffer::Builder()
-                    .SetLogicDevice(m_pLogicDevice)
-                    .SetSize(bufferVertex.size())
-                    .SetUsage(VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT)
-                    .SetProperties(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)
-                    .Build();
-    // TODO: COPY BUFFER
-    LOG_INFO("Vertex buffer created.");
+	m_pBuffer = VulBuffer::Builder()
+					.SetLogicDevice(device)
+					.SetSize(size)
+					.SetUsage(VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT)
+					.SetProperties(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)
+					.Build();
+	m_pBuffer->CopyFrom(stageBuffer);
+
+	stageBuffer->SubRef();
+	LOG_INFO("Index buffer created.");
+}
+
+VulIndexBuffer::~VulIndexBuffer() {
+	m_pBuffer->SubRef();
 }
 
 VkBuffer VulIndexBuffer::GetHandle() const {
-    return m_pBuffer->GetHandle();
+	return m_pBuffer->GetHandle();
 }

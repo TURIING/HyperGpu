@@ -7,18 +7,21 @@
 ********************************************************************************/
 #include "VulkanCmdManager.h"
 
+#include "../base/VulPhysicalDevice.h"
+#include "../base/command/VulCommandPool.h"
 #include "VulkanCmd.h"
 #include "VulkanDevice.h"
-#include "../base/VulCommandPool.h"
-#include "../base/VulPhysicalDevice.h"
 
-VulkanCmdManager::VulkanCmdManager(const std::shared_ptr<VulkanDevice>& device): m_pVulkanDevice(device) {
-    m_pCmdPool = std::make_shared<VulCommandPool>(m_pVulkanDevice->GetLogicDevice(), m_pVulkanDevice->GetPhysicalDevice()->GetQueueFamilyIndices().graphicsFamily.value());
+VulkanCmdManager::VulkanCmdManager(VulkanDevice* device) : m_pVulkanDevice(device) {
+	m_pVulkanDevice->AddRef();
+	m_pCmdPool = new VulCommandPool(m_pVulkanDevice->GetLogicDevice(), m_pVulkanDevice->GetPhysicalDevice()->GetQueueFamilyIndices().graphicsFamily.value());
 }
 
 VulkanCmdManager::~VulkanCmdManager() {
+	m_pVulkanDevice->SubRef();
+	m_pCmdPool->SubRef();
 }
 
-std::shared_ptr<GpuCmd> VulkanCmdManager::CreateCommandBuffer() {
-    return std::make_shared<VulkanCmd>(m_pVulkanDevice, m_pCmdPool);
+GpuCmd* VulkanCmdManager::CreateCommandBuffer() {
+	return new VulkanCmd(m_pVulkanDevice, m_pCmdPool);
 }

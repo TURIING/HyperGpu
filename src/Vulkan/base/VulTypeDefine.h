@@ -127,26 +127,26 @@ struct VulPipelineColorBlendState
 
     [[nodiscard]] VkPipelineColorBlendStateCreateInfo GetCreateInfo()
     {
-        colorBlendAttachmentState.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
-        colorBlendAttachmentState.blendEnable = enable ? VK_TRUE : VK_FALSE;
-        colorBlendAttachmentState.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA; // 正确的枚举值
-        colorBlendAttachmentState.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
-        colorBlendAttachmentState.colorBlendOp = VK_BLEND_OP_ADD;
-        colorBlendAttachmentState.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
-        colorBlendAttachmentState.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
-        colorBlendAttachmentState.alphaBlendOp = VK_BLEND_OP_ADD;
-        VkPipelineColorBlendStateCreateInfo colorBlending{};
-        colorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
-        colorBlending.logicOpEnable = VK_FALSE;
-        colorBlending.logicOp = VK_LOGIC_OP_COPY;
-        colorBlending.attachmentCount = 1;
-        colorBlending.pAttachments = &colorBlendAttachmentState;
-        colorBlending.blendConstants[0] = 0.0f;
-        colorBlending.blendConstants[1] = 0.0f;
-        colorBlending.blendConstants[2] = 0.0f;
-        colorBlending.blendConstants[3] = 0.0f;
-        return colorBlending;
-    }
+		colorBlendAttachmentState.colorWriteMask	  = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+		colorBlendAttachmentState.blendEnable		  = enable ? VK_TRUE : VK_FALSE;
+		colorBlendAttachmentState.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA; // 正确的枚举值
+		colorBlendAttachmentState.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+		colorBlendAttachmentState.colorBlendOp		  = VK_BLEND_OP_ADD;
+		colorBlendAttachmentState.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+		colorBlendAttachmentState.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
+		colorBlendAttachmentState.alphaBlendOp		  = VK_BLEND_OP_ADD;
+		VkPipelineColorBlendStateCreateInfo colorBlending{};
+		colorBlending.sType				= VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
+		colorBlending.logicOpEnable		= VK_FALSE;
+		colorBlending.logicOp			= VK_LOGIC_OP_COPY;
+		colorBlending.attachmentCount	= 1;
+		colorBlending.pAttachments		= &colorBlendAttachmentState;
+		colorBlending.blendConstants[0] = 0.0f;
+		colorBlending.blendConstants[1] = 0.0f;
+		colorBlending.blendConstants[2] = 0.0f;
+		colorBlending.blendConstants[3] = 0.0f;
+		return colorBlending;
+	}
 };
 
 struct VulPipelineDynamicState
@@ -160,35 +160,34 @@ struct VulPipelineDynamicState
         VkPipelineDynamicStateCreateInfo dynamicState{};
         dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
         dynamicState.dynamicStateCount = static_cast<uint32_t>(dynamicStates.size());
-        dynamicState.pDynamicStates = dynamicStates.data();
-        return dynamicState;
-    }
+		dynamicState.pDynamicStates	   = dynamicStates.data();
+		return dynamicState;
+	}
 };
 
 struct VulPipelineDepthStencilState {
-    bool depthTestEnable = true;
-    bool depthWriteEnable = true;
-    VkCompareOp depthOpFunc = VK_COMPARE_OP_LESS;
-    bool stencilTestEnable = false;
+	bool		depthTestEnable	  = false;
+	bool		depthWriteEnable  = false;
+	VkCompareOp depthOpFunc		  = VK_COMPARE_OP_LESS;
+	bool		stencilTestEnable = false;
 
-    [[nodiscard]] VkPipelineDepthStencilStateCreateInfo GetCreateInfo() const {
-        const VkPipelineDepthStencilStateCreateInfo depthStencilState{
-            .sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO,
-            .depthTestEnable = depthTestEnable ? VK_TRUE : VK_FALSE,
-            .depthWriteEnable = depthWriteEnable ? VK_TRUE : VK_FALSE,
-            .depthCompareOp = depthOpFunc,
-            .depthBoundsTestEnable = VK_FALSE,
-            .minDepthBounds = 0.0f,
-            .maxDepthBounds = 1.0f,
-            .stencilTestEnable = stencilTestEnable ? VK_TRUE : VK_FALSE,
-        };
-        return depthStencilState;
-    }
+	[[nodiscard]] VkPipelineDepthStencilStateCreateInfo GetCreateInfo() const {
+		const VkPipelineDepthStencilStateCreateInfo depthStencilState{
+			.sType				   = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO,
+			.depthTestEnable	   = depthTestEnable ? VK_TRUE : VK_FALSE,
+			.depthWriteEnable	   = depthWriteEnable ? VK_TRUE : VK_FALSE,
+			.depthCompareOp		   = depthOpFunc,
+			.depthBoundsTestEnable = VK_FALSE,
+			.minDepthBounds		   = 0.0f,
+			.maxDepthBounds		   = 1.0f,
+			.stencilTestEnable	   = stencilTestEnable ? VK_TRUE : VK_FALSE,
+		};
+		return depthStencilState;
+	}
 };
 
-enum class VulDescriptorType
-{
-    Sampler,
+enum class VulDescriptorType {
+	Sampler,
     UniformBuffer,
 };
 

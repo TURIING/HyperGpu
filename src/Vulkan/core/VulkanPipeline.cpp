@@ -7,49 +7,67 @@
 ********************************************************************************/
 #include "VulkanPipeline.h"
 
-#include "../base/VulPipelineLayout.h"
-#include "../base/VulShader.h"
-#include "VulkanDevice.h"
 #include "../base/VulPhysicalDevice.h"
-#include "../base/VulPipeline.h"
-#include "../base/VulRenderPass.h"
+#include "../base/descriptor/VulDescriptorPool.h"
+#include "../base/descriptor/VulDescriptorSet.h"
+#include "../base/pipeline/VulPipeline.h"
+#include "../base/pipeline/VulPipelineLayout.h"
+#include "../base/pipeline/VulRenderPass.h"
+#include "../base/pipeline/VulShader.h"
+#include "VulkanDevice.h"
 
-VulkanPipeline::VulkanPipeline(const std::shared_ptr<VulkanDevice>& pDevice, const RenderEnvInfo& renderEnvInfo): m_pVulkanDevice(pDevice) {
-    VulShader shader(pDevice->GetLogicDevice(), renderEnvInfo.shaderInfo);
+VulkanPipeline::VulkanPipeline(VulkanDevice* pDevice, const RenderEnvInfo& renderEnvInfo) : m_pVulkanDevice(pDevice) {
+	m_pVulkanDevice->AddRef();
 
-    VulPipelineInputAssemblyState pipelineInputAssembly { renderEnvInfo.rasterInfo.primitiveType };
-    VulPipelineRasterizationState pipelineRasterizationState = renderEnvInfo.rasterInfo;
-    VulPipelineMultiSampleState pipelineMultiSampleState;
-    VulPipelineColorBlendState pipelineColorBlendState;
-    VulPipelineDynamicState pipelineDynamicState;
-    VulPipelineDepthStencilState pipelineDepthStencilState;
+	VulShader shader(pDevice->GetLogicDevice(), renderEnvInfo.shaderInfo);
 
-    auto renderPassBuilder = VulRenderPass::Builder().SetLogicDevice(m_pVulkanDevice->GetLogicDevice());
-    for(const auto &attachment : renderEnvInfo.attachments) {
-        if(attachment.type == AttachmentType::COLOR) {
-            renderPassBuilder.AddColorAttachment({ attachment.index, m_pVulkanDevice->GetPhysicalDevice()->GetColorFormat() });
-        }
-        else if(attachment.type == AttachmentType::DEPTH) {
-            renderPassBuilder.AddDepthAttachment({ attachment.index, m_pVulkanDevice->GetPhysicalDevice()->GetDepthFormat() });
-        }
-    }
-    m_pRenderPass = renderPassBuilder.Build();
+	VulPipelineInputAssemblyState pipelineInputAssembly{renderEnvInfo.rasterInfo.primitiveType};
+	VulPipelineRasterizationState pipelineRasterizationState = renderEnvInfo.rasterInfo;
+	VulPipelineMultiSampleState	  pipelineMultiSampleState;
+	VulPipelineColorBlendState	  pipelineColorBlendState;
+	VulPipelineDynamicState		  pipelineDynamicState;
+	VulPipelineDepthStencilState  pipelineDepthStencilState;
 
-    VulPipelineState pipelineState {
-        .shaderStages = shader.GetShaderStages(),
-        .pipeLineLayout = shader.GetPipelineLayout()->GetHandle(),
-        .renderPass = m_pRenderPass->GetHandle(),
-        .vertexInputState = shader.GetPipelineVertexInputState().GetCreateInfo(),
-        .colorBlendState = pipelineColorBlendState.GetCreateInfo(),
-        .viewportState = VulPipelineViewportState::GetCreateInfo(),
-        .depthStencilState = pipelineDepthStencilState.GetCreateInfo(),
-        .rasterizationState = pipelineRasterizationState.GetCreateInfo(),
-        .inputAssemblyState = pipelineInputAssembly.GetCreateInfo(),
-        .multiSampleState = pipelineMultiSampleState.GetCreateInfo(),
-        .dynamicState = pipelineDynamicState.GetCreateInfo(),
-        .subPassIndex = 0,
-    };
-    m_pPipeline = std::make_unique<VulPipeline>(m_pVulkanDevice->GetLogicDevice(), pipelineState);
+	auto renderPassBuilder = VulRenderPass::Builder().SetLogicDevice(m_pVulkanDevice->GetLogicDevice());
+	for(const auto& attachment : renderEnvInfo.attachments) {
+		if(attachment.type == AttachmentType::COLOR) {
+			renderPassBuilder.AddColorAttachment({attachment.index, m_pVulkanDevice->GetPhysicalDevice()->GetColorFormat()});
+		} else if(attachment.type == AttachmentType::DEPTH) {
+			renderPassBuilder.AddDepthAttachment({attachment.index, m_pVulkanDevice->GetPhysicalDevice()->GetDepthFormat()});
+		}
+	}
+	m_pRenderPass = renderPassBuilder.Build();
+
+	m_pPipelineLayout = shader.GetPipelineLayout();
+	m_pPipelineLayout->AddRef();
+
+	auto			 vertexInputState = shader.GetPipelineVertexInputState();
+	VulPipelineState pipelineState{
+		.shaderStages		= shader.GetShaderStages(),
+		.pipeLineLayout		= m_pPipelineLayout->GetHandle(),
+		.renderPass			= m_pRenderPass->GetHandle(),
+		.vertexInputState	= vertexInputState.GetCreateInfo(),
+		.colorBlendState	= pipelineColorBlendState.GetCreateInfo(),
+		.viewportState		= VulPipelineViewportState::GetCreateInfo(),
+		.depthStencilState	= pipelineDepthStencilState.GetCreateInfo(),
+		.rasterizationState = pipelineRasterizationState.GetCreateInfo(),
+		.inputAssemblyState = pipelineInputAssembly.GetCreateInfo(),
+		.multiSampleState	= pipelineMultiSampleState.GetCreateInfo(),
+		.dynamicState		= pipelineDynamicState.GetCreateInfo(),
+		.subPassIndex		= 0,
+	};
+	m_pPipeline = new VulPipeline(m_pVulkanDevice->GetLogicDevice(), pipelineState);
+
+	VulDescriptorPoolCreateInfo descriptorPoolInfo{.poolSizes = {{VulDescriptorType::Sampler, 100}, {VulDescriptorType::UniformBuffer, 100}}};
+	m_pDescriptorPool = new VulDescriptorPool(m_pVulkanDevice->GetLogicDevice(), descriptorPoolInfo);
+	m_pDescriptorSet  = new VulDescriptorSet(m_pVulkanDevice->GetLogicDevice(), m_pDescriptorPool, shader.GetDescriptorSetLayout());
 }
 
-VulkanPipeline::~VulkanPipeline() = default;
+VulkanPipeline::~VulkanPipeline() {
+	m_pPipelineLayout->SubRef();
+	m_pDescriptorSet->SubRef();
+	m_pDescriptorPool->SubRef();
+	m_pRenderPass->SubRef();
+	m_pPipeline->SubRef();
+	m_pVulkanDevice->SubRef();
+};

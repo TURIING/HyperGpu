@@ -8,7 +8,6 @@
 #ifndef COMMON_H
 #define COMMON_H
 
-#include <memory>
 #include <vector>
 #include <set>
 
@@ -21,6 +20,7 @@
 #include <glm/glm/gtc/type_ptr.hpp>
 
 #include "BaseDefine.h"
+#include "Gpu.h"
 #include "LogManager.h"
 #include "utility.h"
 

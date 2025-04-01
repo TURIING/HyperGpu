@@ -172,6 +172,6 @@ VulInstanceBuilder& VulInstanceBuilder::AddLayer(const char* layer) {
     return *this;
 }
 
-std::shared_ptr<VulInstance> VulInstanceBuilder::Build() {
-    return std::make_shared<VulInstance>(m_createInfo);
+VulInstance* VulInstanceBuilder::Build() const {
+	return new VulInstance(m_createInfo);
 }

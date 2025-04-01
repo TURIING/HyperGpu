@@ -9,14 +9,13 @@
 
 #include "../VulLogicDevice.h"
 #include "../VulPhysicalDevice.h"
+#include "../command/VulCommandBuffer.h"
 
-VulBuffer::VulBuffer(const std::shared_ptr<VulLogicDevice>& device, const VulBufferCreateInfo& info): m_pLogicDevice(device) {
-    // 创建缓冲
-    VkBufferCreateInfo bufferInfo {
-        .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
-        .size = info.size,
-        .usage = info.usage,
-        .sharingMode = VK_SHARING_MODE_EXCLUSIVE
+VulBuffer::VulBuffer(VulLogicDevice* device, const VulBufferCreateInfo& info) : m_pLogicDevice(device), m_size(info.size) {
+	m_pLogicDevice->AddRef();
+
+	// 创建缓冲
+	VkBufferCreateInfo bufferInfo{.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO, .size = info.size, .usage = info.usage, .sharingMode = VK_SHARING_MODE_EXCLUSIVE
     };
     CALL_VK(vkCreateBuffer(m_pLogicDevice->GetHandle(), &bufferInfo, nullptr, &m_pHandle));
 
@@ -39,6 +38,7 @@ VulBuffer::VulBuffer(const std::shared_ptr<VulLogicDevice>& device, const VulBuf
 VulBuffer::~VulBuffer() {
     vkDestroyBuffer(m_pLogicDevice->GetHandle(), m_pHandle, nullptr);
     vkFreeMemory(m_pLogicDevice->GetHandle(), m_pDeviceMemory, nullptr);
+	m_pLogicDevice->SubRef();
 }
 
 void VulBuffer::MapData(uint64_t offset, uint64_t size, const void* data) const {
@@ -48,6 +48,20 @@ void VulBuffer::MapData(uint64_t offset, uint64_t size, const void* data) const 
     vkUnmapMemory(m_pLogicDevice->GetHandle(), m_pDeviceMemory);
 }
 
-std::unique_ptr<VulBuffer> VulBufferBuilder::Build() {
-    return std::make_unique<VulBuffer>(m_pLogicDevice, m_createInfo);
+void VulBuffer::CopyBuffer(VulBuffer* dstBuffer, VkDeviceSize size) const {
+	if(size == 0) {
+		size = this->GetSize();
+	}
+	m_pLogicDevice->WithSingleCmdBuffer([&](VulCommandBuffer* cmd) { cmd->CopyBuffer(m_pHandle, dstBuffer->GetHandle(), size); });
+}
+
+void VulBuffer::CopyFrom(VulBuffer* srcBuffer, VkDeviceSize size) const {
+	if(size == 0) {
+		size = srcBuffer->GetSize();
+	}
+	m_pLogicDevice->WithSingleCmdBuffer([&](VulCommandBuffer* cmd) { cmd->CopyBuffer(srcBuffer->GetHandle(), m_pHandle, size); });
+}
+
+VulBuffer* VulBufferBuilder::Build() const {
+	return new VulBuffer(m_pLogicDevice, m_createInfo);
 }

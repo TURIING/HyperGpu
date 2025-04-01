@@ -9,8 +9,8 @@
 #include "LogManager.h"
 
 void LogManager::Init() {
-    m_pLogger = spdlog::stdout_color_mt<spdlog::async_factory>("async_logger");
-    m_pLogger->set_level(spdlog::level::trace);
-    m_pLogger->set_pattern("[%^%H:%M:%S:%e] [%P-%t] [%1!L] [%s:%#] - %v%$");
-    LOG_INFO("Log initialization successful");
+	m_pLogger = spdlog::stdout_color_mt<spdlog::async_factory>("HyperGpuLogger");
+	m_pLogger->set_level(spdlog::level::trace);
+	m_pLogger->set_pattern("[%^%H:%M:%S:%e] [%P-%t] [%1!L] [%s:%#] - %v%$");
+	LOG_INFO("Log initialization successful");
 }

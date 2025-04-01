@@ -8,30 +8,38 @@
 
 #include "VulPhysicalDevice.h"
 #include "VulInstance.h"
-#include "VulQueue.h"
-#include "VulSwapChain.h"
-#include "VulSurface.h"
+#include "surface/VulSurface.h"
 
-VulPhysicalDevice::VulPhysicalDevice(const std::shared_ptr<VulInstance> &pInstance, const std::shared_ptr<VulSurface> &pSurface, const VulPhysicalDeviceCreateInfo &createInfo): m_pInstance(pInstance), m_pSurface(pSurface) {
-    uint32_t deviceCount = 0;
-    vkEnumeratePhysicalDevices(m_pInstance->GetHandle(), &deviceCount, nullptr);
-    LOG_ASSERT_INFO(deviceCount != 0, "Failed to find GPUs with Vulkan support!");
+VulPhysicalDevice::VulPhysicalDevice(VulInstance* pInstance, VulSurface* pSurface, const VulPhysicalDeviceCreateInfo& createInfo) : m_pInstance(pInstance), m_pSurface(pSurface) {
+	m_pInstance->AddRef();
+	m_pSurface->AddRef();
 
-    std::vector<VkPhysicalDevice> devices(deviceCount);
-    vkEnumeratePhysicalDevices(m_pInstance->GetHandle(), &deviceCount, devices.data());
-    for(const auto &device : devices) {
-        if(this->checkDeviceSupport(device, createInfo.extensions)) {
-            m_pHandle = device;
-            break;
-        }
-    }
+	uint32_t deviceCount = 0;
+	vkEnumeratePhysicalDevices(m_pInstance->GetHandle(), &deviceCount, nullptr);
+	LOG_ASSERT_INFO(deviceCount != 0, "Failed to find GPUs with Vulkan support!");
 
-    m_queueFamilyIndices = acquireQueueFamilyIndices(m_pHandle, m_pSurface->GetHandle());
-    m_swapChainSupportDetails = acquireSwapChainSupportDetails(m_pHandle, m_pSurface->GetHandle());
-    this->chooseSwapSurfaceFormat();
-    this->acquireDepthFormatDetail();
+	std::vector<VkPhysicalDevice> devices(deviceCount);
+	vkEnumeratePhysicalDevices(m_pInstance->GetHandle(), &deviceCount, devices.data());
+	for(const auto& device : devices) {
+		if(this->checkDeviceSupport(device, createInfo.extensions)) {
+			m_pHandle = device;
+			break;
+		}
+	}
 
-    LOG_ASSERT_INFO(m_pHandle != VK_NULL_HANDLE, "failed to find a suitable GPU!");
+	m_queueFamilyIndices	  = acquireQueueFamilyIndices(m_pHandle, m_pSurface->GetHandle());
+	m_swapChainSupportDetails = acquireSwapChainSupportDetails(m_pHandle, m_pSurface->GetHandle());
+	this->chooseSwapSurfaceFormat();
+	this->acquireDepthFormatDetail();
+
+	vkGetPhysicalDeviceProperties(m_pHandle, &m_physicalDeviceProperties);
+
+	LOG_ASSERT_INFO(m_pHandle != VK_NULL_HANDLE, "failed to find a suitable GPU!");
+}
+
+VulPhysicalDevice::~VulPhysicalDevice() {
+	m_pInstance->SubRef();
+	m_pSurface->SubRef();
 }
 
 bool VulPhysicalDevice::checkDeviceSupport(VkPhysicalDevice device, const std::vector<const char *>& extensions) const {
@@ -79,8 +87,8 @@ uint32_t VulPhysicalDevice::FindMemoryType(uint32_t typeFilter, VkMemoryProperty
     LOG_CRITICAL("Failed to find suitable memory type.");
 }
 
-std::shared_ptr<VulPhysicalDevice> VulPhysicalDeviceBuilder::Build() {
-    return std::make_shared<VulPhysicalDevice>(m_pInstance, m_pSurface, m_createInfo);
+VulPhysicalDevice* VulPhysicalDeviceBuilder::Build() {
+	return new VulPhysicalDevice(m_pInstance, m_pSurface, m_createInfo);
 }
 
 VulPhysicalDeviceBuilder& VulPhysicalDeviceBuilder::AddExtension(const char* ext) {

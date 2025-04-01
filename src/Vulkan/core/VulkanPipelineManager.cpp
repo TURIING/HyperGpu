@@ -10,10 +10,14 @@
 #include "VulkanPipeline.h"
 #include "VulkanDevice.h"
 
-VulkanPipelineManager::VulkanPipelineManager(const std::shared_ptr<VulkanDevice>& device) : m_pDevice(device) {
-
+VulkanPipelineManager::VulkanPipelineManager(VulkanDevice* device) : m_pDevice(device) {
+	m_pDevice->AddRef();
 }
 
-std::shared_ptr<Pipeline> VulkanPipelineManager::CreateRenderPipeline(const RenderEnvInfo& renderEnvInfo) {
-    return std::make_shared<VulkanPipeline>(m_pDevice, renderEnvInfo);
+VulkanPipelineManager::~VulkanPipelineManager() {
+	m_pDevice->SubRef();
+}
+
+Pipeline* VulkanPipelineManager::CreateRenderPipeline(const RenderEnvInfo& renderEnvInfo) {
+	return new VulkanPipeline(m_pDevice, renderEnvInfo);
 }

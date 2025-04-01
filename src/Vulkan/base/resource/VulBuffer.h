@@ -22,29 +22,50 @@ struct VulBufferCreateInfo {
 
 class VulBufferBuilder final{
 public:
-    VulBufferBuilder& SetLogicDevice(const std::shared_ptr<VulLogicDevice>& device) { m_pLogicDevice = device; return *this; };
-    VulBufferBuilder& SetSize(const VkDeviceSize size) { m_createInfo.size = size; return *this; };
-    VulBufferBuilder& SetUsage(const VkBufferUsageFlags usage) { m_createInfo.usage = usage; return *this; };
-    VulBufferBuilder& SetProperties(const VkMemoryPropertyFlags properties) { m_createInfo.properties = properties; return *this; };
-    [[nodiscard]] std::unique_ptr<VulBuffer> Build();
+	VulBufferBuilder& SetLogicDevice(VulLogicDevice* device) {
+		m_pLogicDevice = device;
+		return *this;
+	};
+
+	VulBufferBuilder& SetSize(const VkDeviceSize size) {
+		m_createInfo.size = size;
+		return *this;
+	};
+
+	VulBufferBuilder& SetUsage(const VkBufferUsageFlags usage) {
+		m_createInfo.usage = usage;
+		return *this;
+	};
+
+	VulBufferBuilder& SetProperties(const VkMemoryPropertyFlags properties) {
+		m_createInfo.properties = properties;
+		return *this;
+	};
+
+	[[nodiscard]] VulBuffer* Build() const;
 
 private:
-    VulBufferCreateInfo m_createInfo {};
-    std::shared_ptr<VulLogicDevice> m_pLogicDevice;
+	VulBufferCreateInfo m_createInfo{};
+	VulLogicDevice*		m_pLogicDevice = nullptr;
 };
 
 class VulBuffer final: public VulObject<VkBuffer>{
 public:
-    VulBuffer(const std::shared_ptr<VulLogicDevice>& device, const VulBufferCreateInfo& info);
-    ~VulBuffer() override;
-    [[nodiscard]] static VulBufferBuilder Builder() { return VulBufferBuilder{}; }
-    void MapData(uint64_t offset, uint64_t size, const void* data) const;
+	 VulBuffer(VulLogicDevice* device, const VulBufferCreateInfo& info);
+	~VulBuffer() override;
+
+	[[nodiscard]] static VulBufferBuilder Builder() { return VulBufferBuilder{}; }
+
+	[[nodiscard]] uint64_t GetSize() const { return m_size; }
+
+	void MapData(uint64_t offset, uint64_t size, const void* data) const;
+	void CopyBuffer(VulBuffer* dstBuffer, VkDeviceSize size = 0) const;
+	void CopyFrom(VulBuffer* srcBuffer, VkDeviceSize size = 0) const;
 
 private:
-    std::shared_ptr<VulLogicDevice> m_pLogicDevice;
-    VkDeviceMemory m_pDeviceMemory = nullptr;
+	VulLogicDevice* m_pLogicDevice	= nullptr;
+	VkDeviceMemory	m_pDeviceMemory = nullptr;
+	VkDeviceSize	m_size			= 0;
 };
 
-
-
-#endif //VULBUFFER_H
+#endif // VULBUFFER_H

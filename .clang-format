@@ -1,0 +1,72 @@
+---
+# 语言: None, Cpp, Java, JavaScript, ObjC, Proto, TableGen, TextProto
+Language: Cpp
+
+#BasedOnStyle: Google
+
+# 标准: Cpp03, Cpp11, Auto
+Standard: c++20
+
+# 缩进宽度
+IndentWidth: 4
+
+# tab宽度
+TabWidth: 4
+# 使用tab字符: Never, ForIndentation, ForContinuationAndIndentation, Always
+UseTab: Always
+
+# 列宽
+ColumnLimit: 200
+
+# 访问说明符(public、private等)的偏移
+AccessModifierOffset: -4
+
+# 开括号(开圆括号、开尖括号、开方括号)后的对齐: Align, DontAlign, AlwaysBreak(总是在开括号后换行)
+AlignAfterOpenBracket: Align
+
+# 连续赋值时，对齐所有等号
+AlignConsecutiveAssignments: true
+
+# 连续声明时，对齐所有声明的变量名
+AlignConsecutiveDeclarations: true
+
+# 总是在定义返回类型后换行(deprecated)
+AlwaysBreakAfterDefinitionReturnType: None
+
+# 总是在返回类型后换行: None, All, TopLevel(顶级函数，不包括在类中的函数), AllDefinitions(所有的定义，不包括声明), TopLevelDefinitions(所有的顶级函数的定义)
+AlwaysBreakAfterReturnType: None
+
+
+BinPackParameters: false
+
+# 允许短的函数放在同一行: None, InlineOnly(定义在类中), Empty(空函数), Inline(定义在类中，空函数), All
+AllowShortFunctionsOnASingleLine: Inline
+
+AllowAllArgumentsOnNextLine: true
+
+# 连续空行的最大数量
+MaxEmptyLinesToKeep: 1
+
+AllowShortEnumsOnASingleLine: true
+
+BraceWrapping:
+  AfterEnum: true
+  BeforeLambdaBody: false
+  AfterFunction: false
+
+# 开圆括号之前添加一个空格
+SpaceBeforeParens: Never
+
+# 在namespace结束处添加备注
+FixNamespaceComments: false
+
+# 指针符号对齐方式
+PointerAlignment: Left
+
+# 指定使用空行来分离定义块，包括类、结构、枚举和函数
+#SeparateDefinitionBlocks: Always
+
+# 允许lambda表达式在同一行
+AllowShortLambdasOnASingleLine: All
+
+...

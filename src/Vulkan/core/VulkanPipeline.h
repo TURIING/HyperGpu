@@ -1,16 +1,20 @@
 /********************************************************************************
-* @author: TURIING
-* @email: turiing@163.com
-* @date: 2025/3/1 23:00
-* @version: 1.0
-* @description: 
-********************************************************************************/
+ * @author: TURIING
+ * @email: turiing@163.com
+ * @date: 2025/3/1 23:00
+ * @version: 1.0
+ * @description:
+ ********************************************************************************/
 #ifndef VULKANPIPELINE_H
 #define VULKANPIPELINE_H
 
 #include "../../common/common.h"
 #include "GpuPipeline.h"
 
+class VulIndexBuffer;
+class VulVertexBuffer;
+class VulDescriptorPool;
+class VulDescriptorSet;
 class VulPipeline;
 class VulRenderPass;
 using namespace HyperGpu;
@@ -20,14 +24,20 @@ class VulkanDevice;
 
 class VulkanPipeline final : public Pipeline {
 public:
-    VulkanPipeline(const std::shared_ptr<VulkanDevice> &pDevice, const RenderEnvInfo &renderEnvInfo);
-    ~VulkanPipeline() override;
+									 VulkanPipeline(VulkanDevice* pDevice, const RenderEnvInfo& renderEnvInfo);
+	~								 VulkanPipeline() override;
+	[[nodiscard]] VulPipeline*		 GetHandle() const { return m_pPipeline; }
+	[[nodiscard]] VulRenderPass*	 GetRenderPass() const { return m_pRenderPass; }
+	[[nodiscard]] VulDescriptorSet*	 GetDescriptorSet() const { return m_pDescriptorSet; }
+	[[nodiscard]] VulPipeLineLayout* GetPipelineLayout() const { return m_pPipelineLayout; }
 
 private:
-    std::shared_ptr<VulkanDevice> m_pVulkanDevice;
-    std::unique_ptr<VulPipeLineLayout> m_pPipelineLayout;
-    std::unique_ptr<VulRenderPass> m_pRenderPass;
-    std::unique_ptr<VulPipeline> m_pPipeline;
+	VulkanDevice*	   m_pVulkanDevice	 = nullptr;
+	VulPipeLineLayout* m_pPipelineLayout = nullptr;
+	VulRenderPass*	   m_pRenderPass	 = nullptr;
+	VulPipeline*	   m_pPipeline		 = nullptr;
+	VulDescriptorPool* m_pDescriptorPool = nullptr;
+	VulDescriptorSet*  m_pDescriptorSet	 = nullptr;
 };
 
-#endif //VULKANPIPELINE_H
+#endif // VULKANPIPELINE_H

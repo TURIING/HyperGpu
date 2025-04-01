@@ -9,7 +9,6 @@
 #ifndef BASEDEFINE_H
 #define BASEDEFINE_H
 
-#include "common.h"
 #include "Types.h"
 
 using namespace HyperGpu;

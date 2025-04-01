@@ -25,41 +25,64 @@ struct VulLogicDeviceCreateInfo {
 
 class VulLogicDeviceBuilder {
 public:
-    VulLogicDeviceBuilder& SetInstance(const std::shared_ptr<VulInstance>& instance) { m_pInstance = instance; return *this; }
-    VulLogicDeviceBuilder& SetPhysicalDevice(const std::shared_ptr<VulPhysicalDevice>& physicalDevice) { m_pPhysicalDevice = physicalDevice; return *this; }
-    VulLogicDeviceBuilder& SetSurface(const std::shared_ptr<VulSurface>& surface) { m_pSurface = surface; return *this; }
-    VulLogicDeviceBuilder& AddExtension(const char *ext);
-    VulLogicDeviceBuilder& SetDeviceFeatures(const VkPhysicalDeviceFeatures& deviceFeatures) { m_createInfo.deviceFeatures = deviceFeatures; return *this; }
-    std::shared_ptr<VulLogicDevice> Build();
+	VulLogicDeviceBuilder& SetInstance(VulInstance* instance) {
+		m_pInstance = instance;
+		return *this;
+	}
+
+	VulLogicDeviceBuilder& SetPhysicalDevice(VulPhysicalDevice* physicalDevice) {
+		m_pPhysicalDevice = physicalDevice;
+		return *this;
+	}
+
+	VulLogicDeviceBuilder& SetSurface(VulSurface* surface) {
+		m_pSurface = surface;
+		return *this;
+	}
+
+	VulLogicDeviceBuilder& AddExtension(const char* ext);
+
+	VulLogicDeviceBuilder& SetDeviceFeatures(const VkPhysicalDeviceFeatures& deviceFeatures) {
+		m_createInfo.deviceFeatures = deviceFeatures;
+		return *this;
+	}
+
+	[[nodiscard]] VulLogicDevice* Build() const;
 
 private:
-    std::shared_ptr<VulInstance> m_pInstance;
-    std::shared_ptr<VulPhysicalDevice> m_pPhysicalDevice;
-    std::shared_ptr<VulSurface> m_pSurface;
-    VulLogicDeviceCreateInfo m_createInfo {};
+	VulInstance*			 m_pInstance	   = nullptr;
+	VulPhysicalDevice*		 m_pPhysicalDevice = nullptr;
+	VulSurface*				 m_pSurface		   = nullptr;
+	VulLogicDeviceCreateInfo m_createInfo{};
 };
 
 class VulLogicDevice final : public VulObject<VkDevice>{
 public:
-    VulLogicDevice(const std::shared_ptr<VulInstance> &pInstance, const std::shared_ptr<VulPhysicalDevice> &pPhysicalDevice, const std::shared_ptr<VulSurface>& surface, const VulLogicDeviceCreateInfo &info);
-    ~VulLogicDevice() override;
-    [[nodiscard]] std::shared_ptr<VulPhysicalDevice> GetPhysicalDevice() const { return m_pPhysicalDevice; }
-    void SetCmdManager(const std::shared_ptr<VulkanCmdManager> &pCmdManager) { m_pCmdManager = pCmdManager; }
-    void WithSingleCmdBuffer(const std::function<void(const std::shared_ptr<VulCommandBuffer> &cmd)> &func) const;
-    [[nodiscard]] VkQueue GetGraphicsQueue() const { return m_pGraphicsQueue; }
-    [[nodiscard]] VkQueue GetPresentQueue() const { return m_pPresentQueue; }
-    static VulLogicDeviceBuilder Builder();
+	 VulLogicDevice(VulInstance* pInstance, VulPhysicalDevice* pPhysicalDevice, VulSurface* surface, const VulLogicDeviceCreateInfo& info);
+	~VulLogicDevice() override;
+
+	[[nodiscard]] VulPhysicalDevice* GetPhysicalDevice() const { return m_pPhysicalDevice; }
+
+	void SetCmdManager(VulkanCmdManager* pCmdManager);
+
+	void WithSingleCmdBuffer(const std::function<void(VulCommandBuffer* cmd)>& func) const;
+
+	[[nodiscard]] VkQueue GetGraphicsQueue() const { return m_pGraphicsQueue; }
+
+	[[nodiscard]] VkQueue GetPresentQueue() const { return m_pPresentQueue; }
+
+	static VulLogicDeviceBuilder Builder();
 
 private:
     [[nodiscard]] bool checkPresentSupport(uint32_t queueFamilyIndex) const;
 
 private:
-    std::shared_ptr<VulInstance> m_pInstance;
-    std::shared_ptr<VulPhysicalDevice> m_pPhysicalDevice;
-    std::shared_ptr<VulSurface> m_pSurface;
-    VkQueue m_pGraphicsQueue = nullptr;
-    VkQueue m_pPresentQueue = nullptr;
-    std::shared_ptr<VulkanCmdManager> m_pCmdManager;
+	VulInstance*	   m_pInstance		 = nullptr;
+	VulPhysicalDevice* m_pPhysicalDevice = nullptr;
+	VulSurface*		   m_pSurface		 = nullptr;
+	VkQueue			   m_pGraphicsQueue	 = nullptr;
+	VkQueue			   m_pPresentQueue	 = nullptr;
+	VulkanCmdManager*  m_pCmdManager	 = nullptr;
 };
 
-#endif //VULLOGICDEVICE_H
+#endif // VULLOGICDEVICE_H

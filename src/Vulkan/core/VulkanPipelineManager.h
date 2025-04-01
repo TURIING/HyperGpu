@@ -16,10 +16,11 @@ class VulkanDevice;
 
 class VulkanPipelineManager final : public PipelineManager {
 public:
-    explicit VulkanPipelineManager(const std::shared_ptr<VulkanDevice>& device);
-    std::shared_ptr<Pipeline> CreateRenderPipeline(const RenderEnvInfo& renderEnvInfo) override;
+	explicit				VulkanPipelineManager(VulkanDevice* device);
+	~						VulkanPipelineManager() override;
+	[[nodiscard]] Pipeline* CreateRenderPipeline(const RenderEnvInfo& renderEnvInfo) override;
 
 private:
-    std::shared_ptr<VulkanDevice> m_pDevice;
+	VulkanDevice* m_pDevice = nullptr;
 };
 #endif //VULKANPIPELINEMANAGER_H

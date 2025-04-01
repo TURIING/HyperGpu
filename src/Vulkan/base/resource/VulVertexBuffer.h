@@ -15,12 +15,12 @@ class VulLogicDevice;
 
 class VulVertexBuffer final {
 public:
-    VulVertexBuffer(const std::shared_ptr<VulLogicDevice>& device, const std::vector<uint8_t> &bufferVertex);
-    [[nodiscard]] VkBuffer GetHandle() const;
+						   VulVertexBuffer(VulLogicDevice* device, const uint8_t* data, uint64_t size);
+	~					   VulVertexBuffer();
+	[[nodiscard]] VkBuffer GetHandle() const;
 
 private:
-    std::shared_ptr<VulLogicDevice> m_pLogicDevice;
-    std::unique_ptr<VulBuffer> m_pBuffer;
+	VulBuffer* m_pBuffer = nullptr;
 };
 
 

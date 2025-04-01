@@ -8,8 +8,9 @@
 #ifndef VULOBJECT_H
 #define VULOBJECT_H
 
-template<class T>
-class VulObject {
+#include "Gpu.h"
+
+template <class T> class VulObject : public GpuObject {
 public:
     virtual ~VulObject() = default;
     [[nodiscard]] T GetHandle() const { return m_pHandle; }

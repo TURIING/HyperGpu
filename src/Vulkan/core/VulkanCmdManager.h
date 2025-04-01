@@ -17,16 +17,13 @@ class VulCommandPool;
 
 class VulkanCmdManager final : public GpuCmdManager{
 public:
-    explicit VulkanCmdManager(const std::shared_ptr<VulkanDevice>& device);
-    ~VulkanCmdManager() override;
-    [[nodiscard]] std::shared_ptr<GpuCmd> CreateCommandBuffer() override;
+	explicit			  VulkanCmdManager(VulkanDevice* device);
+	~					  VulkanCmdManager() override;
+	[[nodiscard]] GpuCmd* CreateCommandBuffer() override;
 
 private:
-    std::shared_ptr<VulkanDevice> m_pVulkanDevice;
-    std::shared_ptr<VulCommandPool> m_pCmdPool;
-
+	VulkanDevice*	m_pVulkanDevice = nullptr;
+	VulCommandPool* m_pCmdPool		= nullptr;
 };
-
-
 
 #endif //VULKANCMDMANAGER_H

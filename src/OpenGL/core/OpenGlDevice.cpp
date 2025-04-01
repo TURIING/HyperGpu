@@ -11,6 +11,24 @@
 OpenGlDevice::OpenGlDevice(const DeviceCreateInfo& info) {
 }
 
-std::shared_ptr<PipelineManager> OpenGlDevice::GetPipelineManager() {
-    return nullptr;
+PipelineManager* OpenGlDevice::GetPipelineManager() {
+	return nullptr;
 }
+
+GpuCmdManager* OpenGlDevice::GetCmdManager() {
+	return nullptr;
+}
+
+GpuResourceManager* OpenGlDevice::GetResourceManager() {
+	return nullptr;
+}
+
+GpuSyncManager* OpenGlDevice::GetSyncManager() {
+	return nullptr;
+}
+
+GpuSurface* OpenGlDevice::GetSurface(Pipeline* pipeline) {
+	return nullptr;
+}
+void OpenGlDevice::Submit(GpuCmd* cmd, Semaphore* waitSemaphore, Semaphore* signalSemaphore, Fence* inFlightFence) {}
+void OpenGlDevice::Present(Semaphore* waitSemaphore, GpuSurface* surface, uint32_t& imageIndex) {}

@@ -16,6 +16,12 @@ using namespace HyperGpu;
 class OpenGlDevice final : public GpuDevice {
 public:
     OpenGlDevice(const DeviceCreateInfo &info);
-    [[nodiscard]] std::shared_ptr<PipelineManager> GetPipelineManager() override;
+	[[nodiscard]] PipelineManager*	  GetPipelineManager() override;
+	[[nodiscard]] GpuCmdManager*	  GetCmdManager() override;
+	[[nodiscard]] GpuResourceManager* GetResourceManager() override;
+	[[nodiscard]] GpuSyncManager*	  GetSyncManager() override;
+	[[nodiscard]] GpuSurface*		  GetSurface(Pipeline* pipeline) override;
+	void							  Submit(GpuCmd* cmd, Semaphore* waitSemaphore, Semaphore* signalSemaphore, Fence* inFlightFence) override;
+	void							  Present(Semaphore* waitSemaphore, GpuSurface* surface, uint32_t& imageIndex) override;
 };
 #endif //OPENGLDEVICE_H

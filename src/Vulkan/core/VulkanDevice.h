@@ -1,10 +1,10 @@
 /********************************************************************************
-* @author: TURIING
-* @email: turiing@163.com
-* @date: 2025/2/22 00:09
-* @version: 1.0
-* @description: 
-********************************************************************************/
+ * @author: TURIING
+ * @email: turiing@163.com
+ * @date: 2025/2/22 00:09
+ * @version: 1.0
+ * @description:
+ ********************************************************************************/
 #ifndef VULKANDEVICE_H
 #define VULKANDEVICE_H
 
@@ -18,21 +18,30 @@ class VulSurface;
 class VulInstance;
 class VulPhysicalDevice;
 
-class VulkanDevice final : public GpuDevice, public std::enable_shared_from_this<VulkanDevice> {
+class VulkanDevice final : public GpuDevice {
 public:
-    explicit VulkanDevice(const DeviceCreateInfo &info);
-    ~VulkanDevice() override;
-    [[nodiscard]] std::shared_ptr<PipelineManager> GetPipelineManager() override;
-    [[nodiscard]] std::shared_ptr<VulPhysicalDevice> GetPhysicalDevice() const { return m_pPhysicalDevice; }
-    [[nodiscard]] std::shared_ptr<VulLogicDevice> GetLogicDevice() const { return m_pLogicDevice; }
-    [[nodiscard]] std::shared_ptr<GpuCmdManager> GetCmdManager() override { return m_pCmdManager; };
+	explicit						  VulkanDevice(const DeviceCreateInfo& info);
+	~								  VulkanDevice() override;
+	[[nodiscard]] PipelineManager*	  GetPipelineManager() override { return m_pPipelineManager; }
+	[[nodiscard]] VulPhysicalDevice*  GetPhysicalDevice() const { return m_pPhysicalDevice; }
+	[[nodiscard]] VulLogicDevice*	  GetLogicDevice() const { return m_pLogicDevice; }
+	[[nodiscard]] VulSurface*		  GetVulSurface() const { return m_pSurface; }
+	[[nodiscard]] GpuCmdManager*	  GetCmdManager() override { return m_pCmdManager; };
+	[[nodiscard]] GpuResourceManager* GetResourceManager() override { return m_pResourceManager; };
+	[[nodiscard]] GpuSurface*		  GetSurface(Pipeline* pipeline) override;
+	[[nodiscard]] GpuSyncManager*	  GetSyncManager() override { return m_pSyncManager; };
+	void							  Submit(GpuCmd* cmd, Semaphore* waitSemaphore, Semaphore* signalSemaphore, Fence* inFlightFence) override;
+	void							  Present(Semaphore* waitSemaphore, GpuSurface* surface, uint32_t& imageIndex) override;
 
 private:
-    std::shared_ptr<VulInstance> m_pInstance;
-    std::shared_ptr<VulSurface> m_pSurface;
-    std::shared_ptr<VulPhysicalDevice> m_pPhysicalDevice;
-    std::shared_ptr<VulLogicDevice> m_pLogicDevice;
-    std::shared_ptr<GpuCmdManager> m_pCmdManager;
+	VulInstance*		m_pInstance		   = nullptr;
+	VulSurface*			m_pSurface		   = nullptr;
+	VulPhysicalDevice*	m_pPhysicalDevice  = nullptr;
+	VulLogicDevice*		m_pLogicDevice	   = nullptr;
+	GpuCmdManager*		m_pCmdManager	   = nullptr;
+	PipelineManager*	m_pPipelineManager = nullptr;
+	GpuResourceManager* m_pResourceManager = nullptr;
+	GpuSyncManager*		m_pSyncManager	   = nullptr;
 };
 
-#endif //VULKANDEVICE_H
+#endif // VULKANDEVICE_H

@@ -25,7 +25,7 @@ public:
     VulInstanceBuilder& SetEnableValidationLayer(bool on);
     VulInstanceBuilder& AddExtensions(const char *ext);
     VulInstanceBuilder& AddLayer(const char* layer);
-    std::shared_ptr<VulInstance> Build();
+	[[nodiscard]] VulInstance* Build() const;
 
 private:
     VulInstanceCreateInfo m_createInfo {};

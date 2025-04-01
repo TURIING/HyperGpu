@@ -14,10 +14,13 @@ GpuFactory::GpuFactory(GpuType type): m_type(type) {
 
 }
 
-std::unique_ptr<GpuDevice> GpuFactory::CreateDevice(const DeviceCreateInfo &info) const {
-    switch (m_type) {
-        case GpuType::OPENGL: return std::make_unique<OpenGlDevice>(info);
-        case GpuType::VULKAN: return std::make_unique<VulkanDevice>(info);
-        default:              LOG_ASSERT(false);
-    }
+GpuDevice* GpuFactory::CreateDevice(const DeviceCreateInfo& info) const {
+	switch(m_type) {
+	case GpuType::OPENGL:
+		return new OpenGlDevice(info);
+	case GpuType::VULKAN:
+		return new VulkanDevice(info);
+	default:
+		LOG_ASSERT(false);
+	}
 }

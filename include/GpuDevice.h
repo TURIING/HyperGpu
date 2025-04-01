@@ -1,56 +1,58 @@
 /********************************************************************************
-* @author: TURIING
-* @email: turiing@163.com
-* @date: 2025/2/22 00:01
-* @version: 1.0
-* @description: 
-********************************************************************************/
+ * @author: TURIING
+ * @email: turiing@163.com
+ * @date: 2025/2/22 00:01
+ * @version: 1.0
+ * @description:
+ ********************************************************************************/
 #ifndef COREDEFINE_H
 #define COREDEFINE_H
 
-#include <memory>
-#include <string>
+#include <GpuResource.h>
 
-#include "Types.h"
-#include "GpuPipeline.h"
 #include "GpuCmd.h"
+#include "GpuPipeline.h"
+#include "GpuSurface.h"
+#include "GpuSync.h"
+#include "Types.h"
 
-namespace HyperGpu
-{
-    struct DeviceSupportInfo {
+namespace HyperGpu {
+struct DeviceSupportInfo {};
 
-    };
+class GpuDevice : public GpuObject {
+public:
+	~										  GpuDevice() override																			  = default;
+	[[nodiscard]] virtual PipelineManager*	  GetPipelineManager()																			  = 0;
+	[[nodiscard]] virtual GpuCmdManager*	  GetCmdManager()																				  = 0;
+	[[nodiscard]] virtual GpuResourceManager* GetResourceManager()																			  = 0;
+	[[nodiscard]] virtual GpuSyncManager*	  GetSyncManager()																				  = 0;
+	[[nodiscard]] virtual GpuSurface*		  GetSurface(Pipeline* pipeline)																  = 0;
+	virtual void							  Submit(GpuCmd* cmd, Semaphore* waitSemaphore, Semaphore* signalSemaphore, Fence* inFlightFence) = 0;
+	virtual void							  Present(Semaphore* waitSemaphore, GpuSurface* surface, uint32_t& imageIndex)					  = 0;
+};
 
-    class GpuDevice {
-    public:
-        virtual ~GpuDevice() = default;
-        [[nodiscard]] virtual std::shared_ptr<PipelineManager> GetPipelineManager() = 0;
-        [[nodiscard]] virtual std::shared_ptr<GpuCmdManager> GetCmdManager() = 0;
-    };
+struct PlatformWindowInfo {
+	void* handle = nullptr;
+	Size  size;
+};
 
+struct DeviceCreateInfo {
+	PlatformWindowInfo platformWindowInfo;
+};
 
-    struct PlatformWindowInfo {
-        void *handle = nullptr;
-        Size size;
-    };
+class GpuFactory final : public GpuObject {
+public:
+	enum GpuType { OPENGL, VULKAN };
 
-    struct DeviceCreateInfo {
-        PlatformWindowInfo platformWindowInfo;
-    };
+public:
+	~						 GpuFactory() = default;
+	explicit				 GpuFactory(GpuType type);
+	[[nodiscard]] GpuDevice* CreateDevice(const DeviceCreateInfo& info) const;
+	static void				 DestroyDevice(GpuDevice* device) { device->SubRef(); };
 
-    class GpuFactory final {
-    public:
-        enum GpuType { OPENGL, VULKAN };
+private:
+	GpuType m_type;
+};
+} // namespace HyperGpu
 
-    public:
-        virtual ~GpuFactory() = default;
-        explicit GpuFactory(GpuType type);
-        [[nodiscard]] std::unique_ptr<GpuDevice> CreateDevice(const DeviceCreateInfo &info) const;
-
-    private:
-        GpuType m_type;
-    };
-}
-
-#endif //COREDEFINE_H
-
+#endif // COREDEFINE_H
