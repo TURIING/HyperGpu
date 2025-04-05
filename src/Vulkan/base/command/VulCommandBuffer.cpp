@@ -41,11 +41,13 @@ void VulCommandBuffer::Reset() const {
     vkResetCommandBuffer(m_pHandle, 0);
 }
 
-void VulCommandBuffer::BeginRecord() const {
-    VkCommandBufferBeginInfo beginInfo = {
-        .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
-         // .flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT,
-    };
+void VulCommandBuffer::BeginRecord(bool isSingleTime) const {
+    VkCommandBufferBeginInfo beginInfo{};
+    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+    if (isSingleTime) {
+        beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+    }
+
     CALL_VK(vkBeginCommandBuffer(m_pHandle, &beginInfo));
 }
 
@@ -132,8 +134,23 @@ void VulCommandBuffer::FillImageByBuffer(VkBuffer srcBuffer, VkImage dstImage, V
 	vkCmdCopyBufferToImage(m_pHandle, srcBuffer, dstImage, imageLayout, 1, &regions);
 }
 
+void VulCommandBuffer::ClearColorForImage(VkImage image, const VkClearColorValue& color) const {
+    const VkImageSubresourceRange range{
+        .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
+        .baseMipLevel = 0,
+        .levelCount = 1,
+        .baseArrayLayer = 0,
+        .layerCount = 1,
+    };
+    vkCmdClearColorImage(m_pHandle, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, &color, 1, &range);
+}
+
 void VulCommandBuffer::Draw(uint32_t vertexCount) const {
 	vkCmdDraw(m_pHandle, vertexCount, 1, 0, 0);
+}
+
+void VulCommandBuffer::DrawIndex(uint32_t indexCount) const {
+    vkCmdDrawIndexed(m_pHandle, indexCount, 1, 0, 0, 0);
 }
 
 VkRenderPassBeginInfo VulRenderPassBeginInfo::GetRenderPassBeginInfo() const {

@@ -5,20 +5,20 @@
  * @version: 1.0
  * @description:
  ********************************************************************************/
-#include "VulSample.h"
+#include "VulSampler.h"
 
 #include "../VulLogicDevice.h"
 #include "../VulPhysicalDevice.h"
 
-VulSample::VulSample(VulLogicDevice* device, const VulSampleCreateInfo& info) : m_pLogicDevice(device) {
+VulSampler::VulSampler(VulLogicDevice* device, const VulSamplerCreateInfo& info) : m_pLogicDevice(device) {
 	m_pLogicDevice->AddRef();
 	VkSamplerCreateInfo samplerInfo = {
 		.sType					 = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,
 		.magFilter				 = info.magFilter,
 		.minFilter				 = info.minFilter,
-		.addressModeU			 = info.addressMode,
-		.addressModeV			 = info.addressMode,
-		.addressModeW			 = info.addressMode,
+		.addressModeU = info.addressModeU,
+		.addressModeV = info.addressModeV,
+		.addressModeW = info.addressModeW,
 		.anisotropyEnable		 = VK_TRUE,
 		.maxAnisotropy			 = m_pLogicDevice->GetPhysicalDevice()->GetGpuInfo().limits.maxSamplerAnisotropy,
 		.borderColor			 = VK_BORDER_COLOR_INT_OPAQUE_BLACK,
@@ -34,7 +34,7 @@ VulSample::VulSample(VulLogicDevice* device, const VulSampleCreateInfo& info) : 
 	LOG_INFO("Created sampler");
 }
 
-VulSample::~VulSample() {
+VulSampler::~VulSampler() {
 	vkDestroySampler(m_pLogicDevice->GetHandle(), m_pHandle, nullptr);
 	m_pLogicDevice->SubRef();
 }

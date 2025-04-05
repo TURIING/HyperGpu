@@ -5,27 +5,29 @@
  * @version: 1.0
  * @description:
  ********************************************************************************/
-#ifndef VULSAMPLE_H
-#define VULSAMPLE_H
+#ifndef VULSAMPLER_H
+#define VULSAMPLER_H
 
 #include "../../../common/common.h"
 #include "../VulObject.h"
 
 class VulLogicDevice;
 
-struct VulSampleCreateInfo {
-	VkFilter			 magFilter;
-	VkFilter			 minFilter;
-	VkSamplerAddressMode addressMode;
+struct VulSamplerCreateInfo {
+	VkFilter             magFilter;
+	VkFilter             minFilter;
+	VkSamplerAddressMode addressModeU;
+	VkSamplerAddressMode addressModeV;
+	VkSamplerAddressMode addressModeW;
 };
 
-class VulSample final : public VulObject<VkSampler> {
+class VulSampler final : public VulObject<VkSampler> {
 public:
-	 VulSample(VulLogicDevice* device, const VulSampleCreateInfo& info);
-	~VulSample() override;
+	VulSampler(VulLogicDevice* device, const VulSamplerCreateInfo& info);
+	~VulSampler() override;
 
 private:
 	VulLogicDevice* m_pLogicDevice = nullptr;
 };
 
-#endif // VULSAMPLE_H
+#endif // VULSAMPLER_H

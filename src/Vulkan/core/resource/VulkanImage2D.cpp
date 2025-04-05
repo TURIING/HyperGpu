@@ -7,17 +7,20 @@
  ********************************************************************************/
 #include "VulkanImage2D.h"
 
-#include "../base/VulLogicDevice.h"
-#include "../base/command/VulCommandBuffer.h"
-#include "../base/resource/VulBuffer.h"
-#include "../base/resource/VulImage2D.h"
-#include "../base/resource/VulSample.h"
-#include "VulkanDevice.h"
+#include "../../base/VulLogicDevice.h"
+#include "../../base/command/VulCommandBuffer.h"
+#include "../../base/resource/VulBuffer.h"
+#include "../../base/resource/VulImage2D.h"
+#include "../../base/resource/VulSampler.h"
+#include "../VulkanDevice.h"
+#include "VulkanSampler.h"
+#include "../VulkanCmd.h"
+#include "../../base/resource/VulUniformBuffer.h"
 
 VulkanImage2D::VulkanImage2D(VulkanDevice* device, const Image2DCreateInfo& info) : m_pVulkanDevice(device), m_size(info.size), m_usage(info.usage) {
 	m_pVulkanDevice->AddRef();
 
-	VulImage2DCreateInfo vulImage2DCreateInfo{
+	const VulImage2DCreateInfo vulImage2DCreateInfo{
 		.size				 = info.size,
 		.format				 = transPixelFormatToVkFormat(info.format),
 		.usage				 = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
@@ -26,18 +29,18 @@ VulkanImage2D::VulkanImage2D(VulkanDevice* device, const Image2DCreateInfo& info
 	};
 	m_pImage = new VulImage2D(m_pVulkanDevice->GetLogicDevice(), vulImage2DCreateInfo);
 
-	VulSampleCreateInfo vulSampleCreateInfo{.magFilter = VK_FILTER_NEAREST, .minFilter = VK_FILTER_LINEAR, .addressMode = VK_SAMPLER_ADDRESS_MODE_REPEAT};
-	m_pSample = new VulSample(m_pVulkanDevice->GetLogicDevice(), vulSampleCreateInfo);
+	m_pSampler = dynamic_cast<VulkanSampler*>(info.pSampler);
+	m_pSampler->AddRef();
 
 	m_imageInfo = VkDescriptorImageInfo{
-		.sampler	 = m_pSample->GetHandle(),
+		.sampler	 = m_pSampler->GetHandle()->GetHandle(),
 		.imageView	 = m_pImage->GetImageViewHandle(),
 		.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
 	};
 }
 
 VulkanImage2D::~VulkanImage2D() {
-	m_pSample->SubRef();
+	m_pSampler->SubRef();
 	m_pImage->SubRef();
 	m_pVulkanDevice->SubRef();
 };
@@ -60,18 +63,21 @@ VkImageAspectFlags VulkanImage2D::transImageUsageToVkAspectFlag(ImageUsage usage
 	}
 }
 
-void VulkanImage2D::FillPixelData(const std::vector<uint8_t>& data) const {
+void VulkanImage2D::FillPixels(GpuCmd* pCmd, const uint8_t* data, uint64_t dataSize) {
+	const auto vulkanCmd = dynamic_cast<VulkanCmd*>(pCmd);
+	const auto vulCmd = vulkanCmd->GetHandle();
+
 	// 拷贝数据到暂存缓冲
 	const auto stageBuffer = VulBuffer::Builder()
-								 .SetSize(data.size())
+								 .SetSize(dataSize)
 								 .SetUsage(VK_BUFFER_USAGE_TRANSFER_SRC_BIT)
 								 .SetProperties(VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT)
 								 .SetLogicDevice(m_pVulkanDevice->GetLogicDevice())
 								 .Build();
-	stageBuffer->MapData(0, data.size(), data.data());
+	stageBuffer->MapData(0, dataSize, data);
 
 	// 转换布局
-	m_pImage->TransitionImageLayout(VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+	m_pImage->TransitionImageLayout(vulCmd, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 
 	// 从暂存缓冲拷贝数据到image
 	const VkBufferImageCopy region = {
@@ -98,14 +104,10 @@ void VulkanImage2D::FillPixelData(const std::vector<uint8_t>& data) const {
 				.depth	= 1,
 			},
 	};
-	// clang-format off
-	m_pVulkanDevice->GetLogicDevice()->WithSingleCmdBuffer([&](VulCommandBuffer* cmd) {
-		cmd->FillImageByBuffer(stageBuffer->GetHandle(), m_pImage->GetHandle(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, region);
-	});
-	// clang-format on
+	vulCmd->FillImageByBuffer(stageBuffer->GetHandle(), m_pImage->GetHandle(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, region);
 
 	// 再次转换布局
-	m_pImage->TransitionImageLayout(VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+	m_pImage->TransitionImageLayout(vulCmd, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
 	stageBuffer->SubRef();
 }

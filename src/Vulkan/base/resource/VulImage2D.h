@@ -13,6 +13,7 @@
 
 
 class VulLogicDevice;
+class VulCommandBuffer;
 
 struct VulImage2DCreateInfo {
     Size size;
@@ -27,15 +28,18 @@ struct VulImage2DCreateInfo {
 class VulImage2D final: public VulObject<VkImage>{
 public:
     VulImage2D(VulLogicDevice* device, const VulImage2DCreateInfo& info);
-    void TransitionImageLayout(VkImageLayout oldLayout, VkImageLayout newLayout, VkImageAspectFlags aspectFlags = VK_IMAGE_ASPECT_COLOR_BIT) const;
-    [[nodiscard]] VkImageView GetImageViewHandle() const { return m_pImageView; }
+    void TransitionImageLayout(VulCommandBuffer*  pCmd, VkImageLayout newLayout,
+                               VkImageAspectFlags aspectFlags = VK_IMAGE_ASPECT_COLOR_BIT);
+    [[nodiscard]] VkImageView   GetImageViewHandle() const { return m_pImageView; }
+    [[nodiscard]] VkImageLayout GetCurrentImageLayout() const { return m_currentLayout; }
     ~VulImage2D() override;
 
 private:
-    VulLogicDevice* m_pLogicDevice = nullptr;
-    VkImageView m_pImageView = nullptr;
-    VkDeviceMemory m_pDeviceMemory = nullptr;
-    uint32_t m_mipLevels = 0;
+    VulLogicDevice* m_pLogicDevice  = nullptr;
+    VkImageView     m_pImageView    = nullptr;
+    VkDeviceMemory  m_pDeviceMemory = nullptr;
+    uint32_t        m_mipLevels     = 0;
+    VkImageLayout   m_currentLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 };
 
 

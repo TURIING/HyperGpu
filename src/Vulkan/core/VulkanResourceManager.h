@@ -19,7 +19,8 @@ public:
 	explicit			   VulkanResourceManager(VulkanDevice* device);
 	~					   VulkanResourceManager() override;
 	[[nodiscard]] Image2D* CreateImage2D(const Image2D::Image2DCreateInfo& info) override;
-	[[nodiscard]] Buffer*  CreateBuffer(Buffer::BufferType type, const uint8_t* data, uint64_t size) override;
+	[[nodiscard]] Buffer*  CreateBuffer(const BufferCreateInfo& createInfo) override;
+	[[nodiscard]] Sampler* CreateSampler(const Sampler::SamplerCreateInfo& info) override;
 
 private:
 	VulkanDevice* m_pVulkanDevice = nullptr;

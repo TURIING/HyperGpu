@@ -35,7 +35,7 @@ public:
     VulCommandBuffer(VulLogicDevice* logicDevice, VulCommandPool* commandPool);
     ~VulCommandBuffer() override;
     void Reset() const;
-    void BeginRecord() const;
+    void BeginRecord(bool isSingleTime = false) const;
     void EndRecord() const;
     void BeginRenderPass(const VulRenderPassBeginInfo& renderPassBeginInfo) const;
     void EndRenderPass() const;
@@ -48,7 +48,9 @@ public:
     void CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size) const;
     void PipelineBarrier(VkPipelineStageFlags srcStageFlags, VkPipelineStageFlags dstStageFlags, const VkImageMemoryBarrier& barrier) const;
     void FillImageByBuffer(VkBuffer srcBuffer, VkImage dstImage, VkImageLayout imageLayout, const VkBufferImageCopy &regions) const;
-	void Draw(uint32_t vertexCount) const;
+    void ClearColorForImage(VkImage image, const VkClearColorValue& color) const;
+    void Draw(uint32_t vertexCount) const;
+    void DrawIndex(uint32_t indexCount) const;
     void Submit(VulSemaphore* waitSemaphore, VulSemaphore* signalSemaphore, VulFence* inFightFence);
     void Submit();
 

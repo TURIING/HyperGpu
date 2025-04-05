@@ -9,6 +9,7 @@
 #define GPUPIPELINE_H
 
 #include "Gpu.h"
+#include "GpuResource.h"
 
 namespace HyperGpu {
 struct ShaderInfo {
@@ -49,7 +50,14 @@ struct InputCollector {
 
 class Pipeline : public GpuObject {
 public:
-	virtual ~Pipeline() = default;
+	struct ImageBindingInfo {
+		Image2D* pImage  = nullptr;
+		uint32_t binding = 0;
+	};
+
+public:
+	virtual void SetUniformBuffers(Buffer** buffer, uint32_t count) = 0;
+	virtual void SetImages(ImageBindingInfo* infos, uint32_t count) = 0;
 };
 
 class PipelineManager : public GpuObject {

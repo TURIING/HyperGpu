@@ -14,12 +14,15 @@
 
 class VulkanDevice;
 class VulCommandPool;
+class VulCommandBuffer;
 
 class VulkanCmdManager final : public GpuCmdManager{
 public:
 	explicit			  VulkanCmdManager(VulkanDevice* device);
 	~					  VulkanCmdManager() override;
 	[[nodiscard]] GpuCmd* CreateCommandBuffer() override;
+	void                  WithSingleCmdBuffer(const std::function<void(VulCommandBuffer* cmd)>& func) const;
+	void                  WithSingleCmdBuffer(const std::function<void(GpuCmd*)>& func) override;
 
 private:
 	VulkanDevice*	m_pVulkanDevice = nullptr;

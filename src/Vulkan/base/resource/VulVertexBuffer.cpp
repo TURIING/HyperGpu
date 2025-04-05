@@ -27,7 +27,7 @@ VulVertexBuffer::VulVertexBuffer(VulLogicDevice* device, const uint8_t* data, ui
 	m_pBuffer->CopyFrom(stageBuffer);
 
 	stageBuffer->SubRef();
-	LOG_INFO("Vertex buffer created.");
+	LOG_INFO("Vertex buffer created, size: {}.", size);
 }
 
 VulVertexBuffer::~VulVertexBuffer() {

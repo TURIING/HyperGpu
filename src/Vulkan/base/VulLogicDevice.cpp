@@ -74,11 +74,7 @@ void VulLogicDevice::SetCmdManager(VulkanCmdManager* pCmdManager) {
 }
 
 void VulLogicDevice::WithSingleCmdBuffer(const std::function<void(VulCommandBuffer* cmd)>& func) const {
-	const auto cmd = dynamic_cast<VulkanCmd*>(m_pCmdManager->CreateCommandBuffer())->GetHandle();
-	cmd->BeginRecord();
-	func(cmd);
-	cmd->EndRecord();
-	cmd->Submit();
+	m_pCmdManager->WithSingleCmdBuffer(func);
 }
 
 VulLogicDeviceBuilder VulLogicDevice::Builder() {

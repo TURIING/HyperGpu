@@ -14,9 +14,17 @@
 #include "GpuSurface.h"
 
 namespace HyperGpu {
-class GpuCmd {
+struct InputAssembler {
+	Buffer*  vertexBuffer = nullptr;
+	Buffer*  indexBuffer  = nullptr;
+	uint32_t vertexCount  = 0;
+	uint32_t indexCount   = 0;
+};
+
+class GpuCmd : public GpuObject {
 public:
 	enum class RenderAttachmentType { Image2D, Surface };
+	enum class DrawType { Vertex, Index, Instance };
 
 	struct RenderAttachment {
 		uint32_t  imageCount = 0;
@@ -24,9 +32,8 @@ public:
 	};
 
 	struct DrawInfo {
-		Buffer*	 vertexBuffer = nullptr;
-		Buffer*	 indexBuffer  = nullptr;
-		uint32_t vertexCount  = 0;
+		InputAssembler* inputAssembler = nullptr;
+		DrawType        drawType       = DrawType::Index;
 	};
 
 	struct BeginRenderInfo {
@@ -42,16 +49,16 @@ public:
 		};
 	};
 
-	virtual ~	 GpuCmd()									   = default;
 	virtual void Begin(const BeginRenderInfo& beginRenderInfo) = 0;
 	virtual void End()										   = 0;
-	virtual void Draw(const DrawInfo& info)					   = 0;
+	virtual void Draw(const DrawInfo& info) = 0;
+	virtual void ClearColorImage(Image2D* image, Color color) = 0;
 };
 
 class GpuCmdManager : public GpuObject {
 public:
-	virtual ~					  GpuCmdManager()		= default;
 	[[nodiscard]] virtual GpuCmd* CreateCommandBuffer() = 0;
+	virtual void                  WithSingleCmdBuffer(const std::function<void (GpuCmd*)>& func) = 0;
 };
 }
 #endif // GPUCMD_H

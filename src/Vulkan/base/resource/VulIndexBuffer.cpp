@@ -26,7 +26,7 @@ VulIndexBuffer::VulIndexBuffer(VulLogicDevice* device, const uint8_t* data, uint
 	m_pBuffer->CopyFrom(stageBuffer);
 
 	stageBuffer->SubRef();
-	LOG_INFO("Index buffer created.");
+	LOG_INFO("Index buffer created, size: {}.", size);
 }
 
 VulIndexBuffer::~VulIndexBuffer() {

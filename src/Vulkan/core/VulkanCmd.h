@@ -18,12 +18,13 @@ class VulkanDevice;
 
 class VulkanCmd final : public GpuCmd {
 public:
-									VulkanCmd(VulkanDevice* device, VulCommandPool* pool);
-	~								VulkanCmd() override;
-	void							Begin(const BeginRenderInfo& beginRenderInfo) override;
-	void							End() override;
-	void							Draw(const DrawInfo& info) override;
-	void							Submit(VulSemaphore* waitSemaphore, VulSemaphore* signalSemaphore, VulFence* inFlightFence) const;
+	VulkanCmd(VulkanDevice* device, VulCommandPool* pool);
+	~VulkanCmd() override;
+	void Begin(const BeginRenderInfo& beginRenderInfo) override;
+	void End() override;
+	void Draw(const DrawInfo& info) override;
+	void Submit(VulSemaphore* waitSemaphore, VulSemaphore* signalSemaphore, VulFence* inFlightFence) const;
+	void ClearColorImage(Image2D* image, Color color) override;
 	[[nodiscard]] VulCommandBuffer* GetHandle() const { return m_pCmd; }
 
 private:
@@ -31,9 +32,9 @@ private:
 	[[nodiscard]] static VkRect2D	transScissorToVkRect2D(const Scissor& scissor);
 
 private:
-	VulkanDevice*	  m_pVulkanDevice = nullptr;
-	VulCommandBuffer* m_pCmd		  = nullptr;
-	bool			  m_isBegin		  = false;
+	VulkanDevice*     m_pVulkanDevice = nullptr;
+	VulCommandBuffer* m_pCmd          = nullptr;
+	bool              m_isBegin       = false;
 };
 
 #endif // VULKANCMD_H

@@ -12,10 +12,13 @@
 #include "../base/command/VulCommandPool.h"
 #include "../base/descriptor/VulDescriptorSet.h"
 #include "../base/pipeline/VulPipelineLayout.h"
-#include "VulkanBuffer.h"
+#include "resource/VulkanBuffer.h"
 #include "VulkanDevice.h"
 #include "VulkanPipeline.h"
 #include "VulkanSurface.h"
+#include "../base/VulLogicDevice.h"
+#include "../base/resource/VulImage2D.h"
+#include "resource/VulkanImage2D.h"
 
 VulkanCmd::VulkanCmd(VulkanDevice* device, VulCommandPool* pool) : m_pVulkanDevice(device) {
 	m_pVulkanDevice->AddRef();
@@ -65,18 +68,36 @@ void VulkanCmd::End() {
 
 void VulkanCmd::Draw(const DrawInfo& info) {
 	LOG_ASSERT_INFO(m_isBegin, "Cmd has not yet started recording");
-	if(info.vertexBuffer) {
-		m_pCmd->BindVertexBuffer(dynamic_cast<VulkanBuffer*>(info.vertexBuffer)->GetVertexBuffer());
+
+	if (info.inputAssembler->vertexBuffer) {
+		m_pCmd->BindVertexBuffer(dynamic_cast<VulkanBuffer*>(info.inputAssembler->vertexBuffer)->GetVertexBuffer());
 	}
 
-	if(info.indexBuffer) {
-		m_pCmd->BindIndexBuffer(dynamic_cast<VulkanBuffer*>(info.indexBuffer)->GetIndexBuffer());
+	if (info.inputAssembler->indexBuffer) {
+		m_pCmd->BindIndexBuffer(dynamic_cast<VulkanBuffer*>(info.inputAssembler->indexBuffer)->GetIndexBuffer());
 	}
 
-	m_pCmd->Draw(3);
+	switch (info.drawType) {
+	case DrawType::Vertex: m_pCmd->Draw(info.inputAssembler->vertexCount);
+		break;
+	case DrawType::Index: m_pCmd->DrawIndex(info.inputAssembler->indexCount);
+		break;
+	default:
+		LOG_ASSERT(false);
+	}
 }
+
 void VulkanCmd::Submit(VulSemaphore* waitSemaphore, VulSemaphore* signalSemaphore, VulFence* inFlightFence) const {
 	m_pCmd->Submit(waitSemaphore, signalSemaphore, inFlightFence);
+}
+
+void VulkanCmd::ClearColorImage(Image2D* image, Color color) {
+	const auto pVulImage  = dynamic_cast<VulkanImage2D*>(image)->GetHandle();
+	const auto colorValue = std::bit_cast<VkClearColorValue>(color);
+
+	pVulImage->TransitionImageLayout(m_pCmd, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+	m_pCmd->ClearColorForImage(pVulImage->GetHandle(), colorValue);
+	pVulImage->TransitionImageLayout(m_pCmd, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 }
 
 VkViewport VulkanCmd::transViewportToVkViewport(const Viewport& viewport) {

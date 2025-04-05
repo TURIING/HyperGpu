@@ -11,8 +11,7 @@
 #include <cassert>
 #include <string>
 #include <vector>
-
-#include "Types.h"
+#include <functional>
 
 class GpuObject {
 public:

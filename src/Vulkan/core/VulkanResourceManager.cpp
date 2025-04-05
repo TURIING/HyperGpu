@@ -7,8 +7,9 @@
  ********************************************************************************/
 #include "VulkanResourceManager.h"
 
-#include "VulkanBuffer.h"
-#include "VulkanImage2D.h"
+#include "resource/VulkanBuffer.h"
+#include "resource/VulkanImage2D.h"
+#include "resource/VulkanSampler.h"
 
 VulkanResourceManager::VulkanResourceManager(VulkanDevice* device) : m_pVulkanDevice(device) {
 	m_pVulkanDevice->AddRef();
@@ -22,6 +23,10 @@ Image2D* VulkanResourceManager::CreateImage2D(const Image2D::Image2DCreateInfo& 
 	return new VulkanImage2D(m_pVulkanDevice, info);
 }
 
-Buffer* VulkanResourceManager::CreateBuffer(Buffer::BufferType type, const uint8_t* data, uint64_t size) {
-	return new VulkanBuffer(m_pVulkanDevice, type, data, size);
+Buffer* VulkanResourceManager::CreateBuffer(const BufferCreateInfo& createInfo) {
+	return new VulkanBuffer(m_pVulkanDevice, createInfo);
+}
+
+Sampler* VulkanResourceManager::CreateSampler(const Sampler::SamplerCreateInfo& info) {
+	return new VulkanSampler(m_pVulkanDevice, info);
 }

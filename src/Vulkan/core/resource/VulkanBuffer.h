@@ -8,23 +8,23 @@
 #ifndef VULKANBUFFER_H
 #define VULKANBUFFER_H
 
-#include "../../common/common.h"
+#include "../../../common/common.h"
 #include "GpuResource.h"
 
+class VulUniformBuffer;
 class VulIndexBuffer;
 class VulVertexBuffer;
 class VulkanDevice;
 
-class VulkanBuffer final : public Buffer {
+class VulkanBuffer final : public HyperGpu::Buffer {
 public:
-	VulkanBuffer(VulkanDevice* device, BufferType type, const uint8_t* data, uint64_t size);
-
+	VulkanBuffer(VulkanDevice* device, const GpuResourceManager::BufferCreateInfo &createInfo);
 	[[nodiscard]] VulVertexBuffer* GetVertexBuffer() const { return std::get<VulVertexBuffer*>(m_pBuffer); }
-
 	[[nodiscard]] VulIndexBuffer* GetIndexBuffer() const { return std::get<VulIndexBuffer*>(m_pBuffer); }
+	[[nodiscard]] VulUniformBuffer* GetUniformBuffer() const { return std::get<VulUniformBuffer*>(m_pBuffer); }
 
 private:
-	std::variant<VulVertexBuffer*, VulIndexBuffer*> m_pBuffer;
+	std::variant<VulVertexBuffer*, VulIndexBuffer*, VulUniformBuffer*> m_pBuffer;
 	BufferType										m_type;
 };
 

@@ -9,6 +9,7 @@
 
 #include "../base/VulPhysicalDevice.h"
 #include "../base/command/VulCommandPool.h"
+#include "../base/command/VulCommandBuffer.h"
 #include "VulkanCmd.h"
 #include "VulkanDevice.h"
 
@@ -24,4 +25,26 @@ VulkanCmdManager::~VulkanCmdManager() {
 
 GpuCmd* VulkanCmdManager::CreateCommandBuffer() {
 	return new VulkanCmd(m_pVulkanDevice, m_pCmdPool);
+}
+
+void VulkanCmdManager::WithSingleCmdBuffer(const std::function<void(VulCommandBuffer* cmd)>& func) const {
+	const auto vulkanCmd = new VulkanCmd(m_pVulkanDevice, m_pCmdPool);
+	const auto cmd       = vulkanCmd->GetHandle();
+	cmd->BeginRecord(true);
+	func(cmd);
+	cmd->EndRecord();
+	cmd->Submit();
+
+	vulkanCmd->SubRef();
+}
+
+void VulkanCmdManager::WithSingleCmdBuffer(const std::function<void(GpuCmd*)>& func) {
+	const auto vulkanCmd = new VulkanCmd(m_pVulkanDevice, m_pCmdPool);
+	const auto pVulCmd   = vulkanCmd->GetHandle();
+	pVulCmd->BeginRecord(true);
+	func(vulkanCmd);
+	pVulCmd->EndRecord();
+	pVulCmd->Submit();
+
+	vulkanCmd->SubRef();
 }
