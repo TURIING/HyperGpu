@@ -44,6 +44,7 @@ namespace HyperGpu {
 	class Buffer : public GpuObject {
 	public:
 		enum BufferType { Vertex, Index, Uniform };
+		virtual void UpdateData(const uint8_t* data, uint64_t dataSize) = 0;
 	};
 
 	class GpuResourceManager : public GpuObject {
@@ -51,7 +52,7 @@ namespace HyperGpu {
 		struct BufferCreateInfo {
 			Buffer::BufferType bufferType = Buffer::Uniform;
 			uint64_t           bufferSize = 0;
-			uint8_t*           data       = nullptr;
+			uint8_t*           data       = nullptr;				// 当buffer类型为uniform时，该字段为nullptr就行
 			uint32_t           binding    = 0;
 		};
 

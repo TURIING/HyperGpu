@@ -91,10 +91,11 @@ void VulShader::computeInputState(const SpvReflectShaderModule& module) {
     }
 
     // Sort attributes by location
-    std::sort(std::begin(attributeDescription), std::end(attributeDescription),
-              [](const VkVertexInputAttributeDescription& a, const VkVertexInputAttributeDescription& b) {
+    std::sort(std::begin(attributeDescription), std::end(attributeDescription), [](
+        const VkVertexInputAttributeDescription& a, const VkVertexInputAttributeDescription& b) {
                 return a.location < b.location;
-              });
+        }
+    );
 
     // Compute final offsets of each attribute, and total vertex stride.
     for (auto& attribute : attributeDescription) {
@@ -124,6 +125,7 @@ void VulShader::computeDescriptorSetLayout(const SpvReflectShaderModule& module,
             for (uint32_t i_dim = 0; i_dim < reflectBinding.array.dims_count; ++i_dim) {
                 bindInfo.descriptorCount *= reflectBinding.array.dims[i_dim];
             }
+            bindInfo.descriptorType = static_cast<VulDescriptorType>(reflectBinding.descriptor_type);
             bindInfo.stageFlags = static_cast<VkShaderStageFlagBits>(module.shader_stage);
             bindInfos.push_back(bindInfo);
         }

@@ -10,6 +10,8 @@
 #include <GpuCmd.h>
 #include <memory>
 
+class VulkanImage2D;
+class VulFrameBuffer;
 class VulFence;
 class VulSemaphore;
 class VulCommandBuffer;
@@ -35,6 +37,7 @@ private:
 	VulkanDevice*     m_pVulkanDevice = nullptr;
 	VulCommandBuffer* m_pCmd          = nullptr;
 	bool              m_isBegin       = false;
+	std::unordered_map<VulkanImage2D*, VulFrameBuffer*> m_vecFrameBuffer;
 };
 
 #endif // VULKANCMD_H

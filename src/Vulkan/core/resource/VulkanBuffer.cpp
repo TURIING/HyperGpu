@@ -29,3 +29,12 @@ VulkanBuffer::VulkanBuffer(VulkanDevice* device, const GpuResourceManager::Buffe
 		LOG_ASSERT(false);
 	}
 }
+
+void VulkanBuffer::UpdateData(const uint8_t* data, uint64_t dataSize) {
+	if(m_type == BufferType::Uniform) {
+		std::get<VulUniformBuffer*>(m_pBuffer)->UpdateData(data, dataSize);
+	} else {
+		// todo: update data for vertex/index buffer
+		LOG_ASSERT(false);
+	}
+}

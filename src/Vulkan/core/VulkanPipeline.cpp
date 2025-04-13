@@ -33,7 +33,8 @@ VulkanPipeline::VulkanPipeline(VulkanDevice* pDevice, const RenderEnvInfo& rende
 	VulPipelineDepthStencilState  pipelineDepthStencilState;
 
 	auto renderPassBuilder = VulRenderPass::Builder().SetLogicDevice(m_pVulkanDevice->GetLogicDevice());
-	for(const auto& attachment : renderEnvInfo.attachments) {
+	for (auto i = 0; i < renderEnvInfo.attachmentCount; i++) {
+		const auto attachment = renderEnvInfo.pAttachment[i];
 		if(attachment.type == AttachmentType::COLOR) {
 			renderPassBuilder.AddColorAttachment({attachment.index, m_pVulkanDevice->GetPhysicalDevice()->GetColorFormat()});
 		} else if(attachment.type == AttachmentType::DEPTH) {
@@ -81,7 +82,8 @@ VulkanPipeline::~VulkanPipeline() {
 }
 
 void VulkanPipeline::SetUniformBuffers(Buffer** buffer, uint32_t count) {
-	std::vector<VulUniformBuffer*> uniformBuffers(count);
+	std::vector<VulUniformBuffer*> uniformBuffers;
+	uniformBuffers.reserve(count);
 	for (auto i = 0; i < count; i++) {
 		uniformBuffers.push_back(dynamic_cast<VulkanBuffer*>(buffer[i])->GetUniformBuffer());
 	}

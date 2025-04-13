@@ -24,7 +24,7 @@ struct RasterizationInfo {
 	float		  lineWidth		= 1;
 	PolygonMode	  polygonMode	= PolygonMode::FILL;
 	CullMode	  cullMode		= CullMode::BACK;
-	FrontFace	  frontFace		= FrontFace::COUNTER_CLOCK_WISE;
+	FrontFace	  frontFace		= FrontFace::CLOCK_WISE;
 };
 
 struct AttachmentInfo {
@@ -35,17 +35,8 @@ struct AttachmentInfo {
 struct RenderEnvInfo {
 	ShaderInfo					shaderInfo;
 	RasterizationInfo			rasterInfo;
-	std::vector<AttachmentInfo> attachments;
-};
-
-struct InputData {
-	std::vector<uint8_t> data;
-	uint32_t			 binding;
-};
-
-struct InputCollector {
-	InputData vertices;
-	InputData indices;
+	AttachmentInfo*				pAttachment = nullptr;
+	uint32_t					attachmentCount = 0;
 };
 
 class Pipeline : public GpuObject {

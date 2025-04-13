@@ -187,8 +187,8 @@ struct VulPipelineDepthStencilState {
 };
 
 enum class VulDescriptorType {
-	Sampler,
-    UniformBuffer,
+	Sampler = 1,
+    UniformBuffer = 6,
 };
 
 static std::unordered_map<VulDescriptorType, VkDescriptorType> gDescriptorTypeMap = {

@@ -18,7 +18,32 @@
 #include "VulkanSurface.h"
 #include "../base/VulLogicDevice.h"
 #include "../base/resource/VulImage2D.h"
+#include "HyperGpu/src/Vulkan/base/surface/VulFrameBuffer.h"
 #include "resource/VulkanImage2D.h"
+
+// struct AttachmentCollect {
+// 	std::vector<Image2D*> images;
+//
+// 	bool operator==(const AttachmentCollect& other) const {
+// 		if (images.size() != other.images.size()) return false;
+// 		for (auto image : other.images) {
+// 			if (std::ranges::find(images, image) == images.end()) {
+// 				return false;
+// 			}
+// 		}
+// 		return true;
+// 	}
+// };
+//
+// namespace std
+// {
+// 	template <>
+// 	struct hash<AttachmentCollect> {
+// 		std::size_t operator()(const AttachmentCollect& p) const {
+// 			return std::hash<int>()(p.x) ^ (std::hash<int>()(p.y) << 1); // 组合哈希
+// 		}
+// 	};
+// }
 
 VulkanCmd::VulkanCmd(VulkanDevice* device, VulCommandPool* pool) : m_pVulkanDevice(device) {
 	m_pVulkanDevice->AddRef();
@@ -50,7 +75,19 @@ void VulkanCmd::Begin(const BeginRenderInfo& beginRenderInfo) {
 		auto vulkanSurface				 = dynamic_cast<VulkanSurface*>(beginRenderInfo.surface);
 		renderPassBeginInfo.pFrameBuffer = vulkanSurface->GetCurrentFrameBuffer();
 	} else if(beginRenderInfo.renderAttachmentType == RenderAttachmentType::Image2D) {
-		// todo
+		auto [count, images]    = beginRenderInfo.renderAttachment;
+		auto frameBufferBuilder = VulFrameBuffer::Builder()
+		                          .SetLogicDevice(m_pVulkanDevice->GetLogicDevice())
+		                          .SetRenderPass(pPipeline->GetRenderPass());
+		for (auto i = 0; i < count; ++i) {
+			auto pImage = dynamic_cast<VulkanImage2D*>(images[i]);
+			frameBufferBuilder.SetSize(pImage->GetSize());
+			frameBufferBuilder.AddAttachmentImageView(pImage->GetHandle()->GetImageViewHandle());
+		}
+		auto pFrameBuffer                = frameBufferBuilder.Build();
+		renderPassBeginInfo.pFrameBuffer = pFrameBuffer;
+
+		// std::hash<std::tuple<Image2D*, >>
 	}
 
 	m_pCmd->BeginRenderPass(renderPassBeginInfo);
