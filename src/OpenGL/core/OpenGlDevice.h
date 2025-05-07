@@ -20,8 +20,9 @@ public:
 	[[nodiscard]] GpuCmdManager*	  GetCmdManager() override;
 	[[nodiscard]] GpuResourceManager* GetResourceManager() override;
 	[[nodiscard]] GpuSyncManager*	  GetSyncManager() override;
-	[[nodiscard]] GpuSurface*		  GetSurface(Pipeline* pipeline) override;
-	void							  Submit(GpuCmd* cmd, Semaphore* waitSemaphore, Semaphore* signalSemaphore, Fence* inFlightFence) override;
-	void							  Present(Semaphore* waitSemaphore, GpuSurface* surface, uint32_t& imageIndex) override;
+
+    GpuSurface *CreateSurface(const PlatformWindowInfo &platformWindowInfo) override;
+
+    Queue *CreateQueue(QueueType queueType) override;
 };
 #endif //OPENGLDEVICE_H

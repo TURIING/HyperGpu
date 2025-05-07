@@ -7,7 +7,7 @@
  ********************************************************************************/
 #include "VulkanImage2D.h"
 
-#include "../../base/VulLogicDevice.h"
+#include "../../base/device/VulLogicDevice.h"
 #include "../../base/command/VulCommandBuffer.h"
 #include "../../base/resource/VulBuffer.h"
 #include "../../base/resource/VulImage2D.h"
@@ -23,7 +23,7 @@ VulkanImage2D::VulkanImage2D(VulkanDevice* device, const Image2DCreateInfo& info
 	const VulImage2DCreateInfo vulImage2DCreateInfo{
 		.size				 = info.size,
 		.format				 = transPixelFormatToVkFormat(info.format),
-		.usage				 = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
+		.usage				 = VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
 		.aspectFlags		 = transImageUsageToVkAspectFlag(info.usage),
 		.memoryPropertyFlags = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
 	};
@@ -43,11 +43,16 @@ VulkanImage2D::~VulkanImage2D() {
 	m_pSampler->SubRef();
 	m_pImage->SubRef();
 	m_pVulkanDevice->SubRef();
+}
+
+VkImageView VulkanImage2D::GetImageView() const {
+	return m_pImage->GetImageViewHandle();
 };
 
 VkFormat VulkanImage2D::transPixelFormatToVkFormat(PixelFormat format) {
 	switch(format) {
 		CASE_FROM_TO(PixelFormat::R8G8B8A8, VK_FORMAT_R8G8B8A8_SRGB)
+		CASE_FROM_TO(PixelFormat::B8G8R8A8, VK_FORMAT_B8G8R8A8_SRGB)
 	default:
 		LOG_CRITICAL("Unrecognized pixel format");
 	}
@@ -77,7 +82,7 @@ void VulkanImage2D::FillPixels(GpuCmd* pCmd, const uint8_t* data, uint64_t dataS
 	stageBuffer->MapData(0, dataSize, data);
 
 	// 转换布局
-	m_pImage->TransitionImageLayout(vulCmd, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+	vulCmd->TransitionImageLayout(m_pImage,  VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 
 	// 从暂存缓冲拷贝数据到image
 	const VkBufferImageCopy region = {
@@ -107,7 +112,7 @@ void VulkanImage2D::FillPixels(GpuCmd* pCmd, const uint8_t* data, uint64_t dataS
 	vulCmd->FillImageByBuffer(stageBuffer->GetHandle(), m_pImage->GetHandle(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, region);
 
 	// 再次转换布局
-	m_pImage->TransitionImageLayout(vulCmd, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+	vulCmd->TransitionImageLayout(m_pImage, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
 	stageBuffer->SubRef();
 }

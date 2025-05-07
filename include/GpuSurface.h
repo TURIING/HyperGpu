@@ -13,8 +13,7 @@ class Semaphore;
 
 class GpuSurface : public GpuObject {
 public:
-	virtual ~	 GpuSurface()												  = default;
-	virtual void AcquireNextImage(Semaphore* semaphore, uint32_t& imageIndex) = 0;
+	virtual Semaphore* AcquireNextImage(uint32_t& imageIndex) = 0;
 };
 }
 #endif // GPUSURFACE_H

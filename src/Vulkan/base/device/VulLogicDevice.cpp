@@ -7,32 +7,40 @@
 ********************************************************************************/
 #include "VulLogicDevice.h"
 
-#include "../core/VulkanCmd.h"
-#include "../core/VulkanCmdManager.h"
+#include "../../core/VulkanCmd.h"
+#include "../../core/VulkanCmdManager.h"
 #include "VulInstance.h"
 #include "VulPhysicalDevice.h"
 #include "VulQueue.h"
-#include "command/VulCommandBuffer.h"
-#include "surface/VulSurface.h"
+#include "../command/VulCommandBuffer.h"
+#include "../surface/VulSurface.h"
 
 VulLogicDevice::VulLogicDevice(VulInstance* pInstance, VulPhysicalDevice* pPhysicalDevice, VulSurface* surface, const VulLogicDeviceCreateInfo& info)
-	: m_pInstance(pInstance), m_pPhysicalDevice(pPhysicalDevice), m_pSurface(surface) {
+	: m_pInstance(pInstance), m_pPhysicalDevice(pPhysicalDevice) {
 	m_pInstance->AddRef();
 	m_pPhysicalDevice->AddRef();
-	m_pSurface->AddRef();
 
-	const auto							 indices = pPhysicalDevice->GetQueueFamilyIndices();
 	std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
-	std::set<uint32_t>					 uniqueQueueFamilies = {indices.graphicsFamily.value(), indices.presentFamily.value()};
+	queueCreateInfos.reserve(info.queueInfoCount);
 
-	float queuePriority = 1.0f;
-	for(const auto queueFamily : uniqueQueueFamilies) {
+	for(auto i = 0; i < info.queueInfoCount; i++) {
+		auto queueFamilyIndex = m_pPhysicalDevice->GetQueueFamily(info.pQueueInfo[i].type);
+		auto it = std::find_if(queueCreateInfos.begin(), queueCreateInfos.end(),  [queueFamilyIndex](const VkDeviceQueueCreateInfo& info) {
+			if (info.queueFamilyIndex != queueFamilyIndex) {
+				return false;
+			}
+			else {
+				return true;
+			}
+		});
+		if (it != queueCreateInfos.end()) continue;
+
 		VkDeviceQueueCreateInfo queueCreateInfo{
 			.sType			  = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
 			.pNext			  = nullptr,
-			.queueFamilyIndex = queueFamily,
+			.queueFamilyIndex = queueFamilyIndex,
 			.queueCount		  = 1,
-			.pQueuePriorities = &queuePriority,
+			.pQueuePriorities = &info.pQueueInfo[i].priority,
 		};
 		queueCreateInfos.push_back(queueCreateInfo);
 	}
@@ -52,19 +60,11 @@ VulLogicDevice::VulLogicDevice(VulInstance* pInstance, VulPhysicalDevice* pPhysi
 	}
 	CALL_VK(vkCreateDevice(m_pPhysicalDevice->GetHandle(), &createInfo, nullptr, &m_pHandle));
 	LOG_INFO("Logical Device created!");
-
-	if(this->checkPresentSupport(indices.graphicsFamily.value())) {
-		vkGetDeviceQueue(m_pHandle, indices.graphicsFamily.value(), 0, &m_pGraphicsQueue);
-	}
-	if(this->checkPresentSupport(indices.presentFamily.value())) {
-		vkGetDeviceQueue(m_pHandle, indices.presentFamily.value(), 0, &m_pPresentQueue);
-	}
 }
 
 VulLogicDevice::~VulLogicDevice() {
 	vkDestroyDevice(m_pHandle, nullptr);
 	m_pInstance->SubRef();
-	m_pSurface->SubRef();
 	m_pPhysicalDevice->SubRef();
 }
 
@@ -81,16 +81,15 @@ VulLogicDeviceBuilder VulLogicDevice::Builder() {
     return VulLogicDeviceBuilder{ };
 }
 
-
-bool VulLogicDevice::checkPresentSupport(uint32_t queueFamilyIndex) const {
-    VkBool32 presentSupport = false;
-    vkGetPhysicalDeviceSurfaceSupportKHR(m_pPhysicalDevice->GetHandle(), queueFamilyIndex, m_pSurface->GetHandle(), &presentSupport);
-    return presentSupport;
-}
-
 VulLogicDeviceBuilder& VulLogicDeviceBuilder::AddExtension(const char* ext) {
     m_createInfo.extensions.push_back(ext);
     return *this;
+}
+
+VulLogicDeviceBuilder& VulLogicDeviceBuilder::SetQueueInfos(HyperGpu::QueueInfo* pQueueInfo, u32 count) {
+	m_createInfo.pQueueInfo = pQueueInfo;
+	m_createInfo.queueInfoCount = count;
+	return *this;
 }
 
 VulLogicDevice* VulLogicDeviceBuilder::Build() const {

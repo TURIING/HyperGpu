@@ -9,14 +9,18 @@
 #include "VulSwapChain.h"
 
 #include "VulSurface.h"
-#include "../VulLogicDevice.h"
-#include "../VulPhysicalDevice.h"
+#include "../device/VulLogicDevice.h"
+#include "../device/VulPhysicalDevice.h"
 #include "../sync/VulSemaphore.h"
+#include "HyperGpu/src/Vulkan/base/resource/VulImage2D.h"
 
-VulSwapChain::VulSwapChain(VulLogicDevice* device, VulSurface* surface): m_pLogicDevice(device) {
-	m_pLogicDevice->AddRef();
+VulSwapChain::VulSwapChain(VulLogicDevice* device, VulSurface* surface): m_pLogicDevice(device), m_pSurface(surface) {
+    m_pLogicDevice->AddRef();
+    m_pSurface->AddRef();
     const auto physicalDevice = m_pLogicDevice->GetPhysicalDevice();
 
+    this->acquireSwapChainSupportDetails();
+    this->chooseSwapSurfaceFormat();
     VkPresentModeKHR presentMode = this->chooseSwapPresentMode();
     VkExtent2D swapExtent = this->getSwapChainExtent();
     uint32_t imageCount = this->getSwapChainImageCount();
@@ -25,17 +29,19 @@ VulSwapChain::VulSwapChain(VulLogicDevice* device, VulSurface* surface): m_pLogi
         .sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
         .surface = surface->GetHandle(),
         .minImageCount = imageCount,
-        .imageFormat = physicalDevice->GetColorFormat(),
-        .imageColorSpace = physicalDevice->GetColorSpace(),
+        .imageFormat = m_pSwapChainSurfaceFormat.format,
+        .imageColorSpace = m_pSwapChainSurfaceFormat.colorSpace,
         .imageExtent = swapExtent,
         .imageArrayLayers = 1,                                                                  // 指定每个图像所包含的层次。通常，来说它的值为1, 但对于VR相关的应用程序来说，会使用更多的层次
-        .imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT                                       // 我们在图像上进行绘制操作，也就是将图像作为一个颜色附着来使用
+        .imageUsage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT
+        // 我们在图像上进行绘制操作，也就是将图像作为一个颜色附着来使用
     };
 
     // 指定在多个队列族使用交换链图像的方式
-    QueueFamilyIndices indices = physicalDevice->GetQueueFamilyIndices();
-    uint32_t queueFamilyIndices[] = { indices.graphicsFamily.value(), indices.presentFamily.value() };
-    if(indices.graphicsFamily != indices.presentFamily) {
+    const auto graphicsFamily       = m_pLogicDevice->GetPhysicalDevice()->GetQueueFamily(QueueType::Graphics);
+    const auto PresentFamily        = m_pLogicDevice->GetPhysicalDevice()->GetQueueFamily(QueueType::Present);
+    uint32_t   queueFamilyIndices[] = {graphicsFamily, PresentFamily};
+    if (graphicsFamily != PresentFamily) {
         swapChainCreateInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
         swapChainCreateInfo.queueFamilyIndexCount = 2;
         swapChainCreateInfo.pQueueFamilyIndices = queueFamilyIndices;
@@ -44,7 +50,8 @@ VulSwapChain::VulSwapChain(VulLogicDevice* device, VulSurface* surface): m_pLogi
         swapChainCreateInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
     }
 
-    swapChainCreateInfo.preTransform = m_pLogicDevice->GetPhysicalDevice()->GetSwapChainSupportDetails().capabilities.currentTransform;         // 为交换链中的图像指定一个固定的变换操作,比如顺时针旋转90度或是水平翻转
+    swapChainCreateInfo.preTransform = m_swapChainSupportDetails.capabilities.currentTransform;
+    // 为交换链中的图像指定一个固定的变换操作,比如顺时针旋转90度或是水平翻转
     swapChainCreateInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;                             // 用于指定alpha通道是否被用来和窗口系统中的其它窗口进行混合操作。
     swapChainCreateInfo.presentMode = presentMode;
     swapChainCreateInfo.clipped = VK_TRUE;                                                              // 设置为VK TRUE表示我们不关心被窗口系统中的其它窗口遮挡的像素的颜色
@@ -53,54 +60,37 @@ VulSwapChain::VulSwapChain(VulLogicDevice* device, VulSurface* surface): m_pLogi
     CALL_VK(vkCreateSwapchainKHR(m_pLogicDevice->GetHandle(), &swapChainCreateInfo, nullptr, &m_pHandle));
     LOG_INFO("Created SwapChain");
 
-    this->createSwapChainImagesAndViews();
+    this->createSwapChainImages();
 }
 
 VulSwapChain::~VulSwapChain() {
-    for(const auto pImageView: m_vecSwapChainImageViews) {
-        vkDestroyImageView(m_pLogicDevice->GetHandle(), pImageView, nullptr);
-    }
     vkDestroySwapchainKHR(m_pLogicDevice->GetHandle(), m_pHandle, nullptr);
-	m_pLogicDevice->SubRef();
+    m_pSurface->SubRef();
+    m_pLogicDevice->SubRef();
 }
 
-void VulSwapChain::createSwapChainImagesAndViews() {
+void VulSwapChain::createSwapChainImages() {
     uint32_t imageCount = 0;
     // images
     vkGetSwapchainImagesKHR(m_pLogicDevice->GetHandle(), m_pHandle, &imageCount, nullptr);
-    m_vecSwapChainImages.resize(imageCount);
-    vkGetSwapchainImagesKHR(m_pLogicDevice->GetHandle(), m_pHandle, &imageCount, m_vecSwapChainImages.data());
+    std::vector<VkImage> images(imageCount);
+    vkGetSwapchainImagesKHR(m_pLogicDevice->GetHandle(), m_pHandle, &imageCount, images.data());
 
-    // views
-    m_vecSwapChainImageViews.resize(imageCount);
-    for(uint32_t i = 0; i < imageCount; i++) {
-        VkImageViewCreateInfo imageViewCreateInfo {
-            .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
-            .image = m_vecSwapChainImages[i],
-            .viewType = VK_IMAGE_VIEW_TYPE_2D,
-            .format = m_pLogicDevice->GetPhysicalDevice()->GetColorFormat(),
-            .components = {
-                .r = VK_COMPONENT_SWIZZLE_IDENTITY,
-                .g = VK_COMPONENT_SWIZZLE_IDENTITY,
-                .b = VK_COMPONENT_SWIZZLE_IDENTITY,
-                .a = VK_COMPONENT_SWIZZLE_IDENTITY,
-            },
-            .subresourceRange = {
-                .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
-                .baseMipLevel = 0,
-                .levelCount = 1,
-                .baseArrayLayer = 0,
-                .layerCount = 1,
-            }
+    m_vecSwapChainImages.reserve(imageCount);
+    for (auto image : images) {
+        VulImage2DCreateInfo info{
+            .handle = image,
+            .format = m_pSwapChainSurfaceFormat.format,
+            .mipLevels = 1,
+            .aspectFlags = VK_IMAGE_ASPECT_COLOR_BIT
         };
-        CALL_VK(vkCreateImageView(m_pLogicDevice->GetHandle(), &imageViewCreateInfo, nullptr, &m_vecSwapChainImageViews[i]));
+        m_vecSwapChainImages.emplace_back(new VulImage2D(m_pLogicDevice, info));
     }
-    LOG_INFO("Created SwapChain images");
 }
 
 // 选择合适的呈现模式
 VkPresentModeKHR VulSwapChain::chooseSwapPresentMode() const {
-    for(const auto &availablePresentMode : m_pLogicDevice->GetPhysicalDevice()->GetSwapChainSupportDetails().presentModes) {
+    for (const auto& availablePresentMode : m_swapChainSupportDetails.presentModes) {
         if(availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR) {
             return availablePresentMode;
         }
@@ -109,30 +99,67 @@ VkPresentModeKHR VulSwapChain::chooseSwapPresentMode() const {
 }
 
 VkExtent2D VulSwapChain::getSwapChainExtent() {
-    const auto extent = m_pLogicDevice->GetPhysicalDevice()->GetSwapChainSupportDetails().capabilities.currentExtent;
-    m_size = { extent.width, extent.height };
+    const auto extent = m_swapChainSupportDetails.capabilities.currentExtent;
+    m_size            = {extent.width, extent.height};
     return extent;
 }
 
 uint32_t VulSwapChain::getSwapChainImageCount() const {
-    const auto detail = m_pLogicDevice->GetPhysicalDevice()->GetSwapChainSupportDetails();
-    uint32_t imageCount = detail.capabilities.minImageCount + 1;
-    if(detail.capabilities.maxImageCount > 0 && imageCount > detail.capabilities.maxImageCount) {
-        imageCount = detail.capabilities.maxImageCount;
+    uint32_t imageCount = m_swapChainSupportDetails.capabilities.minImageCount + 1;
+    if (m_swapChainSupportDetails.capabilities.maxImageCount > 0 && imageCount > m_swapChainSupportDetails.capabilities.
+        maxImageCount) {
+        imageCount = m_swapChainSupportDetails.capabilities.maxImageCount;
     }
     return imageCount;
 }
 
-VkImage VulSwapChain::GetImage(uint32_t index) const {
+VulImage2D* VulSwapChain::GetImage(uint32_t index) const {
     LOG_ASSERT(index >= 0 && index < m_vecSwapChainImages.size());
     return m_vecSwapChainImages[index];
 }
 
-VkImageView VulSwapChain::GetImageView(uint32_t index) const {
-    LOG_ASSERT(index >= 0 && index < m_vecSwapChainImageViews.size());
-    return m_vecSwapChainImageViews[index];
+VkResult VulSwapChain::AcquireNextImage(VulSemaphore* semaphore, uint32_t &imageIndex) const {
+    return vkAcquireNextImageKHR(m_pLogicDevice->GetHandle(), m_pHandle, UINT64_MAX, semaphore->GetHandle(), nullptr,
+                                 &imageIndex);
 }
 
-VkResult VulSwapChain::AcquireNextImage(VulSemaphore* semaphore, uint32_t &imageIndex) const {
-    return vkAcquireNextImageKHR(m_pLogicDevice->GetHandle(), m_pHandle, UINT64_MAX, semaphore->GetHandle(), nullptr, &imageIndex);
+void VulSwapChain::acquireSwapChainSupportDetails() {
+    auto physicalDevice = m_pLogicDevice->GetPhysicalDevice()->GetHandle();
+    auto surface        = m_pSurface->GetHandle();
+
+    vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &m_swapChainSupportDetails.capabilities);
+
+    uint32_t formatCount = 0;
+    vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount, nullptr);
+    if (formatCount != 0) {
+        m_swapChainSupportDetails.formats.resize(formatCount);
+        vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount,
+                                             m_swapChainSupportDetails.formats.data());
+    }
+
+    uint32_t presentModeCount = 0;
+    vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &presentModeCount, nullptr);
+    if (presentModeCount != 0) {
+        m_swapChainSupportDetails.presentModes.resize(presentModeCount);
+        vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &presentModeCount,
+                                                  m_swapChainSupportDetails.presentModes.data());
+    }
+
+    if (m_swapChainSupportDetails.formats.empty() && m_swapChainSupportDetails.presentModes.empty()) {
+        LOG_CRITICAL("swap chain formats not supported");
+    }
+}
+
+// 选择合适的表面格式
+void VulSwapChain::chooseSwapSurfaceFormat() {
+    for (const auto& availableFormat : m_swapChainSupportDetails.formats) {
+        // 1.表示我们以B，G，R和A的顺序,每个颜色通道用8位无符号整型数表示，总共每像素使用32位表示
+        // 2.表示SRGB颜色空间是否被支持
+        if (availableFormat.format == VK_FORMAT_B8G8R8A8_SRGB && availableFormat.colorSpace ==
+            VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
+            m_pSwapChainSurfaceFormat = availableFormat;
+            return;
+        }
+    }
+    m_pSwapChainSurfaceFormat = m_swapChainSupportDetails.formats[0];
 }

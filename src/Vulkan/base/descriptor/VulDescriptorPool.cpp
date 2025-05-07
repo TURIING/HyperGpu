@@ -8,7 +8,7 @@
 
 #include "VulDescriptorPool.h"
 
-#include "../VulLogicDevice.h"
+#include "../device/VulLogicDevice.h"
 
 constexpr uint32_t DESCRIPTOR_POOL_MAX_SET_COUNT = 100;
 

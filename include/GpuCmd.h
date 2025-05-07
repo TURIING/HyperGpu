@@ -38,8 +38,6 @@ public:
 
 	struct BeginRenderInfo {
 		Pipeline*				pipeline = nullptr;
-		Viewport				viewport;
-		Scissor					scissor;
 		std::vector<ClearValue> clearValue;
 		Area					renderArea;
 		RenderAttachmentType	renderAttachmentType = RenderAttachmentType::Image2D;
@@ -48,11 +46,16 @@ public:
 			GpuSurface*		 surface;
 		};
 	};
-
-	virtual void Begin(const BeginRenderInfo& beginRenderInfo) = 0;
-	virtual void End()										   = 0;
+	virtual void Reset() = 0;
+	virtual void Begin() = 0;
+	virtual void End() = 0;
+	virtual void BeginRenderPass(const BeginRenderInfo& info) = 0;
+	virtual void EndRenderPass() = 0;
 	virtual void Draw(const DrawInfo& info) = 0;
 	virtual void ClearColorImage(Image2D* image, Color color) = 0;
+	virtual void SetViewport(const Viewport& viewport) = 0;
+	virtual void SetScissor(const Scissor& scissor) = 0;
+	virtual void BlitImageToSurface(Image2D* pImage, GpuSurface* surface, const ImageBlitRange &range, Filter filter) = 0;
 };
 
 class GpuCmdManager : public GpuObject {

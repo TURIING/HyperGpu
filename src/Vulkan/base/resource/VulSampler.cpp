@@ -7,8 +7,8 @@
  ********************************************************************************/
 #include "VulSampler.h"
 
-#include "../VulLogicDevice.h"
-#include "../VulPhysicalDevice.h"
+#include "../device/VulLogicDevice.h"
+#include "../device/VulPhysicalDevice.h"
 
 VulSampler::VulSampler(VulLogicDevice* device, const VulSamplerCreateInfo& info) : m_pLogicDevice(device) {
 	m_pLogicDevice->AddRef();

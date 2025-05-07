@@ -9,8 +9,8 @@
 #ifndef VULINSTANCE_H
 #define VULINSTANCE_H
 
-#include "../../common/common.h"
-#include "VulObject.h"
+#include "../../../common/common.h"
+#include "../VulObject.h"
 
 class VulInstance;
 

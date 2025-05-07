@@ -6,7 +6,7 @@
 * @description: 
 ********************************************************************************/
 #include "VulPipeline.h"
-#include "../VulLogicDevice.h"
+#include "../device/VulLogicDevice.h"
 
 VulPipeline::VulPipeline(VulLogicDevice* device, const VulPipelineState& state): m_pDevice(device) {
 	m_pDevice->AddRef();
