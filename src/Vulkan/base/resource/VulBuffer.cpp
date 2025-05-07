@@ -7,8 +7,8 @@
 ********************************************************************************/
 #include "VulBuffer.h"
 
-#include "../VulLogicDevice.h"
-#include "../VulPhysicalDevice.h"
+#include "../device/VulLogicDevice.h"
+#include "../device/VulPhysicalDevice.h"
 #include "../command/VulCommandBuffer.h"
 
 VulBuffer::VulBuffer(VulLogicDevice* device, const VulBufferCreateInfo& info) : m_pLogicDevice(device), m_size(info.size) {

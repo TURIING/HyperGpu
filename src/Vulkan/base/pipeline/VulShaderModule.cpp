@@ -7,7 +7,7 @@
 ********************************************************************************/
 #include "VulShaderModule.h"
 
-#include "../VulLogicDevice.h"
+#include "../device/VulLogicDevice.h"
 
 VulShaderModule::VulShaderModule(VulLogicDevice* device, const uint8_t *code, uint32_t size): m_pLogicDevice(device) {
 	m_pLogicDevice->AddRef();

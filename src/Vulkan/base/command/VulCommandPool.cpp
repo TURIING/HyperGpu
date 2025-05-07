@@ -6,7 +6,7 @@
 * @description: 
 ********************************************************************************/
 #include "VulCommandPool.h"
-#include "../../base/VulLogicDevice.h"
+#include "../device/VulLogicDevice.h"
 
 VulCommandPool::VulCommandPool(VulLogicDevice* device, uint32_t queueFamilyIndex) : m_pDevice(device) {
 	m_pDevice->AddRef();

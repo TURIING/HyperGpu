@@ -7,7 +7,7 @@
  ********************************************************************************/
 #include "VulDescriptorSet.h"
 
-#include "../VulLogicDevice.h"
+#include "../device/VulLogicDevice.h"
 #include "VulDescriptorPool.h"
 #include "VulDescriptorSetLayout.h"
 #include "../resource/VulUniformBuffer.h"

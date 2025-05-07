@@ -8,10 +8,9 @@
 
 #include "VulkanDevice.h"
 
-#include "../base/VulInstance.h"
-#include "../base/VulLogicDevice.h"
-#include "../base/VulPhysicalDevice.h"
-#include "../base/surface/VulSurface.h"
+#include "../base/device/VulInstance.h"
+#include "../base/device/VulLogicDevice.h"
+#include "../base/device/VulPhysicalDevice.h"
 #include "../base/surface/VulSwapChain.h"
 #include "../base/sync/VulSemaphore.h"
 #include "VulkanCmd.h"
@@ -19,10 +18,12 @@
 #include "VulkanFence.h"
 #include "VulkanPipeline.h"
 #include "VulkanPipelineManager.h"
+#include "VulkanQueue.h"
 #include "VulkanResourceManager.h"
 #include "VulkanSemaphore.h"
 #include "VulkanSurface.h"
 #include "VulkanSyncManager.h"
+#include "resource/ResourceCache.h"
 
 #ifdef NODEBUG
 constexpr bool ENABLE_VALIDATION_LAYER = false;
@@ -45,11 +46,9 @@ VulkanDevice::VulkanDevice(const DeviceCreateInfo &info) {
 #endif
                     .Build();
 
-	m_pSurface = new VulSurface(m_pInstance, info.platformWindowInfo.handle);
 
 	m_pPhysicalDevice = VulPhysicalDevice::Builder()
 							.SetVulInstance(m_pInstance)
-							.SetVulSurface(m_pSurface)
 							.AddExtension(VK_KHR_SWAPCHAIN_EXTENSION_NAME)
 #if PLATFORM_MACOS
 							.AddExtension("VK_KHR_portability_subset")
@@ -61,8 +60,8 @@ VulkanDevice::VulkanDevice(const DeviceCreateInfo &info) {
 	};
     m_pLogicDevice = VulLogicDevice::Builder()
                         .SetInstance(m_pInstance)
-                        .SetSurface(m_pSurface)
                         .SetPhysicalDevice(m_pPhysicalDevice)
+						.SetQueueInfos(info.pQueueInfo, info.queueInfoCount)
                         .AddExtension(VK_KHR_SWAPCHAIN_EXTENSION_NAME)
 #if PLATFORM_MACOS
                         .AddExtension("VK_KHR_portability_subset")
@@ -70,6 +69,7 @@ VulkanDevice::VulkanDevice(const DeviceCreateInfo &info) {
                         .SetDeviceFeatures(deviceFeatures)
                         .Build();
 
+	m_pResourceCache = new ResourceCache(this);
 	m_pCmdManager = new VulkanCmdManager(this);
 	m_pLogicDevice->SetCmdManager(dynamic_cast<VulkanCmdManager*>(m_pCmdManager));
 	m_pPipelineManager = new VulkanPipelineManager(this);
@@ -79,7 +79,6 @@ VulkanDevice::VulkanDevice(const DeviceCreateInfo &info) {
 
 VulkanDevice::~VulkanDevice() {
 	m_pInstance->SubRef();
-	m_pSurface->SubRef();
 	m_pPhysicalDevice->SubRef();
 	m_pLogicDevice->SubRef();
 	m_pCmdManager->SubRef();
@@ -88,31 +87,10 @@ VulkanDevice::~VulkanDevice() {
 	m_pSyncManager->SubRef();
 };
 
-GpuSurface* VulkanDevice::GetSurface(Pipeline* pipeline) {
-	return new VulkanSurface(this, dynamic_cast<VulkanPipeline*>(pipeline));
+GpuSurface* VulkanDevice::CreateSurface(const PlatformWindowInfo &platformWindowInfo) {
+	return new VulkanSurface(this, platformWindowInfo);
 }
 
-void VulkanDevice::Submit(GpuCmd* cmd, Semaphore* waitSemaphore, Semaphore* signalSemaphore, Fence* inFlightFence) {
-	const auto command				 = dynamic_cast<VulkanCmd*>(cmd);
-	const auto waitVulkanSemaphore	 = dynamic_cast<VulkanSemaphore*>(waitSemaphore);
-	const auto signalVulkanSemaphore = dynamic_cast<VulkanSemaphore*>(signalSemaphore);
-	const auto inFlightVulkanFence	 = dynamic_cast<VulkanFence*>(inFlightFence);
-	command->Submit(waitVulkanSemaphore->GetHandle(), signalVulkanSemaphore->GetHandle(), inFlightVulkanFence->GetHandle());
-}
-
-void VulkanDevice::Present(Semaphore* waitSemaphore, GpuSurface* surface, uint32_t& imageIndex) {
-	const auto	   waitVulkanSemaphore = dynamic_cast<VulkanSemaphore*>(waitSemaphore);
-	const auto	   swapChain		   = dynamic_cast<VulkanSurface*>(surface)->GetSwapChain();
-	VkSemaphore	   pSemaphore[]		   = {waitVulkanSemaphore->GetHandle()->GetHandle()};
-	VkSwapchainKHR pSwapChain[]		   = {swapChain->GetHandle()};
-
-	const VkPresentInfoKHR presentInfo = {
-		.sType				= VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
-		.waitSemaphoreCount = 1,
-		.pWaitSemaphores	= pSemaphore,
-		.swapchainCount		= 1,
-		.pSwapchains		= pSwapChain,
-		.pImageIndices		= &imageIndex,
-	};
-	vkQueuePresentKHR(m_pLogicDevice->GetPresentQueue(), &presentInfo);
+Queue* VulkanDevice::CreateQueue(QueueType queueType) {
+	return new VulkanQueue(this, queueType);
 }

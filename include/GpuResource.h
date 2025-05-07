@@ -16,7 +16,6 @@ namespace HyperGpu {
 
 	class Sampler : public GpuObject {
 	public:
-		enum Filter { NEAREST, LINEAR };
 		enum AddressMode { REPEAT, MIRROR, CLAMP_TO_EDGE, CLAMP_TO_BORDER };
 		struct SamplerCreateInfo {
 			Filter      magFilter    = LINEAR;

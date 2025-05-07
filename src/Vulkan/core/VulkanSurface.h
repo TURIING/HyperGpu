@@ -9,7 +9,12 @@
 #define VULKANSURFACE_H
 
 #include "../../common/common.h"
+#include <GpuDevice.h>
 #include <GpuSurface.h>
+
+class VulImage2D;
+class VulkanSemaphore;
+class VulSurface;
 
 namespace HyperGpu {
 class Semaphore;
@@ -20,19 +25,21 @@ class VulkanPipeline;
 class VulSwapChain;
 class VulkanDevice;
 
-class VulkanSurface : public HyperGpu::GpuSurface {
+class VulkanSurface final : public HyperGpu::GpuSurface {
 public:
-	explicit					  VulkanSurface(VulkanDevice* device, VulkanPipeline* pipeline);
-	~							  VulkanSurface() override;
-	void						  AcquireNextImage(Semaphore* semaphore, uint32_t& imageIndex) override;
-	[[nodiscard]] VulFrameBuffer* GetCurrentFrameBuffer() const { return m_vecFrameBuffer[m_frameIndex]; }
-	[[nodiscard]] VulSwapChain*	  GetSwapChain() const { return m_pSwapChain; }
+	explicit VulkanSurface(VulkanDevice* device, HyperGpu::PlatformWindowInfo platformWindowInfo);
+	~ VulkanSurface() override;
+	Semaphore* AcquireNextImage(uint32_t& imageIndex) override;
+	[[nodiscard]] VulSwapChain* GetSwapChain() const { return m_pSwapChain; }
+	[[nodiscard]] VulImage2D* GetCurrentImage() const;
+	[[nodiscard]] Size GetSize() const;
 
 private:
-	VulkanDevice*				 m_pVulkanDevice = nullptr;
-	VulSwapChain*				 m_pSwapChain	 = nullptr;
-	std::vector<VulFrameBuffer*> m_vecFrameBuffer;
-	int32_t						 m_frameIndex = -1;
+	VulkanDevice* m_pVulkanDevice = nullptr;
+	VulSurface*	m_pSurface		   = nullptr;
+	VulSwapChain* m_pSwapChain	 = nullptr;
+	VulkanSemaphore* m_pImageAcquiredSemaphore = nullptr;
+	int32_t	m_frameIndex = -1;
 };
 
 #endif // VULKANSURFACE_H

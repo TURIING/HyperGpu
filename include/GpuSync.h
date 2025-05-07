@@ -13,7 +13,6 @@
 namespace HyperGpu {
 class Fence : public GpuObject {
 public:
-	virtual ~	 Fence()	   = default;
 	virtual void Wait() const  = 0;
 	virtual void Reset() const = 0;
 };

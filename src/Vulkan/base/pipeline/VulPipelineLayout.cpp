@@ -6,7 +6,7 @@
 * @description: 
 ********************************************************************************/
 #include "VulPipelineLayout.h"
-#include "../VulLogicDevice.h"
+#include "../device/VulLogicDevice.h"
 
 VulPipelineLayoutBuilder::VulPipelineLayoutBuilder() {
     m_pipelineLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;

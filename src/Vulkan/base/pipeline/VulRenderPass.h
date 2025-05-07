@@ -15,24 +15,20 @@ class VulLogicDevice;
 class VulRenderPass;
 
 struct VulAttachmentInfo {
+    AttachmentType type;
     uint32_t attachmentIndex;
     VkFormat format;
 };
 
 struct VulRenderPassCreateInfo {
-    bool enableColorAttachment = false;
-    bool enableDepthAttachment = false;
-
-    std::vector<VulAttachmentInfo> colorAttachments;
-    VulAttachmentInfo depthAttachment;
+    std::vector<VulAttachmentInfo> attachment;
 };
 
 class VulRenderPassBuilder final {
 public:
     VulRenderPassBuilder() = default;
     VulRenderPassBuilder& SetLogicDevice(VulLogicDevice* device) { m_pDevice = device; return *this; }
-    VulRenderPassBuilder& AddColorAttachment(const VulAttachmentInfo && attachmentInfo);
-    VulRenderPassBuilder& AddDepthAttachment(const VulAttachmentInfo && attachmentInfo);
+    VulRenderPassBuilder& AddAttachment(const VulAttachmentInfo & attachmentInfo);
     VulRenderPass* Build();
 
 private:

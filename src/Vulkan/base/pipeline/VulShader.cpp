@@ -7,7 +7,7 @@
 ********************************************************************************/
 #include "VulShader.h"
 
-#include "../VulLogicDevice.h"
+#include "../device/VulLogicDevice.h"
 #include "../descriptor/VulDescriptorSetLayout.h"
 #include "GpuPipeline.h"
 #include "SPIRV-Reflect/spirv_reflect.h"

@@ -6,7 +6,7 @@
 * @description: 
 ********************************************************************************/
 #include "VulSemaphore.h"
-#include "../VulLogicDevice.h"
+#include "../device/VulLogicDevice.h"
 
 VulSemaphore::VulSemaphore(VulLogicDevice* device) : m_pLogicDevice(device) {
 	m_pLogicDevice->AddRef();

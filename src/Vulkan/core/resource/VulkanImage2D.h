@@ -23,6 +23,7 @@ public:
 	~VulkanImage2D() override;
 	[[nodiscard]] VulkanSampler* GetSampler() const { return m_pSampler; }
 	[[nodiscard]] VulImage2D* GetHandle() const { return m_pImage; }
+	[[nodiscard]] VkImageView GetImageView() const;
 	[[nodiscard]] VkDescriptorImageInfo* GetDescriptorImageInfo() { return &m_imageInfo; }
 	[[nodiscard]] Size GetSize() const { return m_size; }
 	void FillPixels(GpuCmd* pCmd, const uint8_t* data, uint64_t dataSize) override;

@@ -6,10 +6,10 @@
 * @description: 
 ********************************************************************************/
 #include "VulRenderPass.h"
-#include "../VulLogicDevice.h"
+#include "../device/VulLogicDevice.h"
 
 VulRenderPass::VulRenderPass(VulLogicDevice* device, VulRenderPassCreateInfo &createInfo): m_pDevice(device) {
-	m_pDevice->AddRef();
+    m_pDevice->AddRef();
 
     VkSubpassDescription subpass {
         .pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS,                                       // Vulkan在未来也可能会支持计算子流程，所以，我们还需要显式地指定这是一个图形渲染的子流程
@@ -17,10 +17,11 @@ VulRenderPass::VulRenderPass(VulLogicDevice* device, VulRenderPassCreateInfo &cr
 
     std::vector<VkAttachmentDescription> attachments;
     std::vector<VkAttachmentReference> vecColorAttachmentRef;
+    VkAttachmentReference depthAttachmentRef;
 
-    // 颜色附着
-    if(createInfo.enableColorAttachment) {
-        for(const auto & [attachmentIndex, format] : createInfo.colorAttachments) {
+    for(const auto & [type, attachmentIndex, format] : createInfo.attachment) {
+        // 颜色附着
+        if(type == AttachmentType::COLOR) {
             const VkAttachmentDescription colorAttachment = {
                 .format = format,
                 .samples = VK_SAMPLE_COUNT_1_BIT,
@@ -34,8 +35,8 @@ VulRenderPass::VulRenderPass(VulLogicDevice* device, VulRenderPassCreateInfo &cr
                 .stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
 
                 // 图像的像素数据在内存中的分布取决于我们要对图像进行的操作
-                .initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,                                 // 用于指定渲染流程开始前的图像布局方式,我们不关心之前的图像布局方式
-                .finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR                              // 用于指定渲染流程结束后的图像布局方式,图像被用在交换链中进行呈现操作
+                .initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,             // 用于指定渲染流程开始前的图像布局方式,我们不关心之前的图像布局方式
+                .finalLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL // 用于指定渲染流程结束后的图像布局方式,图像被用在交换链中进行呈现操作
             };
 
             VkAttachmentReference colorAttachmentRef = {
@@ -47,28 +48,28 @@ VulRenderPass::VulRenderPass(VulLogicDevice* device, VulRenderPassCreateInfo &cr
             vecColorAttachmentRef.push_back(colorAttachmentRef);
         }
 
-        subpass.colorAttachmentCount = createInfo.colorAttachments.size();
+        // 深度附着
+        else if(type == AttachmentType::DEPTH) {
+            const VkAttachmentDescription depthAttachment = {
+                .format = format,
+                .samples = VK_SAMPLE_COUNT_1_BIT,
+                .loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,
+                .storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
+                .stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE,
+                .stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
+                .initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
+                .finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL
+            };
+
+            depthAttachmentRef = {
+                .attachment = attachmentIndex,
+                .layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL
+            };
+            attachments.push_back(depthAttachment);
+        }
+
+        subpass.colorAttachmentCount = vecColorAttachmentRef.size();
         subpass.pColorAttachments = vecColorAttachmentRef.data();
-    }
-
-    // 深度附着
-    if(createInfo.enableDepthAttachment) {
-        const VkAttachmentDescription depthAttachment = {
-            .format = createInfo.depthAttachment.format,
-            .samples = VK_SAMPLE_COUNT_1_BIT,
-            .loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,
-            .storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
-            .stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE,
-            .stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
-            .initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
-            .finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL
-        };
-
-        VkAttachmentReference depthAttachmentRef = {
-            .attachment = createInfo.depthAttachment.attachmentIndex,
-            .layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL
-        };
-        attachments.push_back(depthAttachment);
         subpass.pDepthStencilAttachment = &depthAttachmentRef;
     }
 
@@ -99,15 +100,8 @@ VulRenderPass::~VulRenderPass() {
 	m_pDevice->SubRef();
 }
 
-VulRenderPassBuilder& VulRenderPassBuilder::AddColorAttachment(const VulAttachmentInfo&& attachmentInfo) {
-    m_renderPassCreateInfo.enableColorAttachment = true;
-    m_renderPassCreateInfo.colorAttachments.push_back(attachmentInfo);
-    return *this;
-}
-
-VulRenderPassBuilder& VulRenderPassBuilder::AddDepthAttachment(const VulAttachmentInfo&& attachmentInfo) {
-    m_renderPassCreateInfo.enableDepthAttachment = true;
-    m_renderPassCreateInfo.depthAttachment = attachmentInfo;
+VulRenderPassBuilder& VulRenderPassBuilder::AddAttachment(const VulAttachmentInfo& attachmentInfo) {
+    m_renderPassCreateInfo.attachment.push_back(attachmentInfo);
     return *this;
 }
 

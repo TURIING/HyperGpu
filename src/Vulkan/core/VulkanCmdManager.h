@@ -12,6 +12,7 @@
 
 #include "../../common/common.h"
 
+class VulQueue;
 class VulkanDevice;
 class VulCommandPool;
 class VulCommandBuffer;
@@ -27,6 +28,7 @@ public:
 private:
 	VulkanDevice*	m_pVulkanDevice = nullptr;
 	VulCommandPool* m_pCmdPool		= nullptr;
+	VulQueue*		m_pQueue		= nullptr;
 };
 
 #endif //VULKANCMDMANAGER_H

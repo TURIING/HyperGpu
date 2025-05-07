@@ -30,6 +30,7 @@ struct RasterizationInfo {
 struct AttachmentInfo {
 	AttachmentType type;
 	uint32_t	   index;
+	PixelFormat	   format;
 };
 
 struct RenderEnvInfo {
@@ -53,7 +54,6 @@ public:
 
 class PipelineManager : public GpuObject {
 public:
-	virtual ~						PipelineManager()										 = default;
 	[[nodiscard]] virtual Pipeline* CreateRenderPipeline(const RenderEnvInfo& renderEnvInfo) = 0;
 
 	static void DestroyPipeline(Pipeline* pipeline) { pipeline->SubRef(); }

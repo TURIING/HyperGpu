@@ -27,8 +27,10 @@ GpuSyncManager* OpenGlDevice::GetSyncManager() {
 	return nullptr;
 }
 
-GpuSurface* OpenGlDevice::GetSurface(Pipeline* pipeline) {
-	return nullptr;
+GpuSurface *OpenGlDevice::CreateSurface(const PlatformWindowInfo &platformWindowInfo) {
+    return nullptr;
 }
-void OpenGlDevice::Submit(GpuCmd* cmd, Semaphore* waitSemaphore, Semaphore* signalSemaphore, Fence* inFlightFence) {}
-void OpenGlDevice::Present(Semaphore* waitSemaphore, GpuSurface* surface, uint32_t& imageIndex) {}
+
+Queue *OpenGlDevice::CreateQueue(QueueType queueType) {
+    return nullptr;
+}

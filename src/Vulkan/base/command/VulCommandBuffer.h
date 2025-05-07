@@ -20,6 +20,7 @@ class VulFrameBuffer;
 class VulRenderPass;
 class VulCommandPool;
 class VulLogicDevice;
+class VulImage2D;
 
 struct VulRenderPassBeginInfo {
     VulRenderPass* pRenderPass = nullptr;
@@ -49,10 +50,10 @@ public:
     void PipelineBarrier(VkPipelineStageFlags srcStageFlags, VkPipelineStageFlags dstStageFlags, const VkImageMemoryBarrier& barrier) const;
     void FillImageByBuffer(VkBuffer srcBuffer, VkImage dstImage, VkImageLayout imageLayout, const VkBufferImageCopy &regions) const;
     void ClearColorForImage(VkImage image, const VkClearColorValue& color) const;
+    void BlitImage(VulImage2D* pSrcImage, VulImage2D* pDstImage, const std::vector<VkImageBlit> &vecImageBlit, VkFilter filter) const;
+    void TransitionImageLayout(VulImage2D* pImage, VkImageLayout newLayout, VkImageAspectFlags aspectFlags = VK_IMAGE_ASPECT_COLOR_BIT) const;
     void Draw(uint32_t vertexCount) const;
     void DrawIndex(uint32_t indexCount) const;
-    void Submit(VulSemaphore* waitSemaphore, VulSemaphore* signalSemaphore, VulFence* inFightFence);
-    void Submit();
 
 private:
     VulLogicDevice* m_pLogicDevice = nullptr;

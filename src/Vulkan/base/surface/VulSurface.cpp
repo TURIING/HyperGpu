@@ -7,7 +7,7 @@
 ********************************************************************************/
 
 #include "VulSurface.h"
-#include "../VulInstance.h"
+#include "../device/VulInstance.h"
 
 VulSurface::VulSurface(VulInstance* instance, const void *handle): m_pInstance(instance) {
 	m_pInstance->AddRef();

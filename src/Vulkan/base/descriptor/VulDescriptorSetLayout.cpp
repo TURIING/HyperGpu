@@ -6,7 +6,7 @@
 * @description: 
 ********************************************************************************/
 #include "VulDescriptorSetLayout.h"
-#include "../VulLogicDevice.h"
+#include "../device/VulLogicDevice.h"
 
 VulDescriptorSetLayout::VulDescriptorSetLayout(VulLogicDevice* device, const VulDescriptorSetLayoutCreateInfo &createInfo): m_pDevice(device) {
 	m_pDevice->AddRef();

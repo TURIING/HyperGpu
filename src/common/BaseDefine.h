@@ -17,15 +17,32 @@ using namespace HyperGpu;
 #define BIT(x) (1 << (x))
 #define CASE_FROM_TO(FROM, TO) case FROM: return TO;
 
+template <typename T>
+uint32_t TO_U32(T value) {
+    static_assert(std::is_arithmetic<T>::value, "T must be numeric");
+    return static_cast<uint32_t>(value);
+}
+
+template <typename T>
+int32_t TO_I32(T value) {
+    static_assert(std::is_arithmetic<T>::value, "T must be numeric");
+    return static_cast<int32_t>(value);
+}
+
+inline void HASH_COMBINE(size_t &seed, size_t hash) {
+    hash += 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    seed ^= hash;
+}
+
+template <class T>
+inline void HASH_COMBINE(size_t &seed, const T &v) {
+    std::hash<T> hasher;
+    HASH_COMBINE(seed, hasher(v));
+}
+
+using u32 = uint32_t;
+using i32 = int32_t;
 /************************************************* Type *************************************************************/
-
-enum class MouseButton {
-    None = 0,
-    Left = BIT(0),
-    Right = BIT(1),
-    Middle = BIT(2),
-};
-
 struct Point {
     int x = 0;
     int y = 0;
@@ -38,15 +55,6 @@ struct ImageInfo {
 
 
 /************************************************* Variable *********************************************************/
-
-constexpr auto APP_NAME = "VTEngine";
-constexpr Version APP_VERSION = { 1, 0, 0 };
-constexpr Size WINDOW_SIZE = { 1200, 1000 };
-inline constexpr float FRAME_TIME = 1/60.0;                                                                         // 每秒里每帧的耗时
-constexpr std::string SHADER_DIR = "shader/";
-constexpr std::string TEXTURE_DIR = "assets/images/";
-constexpr std::string MODEL_DIR = "assets/model/";
-
 constexpr const char *VK_LAYER_KHRONOS_VALIDATION = "VK_LAYER_KHRONOS_validation";
 
 #endif //BASEDEFINE_H

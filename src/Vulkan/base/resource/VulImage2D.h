@@ -23,15 +23,16 @@ struct VulImage2DCreateInfo {
     VkSampleCountFlagBits samples = VK_SAMPLE_COUNT_1_BIT;
     VkMemoryPropertyFlags memoryPropertyFlags;
     uint32_t mipLevels = 1;
+    VkImage handle = nullptr;
 };
 
 class VulImage2D final: public VulObject<VkImage>{
 public:
     VulImage2D(VulLogicDevice* device, const VulImage2DCreateInfo& info);
-    void TransitionImageLayout(VulCommandBuffer*  pCmd, VkImageLayout newLayout,
-                               VkImageAspectFlags aspectFlags = VK_IMAGE_ASPECT_COLOR_BIT);
     [[nodiscard]] VkImageView   GetImageViewHandle() const { return m_pImageView; }
     [[nodiscard]] VkImageLayout GetCurrentImageLayout() const { return m_currentLayout; }
+    void SetCurrentImageLayout(VkImageLayout layout) { m_currentLayout = layout; }
+    [[nodiscard]] uint32_t GetMipLevels() const { return m_mipLevels; }
     ~VulImage2D() override;
 
 private:

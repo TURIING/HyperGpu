@@ -7,7 +7,7 @@
 ********************************************************************************/
 #include "VulFrameBuffer.h"
 
-#include "../VulLogicDevice.h"
+#include "../device/VulLogicDevice.h"
 #include "../pipeline/VulRenderPass.h"
 
 VulFrameBuffer::VulFrameBuffer(VulLogicDevice* device, const VulRenderPass* renderPass, VulFrameBufferCreateInfo &createInfo): m_pLogicDevice(device) {

@@ -6,7 +6,7 @@
 * @description: 
 ********************************************************************************/
 #include "VulFence.h"
-#include "../VulLogicDevice.h"
+#include "../device/VulLogicDevice.h"
 
 VulFence::VulFence(VulLogicDevice* device) : m_pLogicDevice(device) {
 	m_pLogicDevice->AddRef();

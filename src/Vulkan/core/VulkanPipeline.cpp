@@ -7,7 +7,7 @@
 ********************************************************************************/
 #include "VulkanPipeline.h"
 
-#include "../base/VulPhysicalDevice.h"
+#include "../base/device/VulPhysicalDevice.h"
 #include "../base/descriptor/VulDescriptorPool.h"
 #include "../base/descriptor/VulDescriptorSet.h"
 #include "../base/pipeline/VulPipeline.h"
@@ -17,11 +17,13 @@
 #include "../base/resource/VulUniformBuffer.h"
 #include "VulkanDevice.h"
 #include "../base/descriptor/VulDescriptorSetLayout.h"
+#include "resource/ResourceCache.h"
 #include "resource/VulkanBuffer.h"
 #include "resource/VulkanImage2D.h"
 
 VulkanPipeline::VulkanPipeline(VulkanDevice* pDevice, const RenderEnvInfo& renderEnvInfo) : m_pVulkanDevice(pDevice) {
 	m_pVulkanDevice->AddRef();
+	auto pPhysicalDevice = m_pVulkanDevice->GetPhysicalDevice();
 
 	VulShader shader(pDevice->GetLogicDevice(), renderEnvInfo.shaderInfo);
 
@@ -32,16 +34,18 @@ VulkanPipeline::VulkanPipeline(VulkanDevice* pDevice, const RenderEnvInfo& rende
 	VulPipelineDynamicState		  pipelineDynamicState;
 	VulPipelineDepthStencilState  pipelineDepthStencilState;
 
-	auto renderPassBuilder = VulRenderPass::Builder().SetLogicDevice(m_pVulkanDevice->GetLogicDevice());
-	for (auto i = 0; i < renderEnvInfo.attachmentCount; i++) {
-		const auto attachment = renderEnvInfo.pAttachment[i];
-		if(attachment.type == AttachmentType::COLOR) {
-			renderPassBuilder.AddColorAttachment({attachment.index, m_pVulkanDevice->GetPhysicalDevice()->GetColorFormat()});
-		} else if(attachment.type == AttachmentType::DEPTH) {
-			renderPassBuilder.AddDepthAttachment({attachment.index, m_pVulkanDevice->GetPhysicalDevice()->GetDepthFormat()});
-		}
+	std::vector<VulAttachmentInfo> attachmentInfos;
+	attachmentInfos.reserve(renderEnvInfo.attachmentCount);
+	for(auto i = 0; i < renderEnvInfo.attachmentCount; i++) {
+		auto attachment = renderEnvInfo.pAttachment[i];
+		attachmentInfos.push_back({
+			attachment.type,
+			attachment.index,
+			static_cast<VkFormat>(attachment.format),
+		});
 	}
-	m_pRenderPass = renderPassBuilder.Build();
+	m_pRenderPass = m_pVulkanDevice->GetResourceCache()->RequestRenderPass({ attachmentInfos.data(), TO_U32(attachmentInfos.size()) });
+	m_pRenderPass->AddRef();
 
 	m_pPipelineLayout = shader.GetPipelineLayout();
 	m_pPipelineLayout->AddRef();
