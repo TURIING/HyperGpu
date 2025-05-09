@@ -37,18 +37,14 @@ void VulkanCmd::Reset() {
 }
 
 void VulkanCmd::Begin() {
-	m_isBegin = true;
 	m_pCmd->BeginRecord();
 }
 
 void VulkanCmd::End() {
-	m_isBegin = false;
 	m_pCmd->EndRecord();
 }
 
 void VulkanCmd::Draw(const DrawInfo& info) {
-	LOG_ASSERT_INFO(m_isBegin, "Cmd has not yet started recording");
-
 	if (info.inputAssembler->vertexBuffer) {
 		m_pCmd->BindVertexBuffer(dynamic_cast<VulkanBuffer*>(info.inputAssembler->vertexBuffer)->GetVertexBuffer());
 	}
@@ -77,8 +73,8 @@ void VulkanCmd::ClearColorImage(Image2D* image, Color color) {
 }
 
 void VulkanCmd::BeginRenderPass(const BeginRenderInfo& beginRenderInfo) {
-	const auto pPipeline   = dynamic_cast<VulkanPipeline*>(beginRenderInfo.pipeline);
-	const auto pRenderPass = pPipeline->GetRenderPass();
+	m_pPipeline = dynamic_cast<VulkanPipeline*>(beginRenderInfo.pipeline);
+	const auto pRenderPass = m_pPipeline->GetRenderPass();
 
 	VulRenderPassBeginInfo renderPassBeginInfo;
 	for (const auto& value : beginRenderInfo.clearValue) {
@@ -142,9 +138,9 @@ void VulkanCmd::BeginRenderPass(const BeginRenderInfo& beginRenderInfo) {
 	}
 
 	m_pCmd->BeginRenderPass(renderPassBeginInfo);
-	m_pCmd->BindPipeline(pPipeline->GetHandle());
-	m_pCmd->BindDescriptorSets(VK_PIPELINE_BIND_POINT_GRAPHICS, pPipeline->GetPipelineLayout()->GetHandle(),
-	                           pPipeline->GetDescriptorSet()->GetHandle());
+	m_pCmd->BindPipeline(m_pPipeline->GetHandle());
+	m_pCmd->BindDescriptorSets(VK_PIPELINE_BIND_POINT_GRAPHICS, m_pPipeline->GetPipelineLayout()->GetHandle(),
+                               m_pPipeline->GetDescriptorSet()->GetHandle());
 }
 
 void VulkanCmd::EndRenderPass() {

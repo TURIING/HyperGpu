@@ -21,17 +21,18 @@ class VulDescriptorSet final : public VulObject<VkDescriptorSet> {
 public:
 	struct ImageBindingInfo {
 		VkDescriptorImageInfo* imageInfo;
-		uint32_t               binding;
+        const char* name = nullptr;
 	};
 
 public:
-	VulDescriptorSet(VulLogicDevice* device, VulDescriptorPool* pool, VulDescriptorSetLayout* layout);
+	VulDescriptorSet(VulLogicDevice* device, VulDescriptorPool* pool, VulDescriptorSetLayout* layout, std::unordered_map<std::string, uint8_t> resourceBinding);
 	~VulDescriptorSet() override;
 	void SetImage(const std::vector<ImageBindingInfo>& vecImageInfo) const;
 	void SetUniformBuffer(VulUniformBuffer** buffers, uint32_t count) const;
 
 private:
 	VulLogicDevice* m_pLogicDevice = nullptr;
+    std::unordered_map<std::string, uint8_t> m_mapResourceBinding;
 };
 
 #endif // VULDESCRIPTORSET_H

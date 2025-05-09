@@ -9,7 +9,7 @@
 
 #include "VulBuffer.h"
 
-VulUniformBuffer::VulUniformBuffer(VulLogicDevice* device, uint64_t bufferSize, uint32_t binding): m_binding(binding) {
+VulUniformBuffer::VulUniformBuffer(VulLogicDevice* device, uint64_t bufferSize) {
     m_pBuffer = VulBuffer::Builder()
                 .SetLogicDevice(device)
                 .SetSize(bufferSize)
@@ -23,7 +23,7 @@ VulUniformBuffer::VulUniformBuffer(VulLogicDevice* device, uint64_t bufferSize, 
         .range = bufferSize
     };
 
-    LOG_INFO("Uniform buffer created, binding: {}, size: {}.", m_binding, bufferSize);
+    LOG_DEBUG("Uniform buffer created, size: {}.", bufferSize);
 }
 
 VulUniformBuffer::~VulUniformBuffer() {

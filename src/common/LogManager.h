@@ -28,9 +28,11 @@ private:
 
 #ifdef NDEBUG
 #define LOG_DEBUG(...)
-#define LOG_INFO(...)
+#define LOG_INFO(...) SPDLOG_LOGGER_INFO(Singleton<LogManager>::GetInstance()->GetLogger(), std::format(__VA_ARGS__))
 #define LOG_WARNING(...)
-#define LOG_CRITICAL(...)
+#define LOG_CRITICAL(...) \
+SPDLOG_LOGGER_CRITICAL(Singleton<LogManager>::GetInstance()->GetLogger(), std::format(__VA_ARGS__)); \
+std::exit(EXIT_FAILURE);
 #define LOG_ASSERT(CONDITION)
 #define LOG_ASSERT_INFO(CONDITION, INFO)
 #else

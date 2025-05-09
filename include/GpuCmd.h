@@ -31,9 +31,23 @@ public:
 		Image2D** image		 = nullptr;
 	};
 
+    struct UniformBinding {
+        Buffer* buffer = nullptr;
+        const char* name = nullptr;
+    };
+
+    struct ImageBinding {
+        Image2D* image = nullptr;
+        const char* name = nullptr;
+    };
+
 	struct DrawInfo {
 		InputAssembler* inputAssembler = nullptr;
-		DrawType        drawType       = DrawType::Index;
+        UniformBinding* uniformBinding = nullptr;
+        uint32_t uniformBindingCount = 0;
+        ImageBinding* imageBinding = nullptr;
+        uint32_t imageBindingCount = 0;
+		DrawType drawType = DrawType::Index;
 	};
 
 	struct BeginRenderInfo {

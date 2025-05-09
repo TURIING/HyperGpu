@@ -15,16 +15,14 @@ class VulLogicDevice;
 
 class VulUniformBuffer final : public GpuObject {
 public:
-    VulUniformBuffer(VulLogicDevice* device, uint64_t bufferSize, uint32_t binding);
+    VulUniformBuffer(VulLogicDevice* device, uint64_t bufferSize);
     ~VulUniformBuffer() override;
     [[nodiscard]] VkBuffer GetHandle() const;
-    [[nodiscard]] uint32_t GetBinding() const { return m_binding; }
     [[nodiscard]] VkDescriptorBufferInfo GetDescriptorBufferInfo() const { return m_descriptorInfo; }
     void                   UpdateData(const uint8_t* data, uint64_t size) const;
 
 private:
     VulBuffer* m_pBuffer = nullptr;
-    uint32_t   m_binding = 0;
     VkDescriptorBufferInfo m_descriptorInfo {};
 };
 

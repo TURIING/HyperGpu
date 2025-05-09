@@ -128,6 +128,8 @@ void VulShader::computeDescriptorSetLayout(const SpvReflectShaderModule& module,
             bindInfo.descriptorType = static_cast<VulDescriptorType>(reflectBinding.descriptor_type);
             bindInfo.stageFlags = static_cast<VkShaderStageFlagBits>(module.shader_stage);
             bindInfos.push_back(bindInfo);
+
+            m_mapResourceBinding[reflectBinding.name] = reflectBinding.binding;
         }
     }
 }

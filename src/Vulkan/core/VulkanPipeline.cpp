@@ -23,8 +23,6 @@
 
 VulkanPipeline::VulkanPipeline(VulkanDevice* pDevice, const RenderEnvInfo& renderEnvInfo) : m_pVulkanDevice(pDevice) {
 	m_pVulkanDevice->AddRef();
-	auto pPhysicalDevice = m_pVulkanDevice->GetPhysicalDevice();
-
 	VulShader shader(pDevice->GetLogicDevice(), renderEnvInfo.shaderInfo);
 
 	VulPipelineInputAssemblyState pipelineInputAssembly{renderEnvInfo.rasterInfo.primitiveType};
@@ -72,7 +70,7 @@ VulkanPipeline::VulkanPipeline(VulkanDevice* pDevice, const RenderEnvInfo& rende
 
 	VulDescriptorPoolCreateInfo descriptorPoolInfo{.poolSizes = {{VulDescriptorType::Sampler, 100}, {VulDescriptorType::UniformBuffer, 100}}};
 	m_pDescriptorPool = new VulDescriptorPool(m_pVulkanDevice->GetLogicDevice(), descriptorPoolInfo);
-	m_pDescriptorSet  = new VulDescriptorSet(m_pVulkanDevice->GetLogicDevice(), m_pDescriptorPool, shader.GetDescriptorSetLayout());
+	m_pDescriptorSet  = new VulDescriptorSet(m_pVulkanDevice->GetLogicDevice(), m_pDescriptorPool, m_pDescriptorSetLayout, shader.GetResourceBinding());
 }
 
 VulkanPipeline::~VulkanPipeline() {

@@ -7,12 +7,15 @@
  ********************************************************************************/
 #include "VulDescriptorSet.h"
 
+#include <utility>
+
 #include "../device/VulLogicDevice.h"
 #include "VulDescriptorPool.h"
 #include "VulDescriptorSetLayout.h"
 #include "../resource/VulUniformBuffer.h"
 
-VulDescriptorSet::VulDescriptorSet(VulLogicDevice* device, VulDescriptorPool* pool, VulDescriptorSetLayout* layout) : m_pLogicDevice(device) {
+VulDescriptorSet::VulDescriptorSet(VulLogicDevice* device, VulDescriptorPool* pool, VulDescriptorSetLayout* layout, std::unordered_map<std::string, uint8_t> resourceBinding)
+: m_pLogicDevice(device), m_mapResourceBinding(std::move(resourceBinding)) {
 	m_pLogicDevice->AddRef();
 	std::vector<VkDescriptorSetLayout> descriptorSetLayouts = {layout->GetHandle()};
 
@@ -37,7 +40,7 @@ void VulDescriptorSet::SetImage(const std::vector<ImageBindingInfo>& vecImageInf
 		vecWriteDescriptorSet.push_back({
 			.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
 			.dstSet = m_pHandle,
-			.dstBinding = imageBindingInfo.binding,
+			.dstBinding = m_mapResourceBinding[imageBindingInfo.name],
 			.dstArrayElement = 0,
 			.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
 			.descriptorCount = 1,

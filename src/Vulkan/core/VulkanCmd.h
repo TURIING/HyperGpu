@@ -17,6 +17,7 @@ class VulSemaphore;
 class VulCommandBuffer;
 class VulCommandPool;
 class VulkanDevice;
+class VulkanPipeline;
 
 class VulkanCmd final : public GpuCmd {
 public:
@@ -42,7 +43,7 @@ private:
 private:
 	VulkanDevice*     m_pVulkanDevice = nullptr;
 	VulCommandBuffer* m_pCmd          = nullptr;
-	bool              m_isBegin       = false;
+    VulkanPipeline* m_pPipeline = nullptr;
 	std::unordered_map<size_t, VulFrameBuffer*> m_vecFrameBuffer;
 };
 
