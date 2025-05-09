@@ -10,7 +10,7 @@
 #include "../device/VulLogicDevice.h"
 #include "../descriptor/VulDescriptorSetLayout.h"
 #include "GpuPipeline.h"
-#include "SPIRV-Reflect/spirv_reflect.h"
+#include "spirv_reflect.h"
 #include "VulPipelineLayout.h"
 #include "VulShaderModule.h"
 

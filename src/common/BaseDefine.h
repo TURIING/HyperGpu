@@ -14,6 +14,8 @@
 using namespace HyperGpu;
 
 /************************************************* Marco ************************************************************/
+#define USING_GPU_NAMESPACE_BEGIN namespace HyperGpu {
+#define USING_GPU_NAMESPACE_END }
 #define BIT(x) (1 << (x))
 #define CASE_FROM_TO(FROM, TO) case FROM: return TO;
 
@@ -50,7 +52,7 @@ struct Point {
 
 struct ImageInfo {
     unsigned char *data = nullptr;
-    Size size;
+    HyperGpu::Size size;
 };
 
 

@@ -96,10 +96,11 @@ void VulkanPipeline::SetImages(ImageBindingInfo* infos, uint32_t count) {
 	std::vector<VulDescriptorSet::ImageBindingInfo> vecBindingInfo;
 	vecBindingInfo.reserve(count);
 	for (auto i = 0; i < count; i++) {
-		vecBindingInfo.push_back({
-			.imageInfo = dynamic_cast<VulkanImage2D*>(infos[i].pImage)->GetDescriptorImageInfo(),
-			.binding = infos[i].binding,
-		});
+        // todo binding
+//		vecBindingInfo.push_back({
+//			.imageInfo = dynamic_cast<VulkanImage2D*>(infos[i].pImage)->GetDescriptorImageInfo(),
+//			.binding = infos[i].binding,
+//		});
 	}
 	m_pDescriptorSet->SetImage(vecBindingInfo);
 };

@@ -23,7 +23,8 @@ VulkanBuffer::VulkanBuffer(VulkanDevice* device, const GpuResourceManager::Buffe
 		m_pBuffer = new VulIndexBuffer(device->GetLogicDevice(), data, size);
 		break;
 	case BufferType::Uniform:
-		m_pBuffer = new VulUniformBuffer(device->GetLogicDevice(), size, binding);
+//		m_pBuffer = new VulUniformBuffer(device->GetLogicDevice(), size, binding);
+        // todo binding
 		break;
 	default:
 		LOG_ASSERT(false);

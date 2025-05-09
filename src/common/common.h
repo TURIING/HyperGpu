@@ -13,6 +13,16 @@
 
 #include <vulkan/vulkan.h>
 
+#if !defined(PLATFORM_MACOS) && !defined(PLATFORM_IOS)
+#include <glew/include/GL/glew.h>
+#elif PLATFORM_MACOS
+#include <OpenGL/gl3.h>
+#include <OpenGL/glext.h>
+#elif PLATFORM_IOS
+#include <OpenGLES/ES3/gl.h>
+#include <OpenGLES/ES3/glext.h>
+#endif
+
 #include "BaseDefine.h"
 #include "Gpu.h"
 #include "LogManager.h"

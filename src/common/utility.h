@@ -13,6 +13,28 @@
 #include <fstream>
 #include "LogManager.h"
 
+static void checkGlError(const char* file, uint32_t line, GLenum err, const char* code) {
+    const char *reason = nullptr;
+    switch (err) {
+        case GL_INVALID_ENUM:                   reason = "GL_INVALID_ENUM";                     break;
+        case GL_INVALID_VALUE:                  reason = "GL_INVALID_VALUE";                    break;
+        case GL_INVALID_OPERATION:              reason = "GL_INVALID_OPERATION";                break;
+        case GL_OUT_OF_MEMORY:                  reason = "GL_OUT_OF_MEMORY";                    break;
+        case GL_INVALID_FRAMEBUFFER_OPERATION:  reason = "GL_INVALID_FRAMEBUFFER_OPERATION";    break;
+        default:                                reason = "UnKnown";                             break;
+    }
+    LOG_WARNING("The {}({}) error occurred in {}:{} ", reason, err, file, line);
+}
+
+#define CALL_GL(func)                                    \
+{                                                        \
+    func;                                                \
+    GLenum err = glGetError();                           \
+    if(err != GL_NO_ERROR) {                             \
+        checkGlError(__FILE__, __LINE__, err, #func);    \
+    }                                                    \
+}
+
 /**************************************************** VKResult BEGIN ***************************************************/
 #define CALL_VK(func) checkVkResult(func, __FILE__, __LINE__, #func)
 
