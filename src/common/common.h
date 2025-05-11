@@ -25,6 +25,7 @@
 
 #include "BaseDefine.h"
 #include "Gpu.h"
+#include "HyperGpu.h"
 #include "LogManager.h"
 #include "utility.h"
 

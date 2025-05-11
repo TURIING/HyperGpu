@@ -11,18 +11,32 @@
 #include "../../common/common.h"
 #include "GpuDevice.h"
 
-using namespace HyperGpu;
+USING_GPU_NAMESPACE_BEGIN
+class GlContext;
+class GlQueue;
+class GlThreadPool;
 
 class OpenGlDevice final : public GpuDevice {
 public:
-    OpenGlDevice(const DeviceCreateInfo &info);
-	[[nodiscard]] PipelineManager*	  GetPipelineManager() override;
-	[[nodiscard]] GpuCmdManager*	  GetCmdManager() override;
+    explicit OpenGlDevice(const DeviceCreateInfo &info);
+    ~OpenGlDevice() override;
+	[[nodiscard]] PipelineManager*    GetPipelineManager() override;
+	[[nodiscard]] GpuCmdManager*      GetCmdManager() override;
 	[[nodiscard]] GpuResourceManager* GetResourceManager() override;
-	[[nodiscard]] GpuSyncManager*	  GetSyncManager() override;
+	[[nodiscard]] GpuSyncManager*     GetSyncManager() override;
+    GpuSurface *                      CreateSurface(const PlatformWindowInfo &platformWindowInfo) override;
+    Queue *                           CreateQueue(QueueType queueType) override;
+    GlContext*                        CreateContext();
+	void                              RunWithContext(std::function<void(GlContext*)> func, bool waitFinish) const;
+	GlThreadPool*                     GetThreadPool() const { return m_pThreadPool; }
 
-    GpuSurface *CreateSurface(const PlatformWindowInfo &platformWindowInfo) override;
-
-    Queue *CreateQueue(QueueType queueType) override;
+private:
+    GlContext* m_pMainContext = nullptr;
+	std::vector<GlQueue*> m_vecQueue;
+	GlQueue* m_pOneTimeQueue = nullptr;
+	GlThreadPool* m_pThreadPool = nullptr;
 };
+
+USING_GPU_NAMESPACE_END
+
 #endif //OPENGLDEVICE_H

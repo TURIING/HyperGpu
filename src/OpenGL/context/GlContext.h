@@ -10,19 +10,28 @@
 
 #include "../../common/common.h"
 
+USING_GPU_NAMESPACE_BEGIN
+
+class IContext;
 class OpenGlDevice;
 
 class GlContext final : public GpuObject {
 public:
     GlContext(OpenGlDevice* pGlDevice, GlContext* shareContext);
-    ~GlContext();
+    ~GlContext() override;
+    void MakeCurrent() const;
+    void ClearCurrent() const;
+    static void GlSyncFinish();
+    static bool IsInContext();
 
 private:
     void init();
 
 private:
     OpenGlDevice* m_pGlDevice = nullptr;
+    GlContext* m_pShareContext = nullptr;
+    IContext* m_pBaseContext = nullptr;
 };
 
-
+USING_GPU_NAMESPACE_END
 #endif //HYPERRENDER_GLCONTEXT_H

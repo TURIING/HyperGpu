@@ -24,9 +24,9 @@ VulFence::~VulFence() {
 }
 
 void VulFence::Wait() const {
-	vkWaitForFences(m_pLogicDevice->GetHandle(), 1, &m_pHandle, VK_TRUE, UINT64_MAX);
+	CALL_VK(vkWaitForFences(m_pLogicDevice->GetHandle(), 1, &m_pHandle, VK_TRUE, UINT64_MAX));
 }
 
 void VulFence::Reset() const {
-	vkResetFences(m_pLogicDevice->GetHandle(), 1, &m_pHandle);
+    CALL_VK(vkResetFences(m_pLogicDevice->GetHandle(), 1, &m_pHandle));
 }

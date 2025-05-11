@@ -8,26 +8,72 @@
 #include "GlContext.h"
 #include "../core/OpenGlDevice.h"
 
+#if PLATFORM_MACOS || PLATFORM_IOS
+#include "platform/AGlContext.h"
+#endif
+
+USING_GPU_NAMESPACE_BEGIN
+
 static bool g_needInit = true;
 static std::mutex g_contextInitLock;
 
 GlContext::GlContext(OpenGlDevice *pGlDevice, GlContext *shareContext): m_pGlDevice(pGlDevice) {
     m_pGlDevice->AddRef();
+
+    // 为了初始化glew，先创建一次临时上下文
     if(g_needInit) {
         g_contextInitLock.lock();
-        if(g_needInit) {
-
-        }
+        this->init();
+        g_needInit = false;
+        g_contextInitLock.unlock();
     }
-}
 
-GlContext::~GlContext() {
-    m_pGlDevice->SubRef();
-}
+    m_pShareContext = shareContext;
 
-void GlContext::init() {
-#if PLATFORM_MACOS
-
+#if PLATFORM_MACOS || PLATFORM_IOS
+    m_pBaseContext = AGlContext::CreateContext(dynamic_cast<AGlContext*>(m_pBaseContext));
 #endif
 
 }
+
+GlContext::~GlContext() {
+    m_pBaseContext->SubRef();
+    m_pGlDevice->SubRef();
+}
+
+void GlContext::MakeCurrent() const {
+#if PLATFORM_MACOS || PLATFORM_IOS
+    dynamic_cast<AGlContext*>(m_pBaseContext)->MakeCurrent();
+#endif
+}
+
+void GlContext::ClearCurrent() const {
+#if PLATFORM_MACOS || PLATFORM_IOS
+    dynamic_cast<AGlContext*>(m_pBaseContext)->ClearCurrent();
+#endif
+}
+
+void GlContext::GlSyncFinish() {
+    GLenum result = GL_WAIT_FAILED;
+    constexpr GLuint64 timeout = 0xffffffffffffffffull;
+    GLsync sync = nullptr;
+    CALL_GL(sync = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0));
+    LOG_ASSERT(sync != nullptr);
+    CALL_GL(result = glClientWaitSync(sync, GL_SYNC_FLUSH_COMMANDS_BIT, timeout));
+    CALL_GL(glDeleteSync(sync));
+}
+
+bool GlContext::IsInContext() {
+#if PLATFORM_MACOS || PLATFORM_IOS
+    return AGlContext::GetLastContext() != nullptr;
+#endif
+}
+
+void GlContext::init() {
+#if PLATFORM_MACOS || PLATFORM_IOS
+    AGlContext::init();
+#endif
+
+}
+
+USING_GPU_NAMESPACE_END

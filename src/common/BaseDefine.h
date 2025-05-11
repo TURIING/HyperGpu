@@ -55,8 +55,15 @@ struct ImageInfo {
     HyperGpu::Size size;
 };
 
+enum class WaitState { Success, Failed, Timeout };
 
 /************************************************* Variable *********************************************************/
 constexpr const char *VK_LAYER_KHRONOS_VALIDATION = "VK_LAYER_KHRONOS_validation";
+
+#if PLATFORM_WEB
+constexpr int THREAD_NUM = 1;
+#else
+constexpr int THREAD_NUM = 5;
+#endif
 
 #endif //BASEDEFINE_H
