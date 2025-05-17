@@ -32,9 +32,9 @@ public:
 	void EndRenderPass() override;
 	void SetViewport(const Viewport& viewport) override;
 	void SetScissor(const Scissor& scissor) override;
-	void BlitImageToSurface(Image2D* pImage, GpuSurface* surface, const ImageBlitRange& range, Filter filter) override;
+	void BlitImageToSurface(Image2D* pImage, GpuSurface* surface, ImageBlitRange *pRange, uint32_t rangeCount, Filter filter) override;
 	void Draw(const DrawInfo& info) override;
-	void ClearColorImage(Image2D* image, Color color) override;
+	void ClearColorImage(Image2D* image, const Color &color) override;
 
 private:
 	[[nodiscard]] static VkViewport transViewportToVkViewport(const Viewport& viewport);

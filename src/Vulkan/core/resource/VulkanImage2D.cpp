@@ -15,14 +15,18 @@
 #include "../VulkanDevice.h"
 #include "VulkanSampler.h"
 #include "../VulkanCmd.h"
-#include "../../base/resource/VulUniformBuffer.h"
+
+constexpr VkFormat gPixelFormatToVkFormat[] = {
+	VK_FORMAT_R8G8B8A8_SRGB,		// R8G8B8A8
+	VK_FORMAT_B8G8R8A8_SRGB,		// B8G8R8A8
+};
 
 VulkanImage2D::VulkanImage2D(VulkanDevice* device, const Image2DCreateInfo& info) : m_pVulkanDevice(device), m_size(info.size), m_usage(info.usage) {
 	m_pVulkanDevice->AddRef();
 
 	const VulImage2DCreateInfo vulImage2DCreateInfo{
 		.size				 = info.size,
-		.format				 = transPixelFormatToVkFormat(info.format),
+		.format				 = gPixelFormatToVkFormat[static_cast<int>(info.format)],
 		.usage				 = VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
 		.aspectFlags		 = transImageUsageToVkAspectFlag(info.usage),
 		.memoryPropertyFlags = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
@@ -48,15 +52,6 @@ VulkanImage2D::~VulkanImage2D() {
 VkImageView VulkanImage2D::GetImageView() const {
 	return m_pImage->GetImageViewHandle();
 };
-
-VkFormat VulkanImage2D::transPixelFormatToVkFormat(PixelFormat format) {
-	switch(format) {
-		CASE_FROM_TO(PixelFormat::R8G8B8A8, VK_FORMAT_R8G8B8A8_SRGB)
-		CASE_FROM_TO(PixelFormat::B8G8R8A8, VK_FORMAT_B8G8R8A8_SRGB)
-	default:
-		LOG_CRITICAL("Unrecognized pixel format");
-	}
-}
 
 VkImageAspectFlags VulkanImage2D::transImageUsageToVkAspectFlag(ImageUsage usage) {
 	switch(usage) {

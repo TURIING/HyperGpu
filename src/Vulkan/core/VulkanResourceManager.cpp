@@ -23,7 +23,7 @@ Image2D* VulkanResourceManager::CreateImage2D(const Image2D::Image2DCreateInfo& 
 	return new VulkanImage2D(m_pVulkanDevice, info);
 }
 
-Buffer* VulkanResourceManager::CreateBuffer(const BufferCreateInfo& createInfo) {
+Buffer* VulkanResourceManager::CreateBuffer(const Buffer::BufferCreateInfo& createInfo) {
 	return new VulkanBuffer(m_pVulkanDevice, createInfo);
 }
 

@@ -63,7 +63,7 @@ void VulkanCmd::Draw(const DrawInfo& info) {
 	}
 }
 
-void VulkanCmd::ClearColorImage(Image2D* image, Color color) {
+void VulkanCmd::ClearColorImage(Image2D* image, const Color &color) {
 	const auto pVulImage  = dynamic_cast<VulkanImage2D*>(image)->GetHandle();
 	const auto colorValue = std::bit_cast<VkClearColorValue>(color);
 
@@ -155,7 +155,7 @@ void VulkanCmd::SetScissor(const Scissor& scissor) {
 	m_pCmd->SetScissor({transScissorToVkRect2D(scissor)});
 }
 
-void VulkanCmd::BlitImageToSurface(Image2D* pImage, GpuSurface* surface, const ImageBlitRange& range, Filter filter) {
+void VulkanCmd::BlitImageToSurface(Image2D* pImage, GpuSurface* surface, ImageBlitRange *pRange, uint32_t rangeCount, Filter filter) {
 	auto pVulImage        = dynamic_cast<VulkanImage2D*>(pImage)->GetHandle();
 	auto pVulSurfaceImage = dynamic_cast<VulkanSurface*>(surface)->GetCurrentImage();
 
@@ -167,26 +167,30 @@ void VulkanCmd::BlitImageToSurface(Image2D* pImage, GpuSurface* surface, const I
 	};
 
 	std::vector<VkImageBlit> imageBlit;
-	imageBlit.push_back({
-		.srcSubresource = subresourceLayers,
-		.srcOffsets = {
-			{.x = range.srcArea.offset.x, .y = range.srcArea.offset.y, .z = 0},
-			{
-				.x = range.srcArea.offset.x + TO_I32(range.srcArea.size.width),
-				.y = range.srcArea.offset.y + TO_I32(range.srcArea.size.height),
-				.z = 1
+	imageBlit.reserve(rangeCount);
+	for (auto i = 0; i < rangeCount; i++) {
+		const auto range = pRange[i];
+		imageBlit.push_back({
+			.srcSubresource = subresourceLayers,
+			.srcOffsets = {
+				{.x = range.srcArea.offset.x, .y = range.srcArea.offset.y, .z = 0},
+				{
+					.x = range.srcArea.offset.x + TO_I32(range.srcArea.size.width),
+					.y = range.srcArea.offset.y + TO_I32(range.srcArea.size.height),
+					.z = 1
+				},
 			},
-		},
-		.dstSubresource = subresourceLayers,
-		.dstOffsets = {
-			{.x = range.dstArea.offset.x, .y = range.dstArea.offset.y, .z = 0},
-			{
-				.x = range.dstArea.offset.x + TO_I32(range.dstArea.size.width),
-				.y = range.dstArea.offset.y + TO_I32(range.dstArea.size.height),
-				.z = 1
+			.dstSubresource = subresourceLayers,
+			.dstOffsets = {
+				{.x = range.dstArea.offset.x, .y = range.dstArea.offset.y, .z = 0},
+				{
+					.x = range.dstArea.offset.x + TO_I32(range.dstArea.size.width),
+					.y = range.dstArea.offset.y + TO_I32(range.dstArea.size.height),
+					.z = 1
+				},
 			},
-		},
-	});
+		});
+	}
 
 	m_pCmd->TransitionImageLayout(pVulImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
 	m_pCmd->TransitionImageLayout(pVulSurfaceImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);

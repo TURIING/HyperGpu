@@ -6,11 +6,30 @@
 * @description: 
 ********************************************************************************/
 #include "GlFence.h"
+USING_GPU_NAMESPACE_BEGIN
 
-void GlFence::Wait() const {
+WaitState GlFence::Wait(u32 timeout) {
+    std::unique_lock<std::mutex> locker(m_lock);
+    if (m_state > 0) {
+        return WaitState::Success;
+    }
+
+    if (timeout > 0) {
+        while (true) {
+            if (m_condition.wait_for(locker, std::chrono::nanoseconds(timeout), [&]{ return m_state > 0; })) {
+                return WaitState::Success;
+            }
+            return WaitState::Timeout;
+        }
+    }
+    else {
+        m_condition.wait(locker, [&] { return m_state > 0; });
+        return WaitState::Success;
+    }
 }
 
-void GlFence::Reset() const {
+void GlFence::Reset() {
+    m_state = 0;
 }
 
 void GlFence::Signal() {
@@ -18,3 +37,5 @@ void GlFence::Signal() {
     m_state = 1;
     m_condition.notify_all();
 }
+
+USING_GPU_NAMESPACE_END

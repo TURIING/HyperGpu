@@ -11,9 +11,11 @@
 #include "../queue/GlQueue.h"
 #include "../queue/WorkTaskCustom.h"
 #include "../thread/GlThreadPool.h"
+#include "../surface/GlSurface.h"
+#include "OpenGlResourceManager.h"
+#include "OpenGlSyncManager.h"
 
 USING_GPU_NAMESPACE_BEGIN
-
 OpenGlDevice::OpenGlDevice(const DeviceCreateInfo& info) {
     m_pMainContext = new GlContext(this, nullptr);
     for (auto i = 0; i < info.queueInfoCount; i++) {
@@ -21,14 +23,19 @@ OpenGlDevice::OpenGlDevice(const DeviceCreateInfo& info) {
     }
     m_pOneTimeQueue = new GlQueue(this);
     m_pThreadPool = new GlThreadPool(this);
+    m_pResourceManager = new OpenGlResourceManager(this);
+    m_pSyncManager = new OpenGlSyncManager(this);
 }
 
 OpenGlDevice::~OpenGlDevice() {
-    m_pMainContext->SubRef();
     for (const auto queue : m_vecQueue) {
         queue->SubRef();
     }
     m_pOneTimeQueue->SubRef();
+    m_pThreadPool->SubRef();
+    m_pResourceManager->SubRef();
+    m_pSyncManager->SubRef();
+    m_pMainContext->SubRef();
 }
 
 PipelineManager* OpenGlDevice::GetPipelineManager() {
@@ -40,15 +47,15 @@ GpuCmdManager* OpenGlDevice::GetCmdManager() {
 }
 
 GpuResourceManager* OpenGlDevice::GetResourceManager() {
-	return nullptr;
+	return m_pResourceManager;
 }
 
 GpuSyncManager* OpenGlDevice::GetSyncManager() {
-	return nullptr;
+	return m_pSyncManager;
 }
 
 GpuSurface *OpenGlDevice::CreateSurface(const PlatformWindowInfo &platformWindowInfo) {
-    return nullptr;
+    return new GlSurface(this, platformWindowInfo);
 }
 
 Queue *OpenGlDevice::CreateQueue(QueueType queueType) {

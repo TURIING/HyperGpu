@@ -21,6 +21,8 @@ public:
     ~GlContext() override;
     void MakeCurrent() const;
     void ClearCurrent() const;
+    void PushAndMakeCurrent();
+    void PopAndMakeCurrent();
     static void GlSyncFinish();
     static bool IsInContext();
 
@@ -31,6 +33,8 @@ private:
     OpenGlDevice* m_pGlDevice = nullptr;
     GlContext* m_pShareContext = nullptr;
     IContext* m_pBaseContext = nullptr;
+    IContext* m_pPreContext = nullptr;
+    std::mutex m_lockContext;
 };
 
 USING_GPU_NAMESPACE_END

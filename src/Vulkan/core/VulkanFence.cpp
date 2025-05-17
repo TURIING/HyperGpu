@@ -18,10 +18,10 @@ VulkanFence::~VulkanFence() {
 	m_pFence->SubRef();
 };
 
-void VulkanFence::Wait() const {
-	m_pFence->Wait();
+WaitState VulkanFence::Wait(uint32_t timeout) {
+	return m_pFence->Wait(timeout);
 }
 
-void VulkanFence::Reset() const {
+void VulkanFence::Reset() {
 	m_pFence->Reset();
 }

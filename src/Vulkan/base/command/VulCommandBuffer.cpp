@@ -117,8 +117,7 @@ void VulCommandBuffer::ClearColorForImage(VkImage image, const VkClearColorValue
     vkCmdClearColorImage(m_pHandle, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, &color, 1, &range);
 }
 
-void VulCommandBuffer::BlitImage(VulImage2D*                     pSrcImage, VulImage2D* pDstImage,
-                                 const std::vector<VkImageBlit>& vecImageBlit, VkFilter filter) const {
+void VulCommandBuffer::BlitImage(VulImage2D* pSrcImage, VulImage2D* pDstImage, const std::vector<VkImageBlit>& vecImageBlit, VkFilter filter) const {
     vkCmdBlitImage(
         m_pHandle,
         pSrcImage->GetHandle(),

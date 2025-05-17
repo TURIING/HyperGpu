@@ -4,6 +4,7 @@
 - [ ] 计算着色器
 - [ ] 多重采样
 - [ ] 实例化
+- [ ] Mipmap
 
 ## 平台支持
 - [ ] Windows (OpenGL、Vulkan)

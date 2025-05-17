@@ -66,10 +66,10 @@ public:
 	virtual void BeginRenderPass(const BeginRenderInfo& info) = 0;
 	virtual void EndRenderPass() = 0;
 	virtual void Draw(const DrawInfo& info) = 0;
-	virtual void ClearColorImage(Image2D* image, Color color) = 0;
+	virtual void ClearColorImage(Image2D* image, const Color &color) = 0;
 	virtual void SetViewport(const Viewport& viewport) = 0;
 	virtual void SetScissor(const Scissor& scissor) = 0;
-	virtual void BlitImageToSurface(Image2D* pImage, GpuSurface* surface, const ImageBlitRange &range, Filter filter) = 0;
+	virtual void BlitImageToSurface(Image2D* pImage, GpuSurface* surface, ImageBlitRange *pRange, uint32_t rangeCount, Filter filter) = 0;
 };
 
 class GpuCmdManager : public GpuObject {

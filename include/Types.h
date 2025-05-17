@@ -17,11 +17,12 @@ namespace HyperGpu
 	enum class CullMode { NONE, FRONT, BACK };
 	enum class FrontFace { COUNTER_CLOCK_WISE, CLOCK_WISE };
 	enum class AttachmentType { COLOR, DEPTH };
-	enum Filter { NEAREST, LINEAR };
+	enum class Filter { NEAREST, LINEAR };
 	enum class PixelFormat {
-		R8G8B8A8 = 43,
-		B8G8R8A8 = 50,
+		R8G8B8A8,
+		B8G8R8A8,
 	};
+	enum class WaitState { Success, Failed, Timeout };
 
 	struct Viewport {
 		float x      = 0;

@@ -31,7 +31,7 @@ GlContext::GlContext(OpenGlDevice *pGlDevice, GlContext *shareContext): m_pGlDev
     m_pShareContext = shareContext;
 
 #if PLATFORM_MACOS || PLATFORM_IOS
-    m_pBaseContext = AGlContext::CreateContext(dynamic_cast<AGlContext*>(m_pBaseContext));
+    m_pBaseContext = AGlContext::CreateContext(dynamic_cast<AGlContext*>(m_pShareContext));
 #endif
 
 }
@@ -51,6 +51,20 @@ void GlContext::ClearCurrent() const {
 #if PLATFORM_MACOS || PLATFORM_IOS
     dynamic_cast<AGlContext*>(m_pBaseContext)->ClearCurrent();
 #endif
+}
+
+void GlContext::PushAndMakeCurrent() {
+    m_lockContext.lock();
+#if PLATFORM_MACOS || PLATFORM_IOS
+    m_pPreContext = AGlContext::GetLastContext();
+#endif
+    this->MakeCurrent();
+}
+
+void GlContext::PopAndMakeCurrent() {
+    m_pPreContext->MakeCurrent();
+    m_pPreContext = nullptr;
+    m_lockContext.unlock();
 }
 
 void GlContext::GlSyncFinish() {

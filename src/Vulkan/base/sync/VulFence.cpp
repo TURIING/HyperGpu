@@ -23,8 +23,15 @@ VulFence::~VulFence() {
 	m_pLogicDevice->SubRef();
 }
 
-void VulFence::Wait() const {
-	CALL_VK(vkWaitForFences(m_pLogicDevice->GetHandle(), 1, &m_pHandle, VK_TRUE, UINT64_MAX));
+WaitState VulFence::Wait(u32 timeout) const {
+	const auto result = vkWaitForFences(m_pLogicDevice->GetHandle(), 1, &m_pHandle, VK_TRUE, timeout);
+	if (result == VK_TIMEOUT) {
+		return WaitState::Timeout;
+	}
+	else if (result == VK_SUCCESS) {
+		return WaitState::Success;
+	}
+	return WaitState::Failed;
 }
 
 void VulFence::Reset() const {

@@ -15,7 +15,13 @@ class GlContext;
 
 class CmdBase : public GpuObject {
 public:
+    explicit CmdBase(CmdType cmdType): m_cmdType(cmdType) {}
     virtual void Execute(GlContext* pContext) = 0;
+    [[nodiscard]] CmdType GetCmdType() const { return m_cmdType; }
+    virtual void Reset() = 0;
+
+protected:
+    CmdType m_cmdType =  CmdType::None;
 };
 
 USING_GPU_NAMESPACE_END

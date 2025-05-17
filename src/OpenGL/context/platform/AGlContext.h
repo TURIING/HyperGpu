@@ -16,8 +16,8 @@ USING_GPU_NAMESPACE_BEGIN
 class AGlContext final: public IContext {
 public:
     ~AGlContext() override;
-    void MakeCurrent();
-    void ClearCurrent();
+    void MakeCurrent() override;
+    void ClearCurrent() override;
     static void init();
     static AGlContext* CreateContext(AGlContext* shareContext);
     static AGlContext* GetLastContext();

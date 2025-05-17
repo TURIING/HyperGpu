@@ -38,3 +38,7 @@ void GlSemaphore::Signal() {
     ++m_count;
     m_condition.notify_one();
 }
+
+void GlSemaphore::Reset() {
+    m_count = 0;
+}

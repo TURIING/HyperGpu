@@ -14,14 +14,14 @@ USING_GPU_NAMESPACE_BEGIN
 
 class GlFence final : public Fence {
 public:
-    void Wait() const override;
-    void Reset() const override;
+    WaitState Wait(u32 timeout) override;
+    void Reset() override;
     void Signal();
 
 private:
     std::mutex m_lock;
     std::condition_variable m_condition;
-    std::atomic<uint32_t> m_state;
+    std::atomic<uint32_t> m_state = 0;
 };
 
 USING_GPU_NAMESPACE_END

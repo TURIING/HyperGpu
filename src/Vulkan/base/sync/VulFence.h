@@ -7,11 +7,8 @@
 ********************************************************************************/
 #ifndef VULFENCE_H
 #define VULFENCE_H
-#include <memory>
-#include <vulkan/vulkan_core.h>
-
 #include "../VulObject.h"
-
+#include "../../../common/common.h"
 
 class VulLogicDevice;
 
@@ -19,7 +16,7 @@ class VulFence final : public VulObject<VkFence>{
 public:
 	explicit VulFence(VulLogicDevice* device);
 	~		 VulFence() override;
-	void	 Wait() const;
+	WaitState Wait(u32 timeout) const;
 	void	 Reset() const;
 
 private:

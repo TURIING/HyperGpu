@@ -16,6 +16,7 @@ class GlSemaphore final : public Semaphore {
 public:
     WaitState Wait(u32 timeout);
     void Signal();
+    void Reset();
 
 private:
     std::mutex m_lock;

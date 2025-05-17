@@ -55,7 +55,13 @@ struct ImageInfo {
     HyperGpu::Size size;
 };
 
-enum class WaitState { Success, Failed, Timeout };
+enum class CmdType {
+    None,
+    BeginRender,
+    EndRender,
+    BlitImageToSurface,
+    ClearColorImage,
+};
 
 /************************************************* Variable *********************************************************/
 constexpr const char *VK_LAYER_KHRONOS_VALIDATION = "VK_LAYER_KHRONOS_validation";
@@ -65,5 +71,10 @@ constexpr int THREAD_NUM = 1;
 #else
 constexpr int THREAD_NUM = 5;
 #endif
+
+constexpr GLuint gFilterToGlFilter[] = {
+    GL_NEAREST,         // NEAREST
+    GL_LINEAR,          // LINEAR
+}
 
 #endif //BASEDEFINE_H

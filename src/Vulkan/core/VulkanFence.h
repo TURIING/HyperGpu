@@ -19,8 +19,8 @@ class VulkanFence : public Fence {
 public:
 	explicit				VulkanFence(const VulkanDevice* device);
 	~						VulkanFence() override;
-	void					Wait() const override;
-	void					Reset() const override;
+	WaitState Wait(uint32_t timeout) override;
+	void					Reset() override;
 	[[nodiscard]] VulFence* GetHandle() const { return m_pFence; };
 
 private:

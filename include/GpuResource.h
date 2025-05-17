@@ -18,8 +18,8 @@ namespace HyperGpu {
 	public:
 		enum AddressMode { REPEAT, MIRROR, CLAMP_TO_EDGE, CLAMP_TO_BORDER };
 		struct SamplerCreateInfo {
-			Filter      magFilter    = LINEAR;
-			Filter      minFilter    = LINEAR;
+			Filter      magFilter    = Filter::LINEAR;
+			Filter      minFilter    = Filter::LINEAR;
 			AddressMode addressModeU = AddressMode::REPEAT;
 			AddressMode addressModeV = AddressMode::REPEAT;
 			AddressMode addressModeW = AddressMode::REPEAT;
@@ -43,21 +43,19 @@ namespace HyperGpu {
 	class Buffer : public GpuObject {
 	public:
 		enum BufferType { Vertex, Index, Uniform };
+		struct BufferCreateInfo {
+			BufferType bufferType = BufferType::Uniform;
+			uint64_t           bufferSize = 0;
+			uint8_t*           data       = nullptr;				// 当buffer类型为uniform时，该字段为nullptr就行
+			uint32_t           binding    = 0;
+		};
 		virtual void UpdateData(const uint8_t* data, uint64_t dataSize) = 0;
 	};
 
 	class GpuResourceManager : public GpuObject {
 	public:
-		struct BufferCreateInfo {
-			Buffer::BufferType bufferType = Buffer::Uniform;
-			uint64_t           bufferSize = 0;
-			uint8_t*           data       = nullptr;				// 当buffer类型为uniform时，该字段为nullptr就行
-			uint32_t           binding    = 0;
-		};
-
-	public:
 		[[nodiscard]] virtual Image2D* CreateImage2D(const Image2D::Image2DCreateInfo& info) = 0;
-		[[nodiscard]] virtual Buffer*  CreateBuffer(const BufferCreateInfo& createInfo) = 0;
+		[[nodiscard]] virtual Buffer*  CreateBuffer(const Buffer::BufferCreateInfo& createInfo) = 0;
 		[[nodiscard]] virtual Sampler* CreateSampler(const Sampler::SamplerCreateInfo& info) = 0;
 		static void                    DestroyBuffer(Buffer* buffer) { buffer->SubRef(); }
 		static void                    DestroyImage(Image2D* image) { image->SubRef(); }

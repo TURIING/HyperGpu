@@ -26,6 +26,11 @@ static void checkGlError(const char* file, uint32_t line, GLenum err, const char
     LOG_WARNING("The {}({}) error occurred in {}:{} ", reason, err, file, line);
 }
 
+#ifdef NDEBUG
+#define CALL_GL(x) x
+#define CALL_VK(x) x
+#define CHECK_FRAMEBUFFER_COMPLETE(target)
+#else
 #define CALL_GL(func)                                    \
 {                                                        \
     func;                                                \
@@ -35,8 +40,12 @@ static void checkGlError(const char* file, uint32_t line, GLenum err, const char
     }                                                    \
 }
 
+#define CHECK_FRAMEBUFFER_COMPLETE(target) \
+        LOG_ASSERT(glCheckFramebufferStatus(target) == GL_FRAMEBUFFER_COMPLETE)
+
 /**************************************************** VKResult BEGIN ***************************************************/
 #define CALL_VK(func) checkVkResult(func, __FILE__, __LINE__, #func)
+#endif
 
 #define ENUM_TO_STR(r)   \
 	case r: return #r
