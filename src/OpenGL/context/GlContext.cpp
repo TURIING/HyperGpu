@@ -31,7 +31,8 @@ GlContext::GlContext(OpenGlDevice *pGlDevice, GlContext *shareContext): m_pGlDev
     m_pShareContext = shareContext;
 
 #if PLATFORM_MACOS || PLATFORM_IOS
-    m_pBaseContext = AGlContext::CreateContext(dynamic_cast<AGlContext*>(m_pShareContext));
+    auto share = m_pShareContext ? m_pShareContext->m_pBaseContext : nullptr;
+    m_pBaseContext = AGlContext::CreateContext(dynamic_cast<AGlContext*>(share));
 #endif
 
 }

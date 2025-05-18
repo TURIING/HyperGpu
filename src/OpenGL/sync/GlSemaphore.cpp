@@ -16,14 +16,11 @@ WaitState GlSemaphore::Wait(u32 timeout) {
 
     if (timeout > 0) {
         while (true) {
-            if (m_condition.wait_for(locker, std::chrono::nanoseconds(timeout)) == std::cv_status::timeout) {
-                return WaitState::Timeout;
-            }
-
-            if (m_count > 0) {
+            if (m_condition.wait_for(locker, std::chrono::nanoseconds(timeout), [&]{ return m_count > 0; })) {
                 --m_count;
                 return WaitState::Success;
             }
+            return WaitState::Timeout;
         }
     }
     else {

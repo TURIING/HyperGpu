@@ -33,11 +33,13 @@ void GlThreadPool::threadWorkFunc(int index) {
         LOG_ASSERT(task);
 
         WaitState state = WaitState::Success;
-        state = task->Wait(1000);
+        state = task->Wait();
         if (state == WaitState::Success) {
+            // LOG_INFO("execute task");
             task->Execute(ctx);
             task->Signal();
-            break;
+            task->SubRef();
+            continue;
         }
         task->SubRef();
     }

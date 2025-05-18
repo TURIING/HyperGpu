@@ -55,7 +55,6 @@ WaitState WorkTaskPresent::Wait(uint32_t timeout) {
             semaphore->SubRef();
         }
     }
-
     return state;
 
 }

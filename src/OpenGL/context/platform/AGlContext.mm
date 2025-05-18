@@ -56,7 +56,7 @@ void AGlContext::createContext(void* shareContext) {
     else
     {
         auto *sharedCtx = (__bridge NSOpenGLContext *)shareContext;
-        target = [[NSOpenGLContext alloc] initWithFormat:pixelFormat shareContext:sharedCtx];;
+        target = [[NSOpenGLContext alloc] initWithFormat:pixelFormat shareContext:sharedCtx];
     }
     m_pContext = (void *)CFBridgingRetain(target);
 #endif
