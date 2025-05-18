@@ -13,19 +13,22 @@
 USING_GPU_NAMESPACE_BEGIN
 class OpenGlDevice;
 class GlContext;
+class GlSemaphore;
 
-class GlSurface final: public GpuSurface {
+class GlSurface : public GpuSurface {
 public:
-    GlSurface(OpenGlDevice* pDevice, const PlatformWindowInfo& info);
+    GlSurface(OpenGlDevice* pDevice);
     ~GlSurface() override;
     Semaphore* AcquireNextImage(uint32_t& imageIndex) override;
-    void       Bind() const;
-    void       Unbind() const;
+    void Bind() const;
+    void Unbind() const;
     [[nodiscard]] GLuint GetSurfaceFbo() const { return 0; }
+    virtual void SwapBuffers() = 0;
 
-private:
+protected:
     OpenGlDevice* m_pDevice = nullptr;
     GlContext* m_pContext = nullptr;
+    GlSemaphore* m_pImageAvailSemaphore = nullptr;
 };
 
 USING_GPU_NAMESPACE_END

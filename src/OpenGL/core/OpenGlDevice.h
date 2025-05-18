@@ -17,6 +17,7 @@ class GlQueue;
 class GlThreadPool;
 class OpenGlResourceManager;
 class OpenGlSyncManager;
+class OpenGlCmdManager;
 
 class OpenGlDevice final : public GpuDevice {
 public:
@@ -30,6 +31,7 @@ public:
     Queue *                           CreateQueue(QueueType queueType) override;
     GlContext*                        CreateContext();
 	void                              RunWithContext(std::function<void(GlContext*)> func, bool waitFinish = true) const;
+	void WithSingleCmdBuffer(std::function<void(GpuCmd* pCmd)> func);
 	GlThreadPool*                     GetThreadPool() const { return m_pThreadPool; }
 
 private:
@@ -39,6 +41,7 @@ private:
 	GlThreadPool* m_pThreadPool = nullptr;
 	OpenGlResourceManager* m_pResourceManager = nullptr;
 	OpenGlSyncManager* m_pSyncManager = nullptr;
+	OpenGlCmdManager* m_pCmdManager = nullptr;
 };
 
 USING_GPU_NAMESPACE_END

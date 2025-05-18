@@ -35,7 +35,7 @@ public:
 private:
     template<class CmdClass, typename... Params>
     CmdClass* allocCmd(Params... params) {
-        static_assert(std::is_base_of_v<GpuCmd, CmdClass>);
+        static_assert(std::is_base_of_v<CmdBase, CmdClass>);
         const CmdType type = CmdClass::CMD_TYPE;
 
         CmdClass* pCmd = nullptr;

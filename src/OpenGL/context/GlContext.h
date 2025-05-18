@@ -23,6 +23,8 @@ public:
     void ClearCurrent() const;
     void PushAndMakeCurrent();
     void PopAndMakeCurrent();
+    void BindLayer(void *layer);
+    void SwapBuffer();
     static void GlSyncFinish();
     static bool IsInContext();
 

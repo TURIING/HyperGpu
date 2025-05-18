@@ -6,6 +6,8 @@
 * @description: 
 ********************************************************************************/
 #include "OpenGlCmdManager.h"
+
+#include "OpenGlDevice.h"
 #include "../cmd/GlCmd.h"
 
 GpuCmd* OpenGlCmdManager::CreateCommandBuffer() {
@@ -13,6 +15,7 @@ GpuCmd* OpenGlCmdManager::CreateCommandBuffer() {
 }
 
 void OpenGlCmdManager::WithSingleCmdBuffer(const std::function<void(GpuCmd*)>& func) {
+    m_pDevice->WithSingleCmdBuffer(func);
 }
 
 OpenGlCmdManager::~OpenGlCmdManager() {

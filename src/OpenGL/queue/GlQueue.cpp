@@ -9,15 +9,23 @@
 
 #include "../core/OpenGlDevice.h"
 #include "../thread/GlThreadPool.h"
+#include "../queue/WorkTaskPresent.h"
+#include "../queue/WorkTaskRender.h"
 
 USING_GPU_NAMESPACE_BEGIN
 GlQueue::~GlQueue() {
 }
 
 void GlQueue::Submit(const SubmitInfo& submitInfo) {
+    const auto task = new WorkTaskRender(this, submitInfo);
+    this->AddTask(task);
+    task->SubRef();
 }
 
 void GlQueue::Present(const PresentInfo& presentInfo) {
+    const auto task = new WorkTaskPresent(this, presentInfo);
+    this->AddTask(task);
+    task->SubRef();
 }
 
 void GlQueue::Wait() {

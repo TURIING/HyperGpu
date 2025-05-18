@@ -67,6 +67,12 @@ void GlContext::PopAndMakeCurrent() {
     m_lockContext.unlock();
 }
 
+void GlContext::BindLayer(void* layer) {
+#if PLATFORM_MACOS || PLATFORM_IOS
+    dynamic_cast<AGlContext*>(m_pBaseContext)->BindLayer(layer);
+#endif
+}
+
 void GlContext::GlSyncFinish() {
     GLenum result = GL_WAIT_FAILED;
     constexpr GLuint64 timeout = 0xffffffffffffffffull;
@@ -88,6 +94,10 @@ void GlContext::init() {
     AGlContext::init();
 #endif
 
+}
+
+void GlContext::SwapBuffer() {
+    dynamic_cast<AGlContext*>(m_pBaseContext)->SwapBuffer();
 }
 
 USING_GPU_NAMESPACE_END

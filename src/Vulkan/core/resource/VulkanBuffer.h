@@ -18,7 +18,7 @@ class VulkanDevice;
 
 class VulkanBuffer final : public HyperGpu::Buffer {
 public:
-	VulkanBuffer(VulkanDevice* device, const GpuResourceManager::BufferCreateInfo &createInfo);
+	VulkanBuffer(VulkanDevice* device, const BufferCreateInfo &createInfo);
 	[[nodiscard]] VulVertexBuffer*  GetVertexBuffer() const { return std::get<VulVertexBuffer*>(m_pBuffer); }
 	[[nodiscard]] VulIndexBuffer*   GetIndexBuffer() const { return std::get<VulIndexBuffer*>(m_pBuffer); }
 	[[nodiscard]] VulUniformBuffer* GetUniformBuffer() const { return std::get<VulUniformBuffer*>(m_pBuffer); }

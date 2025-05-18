@@ -9,15 +9,16 @@
 #define HYPERRENDER_AGLCONTEXT_H
 
 #include "IContext.h"
-#include "../../../common/common.h"
 
-USING_GPU_NAMESPACE_BEGIN
-
+namespace HyperGpu
+{
 class AGlContext final: public IContext {
 public:
     ~AGlContext() override;
     void MakeCurrent() override;
     void ClearCurrent() override;
+    void BindLayer(void *layer);
+    void SwapBuffer();
     static void init();
     static AGlContext* CreateContext(AGlContext* shareContext);
     static AGlContext* GetLastContext();
@@ -28,6 +29,5 @@ private:
 private:
     void* m_pContext = nullptr;
 };
-
-USING_GPU_NAMESPACE_END
+}
 #endif //HYPERRENDER_AGLCONTEXT_H

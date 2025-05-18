@@ -12,7 +12,7 @@
 #include "../VulkanDevice.h"
 #include "../../base/resource/VulUniformBuffer.h"
 
-VulkanBuffer::VulkanBuffer(VulkanDevice* device, const GpuResourceManager::BufferCreateInfo &createInfo) : m_type(createInfo.bufferType) {
+VulkanBuffer::VulkanBuffer(VulkanDevice* device, const BufferCreateInfo &createInfo) : m_type(createInfo.bufferType) {
 	const auto [type, size, data, binding] = createInfo;
 
 	switch(m_type) {

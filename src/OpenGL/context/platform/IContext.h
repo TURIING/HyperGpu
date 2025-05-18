@@ -8,13 +8,14 @@
 #ifndef HYPERRENDER_ICONTEXT_H
 #define HYPERRENDER_ICONTEXT_H
 
-#include "../../../common/common.h"
-USING_GPU_NAMESPACE_BEGIN
-class IContext: public GpuObject {
-public:
-    virtual void MakeCurrent() = 0;
-    virtual void ClearCurrent() = 0;
-};
+#include "../../../include/Gpu.h"
 
-USING_GPU_NAMESPACE_END
+namespace HyperGpu
+{
+    class IContext: public GpuObject {
+    public:
+        virtual void MakeCurrent() = 0;
+        virtual void ClearCurrent() = 0;
+    };
+}
 #endif //HYPERRENDER_ICONTEXT_H

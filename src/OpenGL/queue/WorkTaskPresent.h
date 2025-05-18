@@ -26,7 +26,6 @@ public:
     void Signal() override;
 
 private:
-    GlQueue* m_pQueue = nullptr;
     GlSurface* m_pSurface = nullptr;
     std::vector<GlSemaphore*> m_vecWaitSemaphore;
 };

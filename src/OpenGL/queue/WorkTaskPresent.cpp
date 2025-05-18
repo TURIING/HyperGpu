@@ -8,8 +8,9 @@
 #include "WorkTaskPresent.h"
 #include "../surface/GlSurface.h"
 #include "../sync/GlSemaphore.h"
+USING_GPU_NAMESPACE_BEGIN
 
-WorkTaskPresent::WorkTaskPresent(GlQueue* pQueue, const Queue::PresentInfo& info) {
+WorkTaskPresent::WorkTaskPresent(GlQueue* pQueue, const Queue::PresentInfo& info): WorkTask(pQueue) {
     m_pSurface = dynamic_cast<GlSurface*>(info.pSurface);
     m_pSurface->AddRef();
     m_vecWaitSemaphore.reserve(info.waitSemaphoreCount);
@@ -28,11 +29,40 @@ WorkTaskPresent::~WorkTaskPresent() {
 }
 
 void WorkTaskPresent::Execute(GlContext* pContext) {
-
+    m_pSurface->Bind();
+    CALL_GL(glFlush());
+    m_pSurface->SwapBuffers();
+    m_pSurface->Unbind();
 }
 
 WaitState WorkTaskPresent::Wait(uint32_t timeout) {
+    WaitState state = WaitState::Success;
+
+    std::vector<GlSemaphore*> curWaitSemaphores;
+    curWaitSemaphores.swap(m_vecWaitSemaphore);
+
+    for (auto it = curWaitSemaphores.begin(); it != curWaitSemaphores.end(); it++) {
+        auto &semaphore = *it;
+        state = semaphore->Wait(timeout);
+        if (state != WaitState::Success) {
+            while (it != curWaitSemaphores.end()) {
+                m_vecWaitSemaphore.push_back(*it);
+                ++it;
+            }
+            break;
+        }
+        else {
+            semaphore->SubRef();
+        }
+    }
+
+    return state;
+
 }
 
 void WorkTaskPresent::Signal() {
+    m_pQueue->TaskFinish();
+    this->SignalFinish();
 }
+
+USING_GPU_NAMESPACE_END

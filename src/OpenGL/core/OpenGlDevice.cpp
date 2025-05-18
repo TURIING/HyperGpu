@@ -11,9 +11,12 @@
 #include "../queue/GlQueue.h"
 #include "../queue/WorkTaskCustom.h"
 #include "../thread/GlThreadPool.h"
-#include "../surface/GlSurface.h"
 #include "OpenGlResourceManager.h"
 #include "OpenGlSyncManager.h"
+#include "../surface/AGlSurface.h"
+#include "OpenGlCmdManager.h"
+#include "../cmd/GlCmd.h"
+#include "../queue/WorkTaskRender.h"
 
 USING_GPU_NAMESPACE_BEGIN
 OpenGlDevice::OpenGlDevice(const DeviceCreateInfo& info) {
@@ -25,6 +28,7 @@ OpenGlDevice::OpenGlDevice(const DeviceCreateInfo& info) {
     m_pThreadPool = new GlThreadPool(this);
     m_pResourceManager = new OpenGlResourceManager(this);
     m_pSyncManager = new OpenGlSyncManager(this);
+    m_pCmdManager = new OpenGlCmdManager(this);
 }
 
 OpenGlDevice::~OpenGlDevice() {
@@ -35,6 +39,7 @@ OpenGlDevice::~OpenGlDevice() {
     m_pThreadPool->SubRef();
     m_pResourceManager->SubRef();
     m_pSyncManager->SubRef();
+    m_pCmdManager->SubRef();
     m_pMainContext->SubRef();
 }
 
@@ -43,7 +48,7 @@ PipelineManager* OpenGlDevice::GetPipelineManager() {
 }
 
 GpuCmdManager* OpenGlDevice::GetCmdManager() {
-	return nullptr;
+	return m_pCmdManager;
 }
 
 GpuResourceManager* OpenGlDevice::GetResourceManager() {
@@ -55,11 +60,13 @@ GpuSyncManager* OpenGlDevice::GetSyncManager() {
 }
 
 GpuSurface *OpenGlDevice::CreateSurface(const PlatformWindowInfo &platformWindowInfo) {
-    return new GlSurface(this, platformWindowInfo);
+#if PLATFORM_MACOS || PLATFORM_IOS
+    return new AGlSurface(this, platformWindowInfo);
+#endif
 }
 
 Queue *OpenGlDevice::CreateQueue(QueueType queueType) {
-    return nullptr;
+    return new GlQueue(this);
 }
 
 GlContext *OpenGlDevice::CreateContext() {
@@ -89,6 +96,21 @@ void OpenGlDevice::RunWithContext(std::function<void(GlContext*)> func, bool wai
             task.WaitFinish();
         }
     }
+}
+
+void OpenGlDevice::WithSingleCmdBuffer(std::function<void(GpuCmd* pCmd)> func) {
+    GlCmd cmd(this);
+    cmd.Begin();
+    func(&cmd);
+    cmd.End();
+    GpuCmd* pCmd = &cmd;
+
+    Queue::SubmitInfo submitInfo;
+    submitInfo.pCmd = &pCmd;
+
+    WorkTaskRender task(m_pOneTimeQueue, submitInfo);
+    m_pOneTimeQueue->AddTask(&task);
+    task.WaitFinish();
 }
 
 USING_GPU_NAMESPACE_END

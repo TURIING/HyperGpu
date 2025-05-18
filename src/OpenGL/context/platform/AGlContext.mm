@@ -6,8 +6,7 @@
 #import <UIKit/UIKit.h>
 #endif
 
-USING_GPU_NAMESPACE_BEGIN
-
+namespace HyperGpu {
 thread_local AGlContext* gLastContext = nullptr;
 
 void AGlContext::init() {
@@ -16,7 +15,7 @@ void AGlContext::init() {
 
 AGlContext* AGlContext::CreateContext(AGlContext* shareContext) {
 	auto context = new AGlContext();
-    auto ctx = shareContext == nullptr ? context : shareContext->m_pContext;
+    auto ctx = shareContext == nullptr ? nullptr : shareContext->m_pContext;
 	context->createContext(ctx);
 	return context;
 }
@@ -77,6 +76,7 @@ AGlContext::~AGlContext() {
         [NSOpenGLContext clearCurrentContext];
     }
 #endif
+}
 
 void AGlContext::MakeCurrent() {
 	gLastContext = this;
@@ -107,8 +107,44 @@ void AGlContext::ClearCurrent() {
 #endif
 }
 
-static AGlContext* AGlContext::GetLastContext() {
+AGlContext* AGlContext::GetLastContext() {
 	return gLastContext;
 }
 
-USING_GPU_NAMESPACE_END
+void AGlContext::BindLayer(void *layer) {
+#if PLATFORM_IOS
+    if(layer != nullptr && m_pContext != nullptr)
+    {
+        [(__bridge EAGLContext *)m_pContext renderbufferStorage:GL_RENDERBUFFER fromDrawable:(__bridge CAEAGLLayer *)layer];
+    }
+#else
+    if(layer != nullptr && m_pContext != nullptr)
+    {
+        NSOpenGLContext *tempCtx = (__bridge NSOpenGLContext *)m_pContext;
+        NSView *tempView = (__bridge NSView *)layer;
+        if ([NSThread isMainThread] == NO)
+        {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [tempCtx setView:tempView];
+            });
+        }
+        else
+        {
+            [tempCtx setView:tempView];
+        }
+    }
+#endif
+}
+
+void AGlContext::SwapBuffer() {
+#if PLATFORM_IOS
+    [(__bridge EAGLContext *)m_pContext presentRenderbuffer:GL_RENDERBUFFER];
+#else
+    if(m_pContext != nullptr)
+    {
+        NSOpenGLContext *tempCtx = (__bridge NSOpenGLContext *)m_pContext;
+        [tempCtx flushBuffer];
+    }
+#endif
+}
+}

@@ -20,6 +20,7 @@ GlThreadPool::GlThreadPool(OpenGlDevice *pGlDevice): m_pGlDevice(pGlDevice) {
 }
 
 void GlThreadPool::AddTask(WorkTask* pTask) {
+    pTask->AddRef();
     m_taskQueue.AddItem(pTask);
 }
 
@@ -40,6 +41,4 @@ void GlThreadPool::threadWorkFunc(int index) {
         }
         task->SubRef();
     }
-
-
 }

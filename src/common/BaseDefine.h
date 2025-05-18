@@ -45,11 +45,6 @@ inline void HASH_COMBINE(size_t &seed, const T &v) {
 using u32 = uint32_t;
 using i32 = int32_t;
 /************************************************* Type *************************************************************/
-struct Point {
-    int x = 0;
-    int y = 0;
-};
-
 struct ImageInfo {
     unsigned char *data = nullptr;
     HyperGpu::Size size;
@@ -75,6 +70,6 @@ constexpr int THREAD_NUM = 5;
 constexpr GLuint gFilterToGlFilter[] = {
     GL_NEAREST,         // NEAREST
     GL_LINEAR,          // LINEAR
-}
+};
 
 #endif //BASEDEFINE_H

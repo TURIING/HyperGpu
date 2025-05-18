@@ -9,8 +9,8 @@
 #define CMDBLITIMAGETOSURFACE_H
 #include "../../../common/common.h"
 #include "../CmdBase.h"
-#include "../surface/GlSurface.h"
-#include "../resource/GlImage2D.h"
+#include "../../surface/GlSurface.h"
+#include "../../resource/GlImage2D.h"
 
 USING_GPU_NAMESPACE_BEGIN
 

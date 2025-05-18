@@ -9,6 +9,7 @@
 #define GPUSYNC_H
 
 #include "Gpu.h"
+#include "Types.h"
 
 namespace HyperGpu {
 class Fence : public GpuObject {
