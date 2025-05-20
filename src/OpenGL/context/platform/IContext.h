@@ -16,6 +16,7 @@ namespace HyperGpu
     public:
         virtual void MakeCurrent() = 0;
         virtual void ClearCurrent() = 0;
+    	virtual void SwapBuffer() = 0;
     };
 }
 #endif //HYPERRENDER_ICONTEXT_H

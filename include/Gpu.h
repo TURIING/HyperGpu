@@ -10,8 +10,8 @@
 
 #include <cassert>
 #include <string>
-#include <vector>
 #include <functional>
+#include  <atomic>
 
 class GpuObject {
 public:

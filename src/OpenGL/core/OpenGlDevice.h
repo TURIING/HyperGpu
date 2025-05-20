@@ -29,7 +29,7 @@ public:
 	[[nodiscard]] GpuSyncManager*     GetSyncManager() override;
     GpuSurface *                      CreateSurface(const PlatformWindowInfo &platformWindowInfo) override;
     Queue *                           CreateQueue(QueueType queueType) override;
-    GlContext*                        CreateContext();
+    GlContext*                        CreateContext(void *handle = nullptr);
 	void                              RunWithContext(std::function<void(GlContext*)> func, bool waitFinish = true) const;
 	void WithSingleCmdBuffer(std::function<void(GpuCmd* pCmd)> func);
 	GlThreadPool*                     GetThreadPool() const { return m_pThreadPool; }

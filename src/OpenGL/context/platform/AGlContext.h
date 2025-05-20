@@ -8,6 +8,7 @@
 #ifndef HYPERRENDER_AGLCONTEXT_H
 #define HYPERRENDER_AGLCONTEXT_H
 
+#if defined(PLATFORM_MACOS) || defined(PLATFORM_IOS)
 #include "IContext.h"
 
 namespace HyperGpu
@@ -18,8 +19,8 @@ public:
     void MakeCurrent() override;
     void ClearCurrent() override;
     void BindLayer(void *layer);
-    void SwapBuffer();
-    static void init();
+    void SwapBuffer() override;
+    static void Init();
     static AGlContext* CreateContext(AGlContext* shareContext);
     static AGlContext* GetLastContext();
 
@@ -30,4 +31,5 @@ private:
     void* m_pContext = nullptr;
 };
 }
+#endif
 #endif //HYPERRENDER_AGLCONTEXT_H

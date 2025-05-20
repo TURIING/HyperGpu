@@ -10,6 +10,8 @@
 
 #if PLATFORM_MACOS || PLATFORM_IOS
 #include "platform/AGlContext.h"
+#elif PLATFORM_WINDOWS
+#include "platform/WGlContext.h"
 #endif
 
 USING_GPU_NAMESPACE_BEGIN
@@ -17,7 +19,7 @@ USING_GPU_NAMESPACE_BEGIN
 static bool g_needInit = true;
 static std::mutex g_contextInitLock;
 
-GlContext::GlContext(OpenGlDevice *pGlDevice, GlContext *shareContext): m_pGlDevice(pGlDevice) {
+GlContext::GlContext(OpenGlDevice *pGlDevice, GlContext *shareContext, void *handle): m_pGlDevice(pGlDevice) {
     m_pGlDevice->AddRef();
 
     // 为了初始化glew，先创建一次临时上下文
@@ -30,11 +32,12 @@ GlContext::GlContext(OpenGlDevice *pGlDevice, GlContext *shareContext): m_pGlDev
 
     m_pShareContext = shareContext;
 
-#if PLATFORM_MACOS || PLATFORM_IOS
     auto share = m_pShareContext ? m_pShareContext->m_pBaseContext : nullptr;
+#if PLATFORM_MACOS || PLATFORM_IOS
     m_pBaseContext = AGlContext::CreateContext(dynamic_cast<AGlContext*>(share));
+#elif PLATFORM_WINDOWS
+	m_pBaseContext = WGlContext::CreateContext(handle, dynamic_cast<WGlContext*>(share));
 #endif
-
 }
 
 GlContext::~GlContext() {
@@ -45,12 +48,16 @@ GlContext::~GlContext() {
 void GlContext::MakeCurrent() const {
 #if PLATFORM_MACOS || PLATFORM_IOS
     dynamic_cast<AGlContext*>(m_pBaseContext)->MakeCurrent();
+#elif PLATFORM_WINDOWS
+	dynamic_cast<WGlContext*>(m_pBaseContext)->MakeCurrent();
 #endif
 }
 
 void GlContext::ClearCurrent() const {
 #if PLATFORM_MACOS || PLATFORM_IOS
     dynamic_cast<AGlContext*>(m_pBaseContext)->ClearCurrent();
+#elif PLATFORM_WINDOWS
+	dynamic_cast<WGlContext*>(m_pBaseContext)->ClearCurrent();
 #endif
 }
 
@@ -58,6 +65,8 @@ void GlContext::PushAndMakeCurrent() {
     m_lockContext.lock();
 #if PLATFORM_MACOS || PLATFORM_IOS
     m_pPreContext = AGlContext::GetLastContext();
+#elif PLATFORM_WINDOWS
+	m_pPreContext = WGlContext::GetLastContext();
 #endif
     this->MakeCurrent();
 }
@@ -87,18 +96,26 @@ void GlContext::GlSyncFinish() {
 bool GlContext::IsInContext() {
 #if PLATFORM_MACOS || PLATFORM_IOS
     return AGlContext::GetLastContext() != nullptr;
+#elif PLATFORM_WINDOWS
+	return WGlContext::GetLastContext() != nullptr;
 #endif
 }
 
 void GlContext::init() {
 #if PLATFORM_MACOS || PLATFORM_IOS
-    AGlContext::init();
+    AGlContext::Init();
+#elif PLATFORM_WINDOWS
+	WGlContext::Init();
 #endif
 
 }
 
-void GlContext::SwapBuffer() {
+void GlContext::SwapBuffer() const {
+#if PLATFORM_MACOS || PLATFORM_IOS
     dynamic_cast<AGlContext*>(m_pBaseContext)->SwapBuffer();
+#elif PLATFORM_WINDOWS
+	dynamic_cast<WGlContext*>(m_pBaseContext)->SwapBuffer();
+#endif
 }
 
 USING_GPU_NAMESPACE_END

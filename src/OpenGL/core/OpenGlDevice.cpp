@@ -14,6 +14,7 @@
 #include "OpenGlResourceManager.h"
 #include "OpenGlSyncManager.h"
 #include "../surface/AGlSurface.h"
+#include "../surface/WGlSurface.h"
 #include "OpenGlCmdManager.h"
 #include "../cmd/GlCmd.h"
 #include "../queue/WorkTaskRender.h"
@@ -62,6 +63,8 @@ GpuSyncManager* OpenGlDevice::GetSyncManager() {
 GpuSurface *OpenGlDevice::CreateSurface(const PlatformWindowInfo &platformWindowInfo) {
 #if PLATFORM_MACOS || PLATFORM_IOS
     return new AGlSurface(this, platformWindowInfo);
+#elif PLATFORM_WINDOWS
+	return new WGlSurface(this, platformWindowInfo);
 #endif
 }
 
@@ -69,8 +72,8 @@ Queue *OpenGlDevice::CreateQueue(QueueType queueType) {
     return new GlQueue(this);
 }
 
-GlContext *OpenGlDevice::CreateContext() {
-    return new GlContext(this, m_pMainContext);
+GlContext *OpenGlDevice::CreateContext(void *handle) {
+    return new GlContext(this, m_pMainContext, handle);
 }
 
 void OpenGlDevice::RunWithContext(std::function<void(GlContext*)> func, bool waitFinish) const {

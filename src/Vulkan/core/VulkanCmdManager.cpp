@@ -38,8 +38,8 @@ void VulkanCmdManager::WithSingleCmdBuffer(const std::function<void(VulCommandBu
 
 	auto pCmdHandle = cmd->GetHandle();
 	m_pQueue->Submit({
-		.cmdCount = 1,
 		.pCmd = &pCmdHandle,
+		.cmdCount = 1,
 	});
 	m_pQueue->Wait();
 
@@ -55,8 +55,8 @@ void VulkanCmdManager::WithSingleCmdBuffer(const std::function<void(GpuCmd*)>& f
 
 	auto pCmdHandle = pVulCmd->GetHandle();
 	m_pQueue->Submit({
-		.cmdCount = 1,
 		.pCmd = &pCmdHandle,
+		.cmdCount = 1,
 	});
 	m_pQueue->Wait();
 

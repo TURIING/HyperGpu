@@ -17,7 +17,7 @@ class GlSemaphore;
 
 class GlSurface : public GpuSurface {
 public:
-    GlSurface(OpenGlDevice* pDevice);
+    explicit GlSurface(OpenGlDevice* pDevice, const PlatformWindowInfo &info);
     ~GlSurface() override;
     Semaphore* AcquireNextImage(uint32_t& imageIndex) override;
     void Bind() const;

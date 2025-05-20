@@ -43,8 +43,8 @@ void VulDescriptorSet::SetImage(const std::vector<ImageBindingInfo>& vecImageInf
             // todo binding
 //			.dstBinding = m_mapResourceBinding[imageBindingInfo.name],
 			.dstArrayElement = 0,
-			.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
 			.descriptorCount = 1,
+			.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
 			.pImageInfo = imageBindingInfo.imageInfo,
 		});
 	}

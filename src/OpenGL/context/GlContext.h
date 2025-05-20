@@ -17,14 +17,14 @@ class OpenGlDevice;
 
 class GlContext final : public GpuObject {
 public:
-    GlContext(OpenGlDevice* pGlDevice, GlContext* shareContext);
+    GlContext(OpenGlDevice* pGlDevice, GlContext* shareContext, void *handle = nullptr);
     ~GlContext() override;
     void MakeCurrent() const;
     void ClearCurrent() const;
     void PushAndMakeCurrent();
     void PopAndMakeCurrent();
     void BindLayer(void *layer);
-    void SwapBuffer();
+    void SwapBuffer() const;
     static void GlSyncFinish();
     static bool IsInContext();
 

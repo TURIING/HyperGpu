@@ -178,9 +178,9 @@ struct VulPipelineDepthStencilState {
 			.depthWriteEnable	   = depthWriteEnable ? VK_TRUE : VK_FALSE,
 			.depthCompareOp		   = depthOpFunc,
 			.depthBoundsTestEnable = VK_FALSE,
+			.stencilTestEnable	   = stencilTestEnable ? VK_TRUE : VK_FALSE,
 			.minDepthBounds		   = 0.0f,
 			.maxDepthBounds		   = 1.0f,
-			.stencilTestEnable	   = stencilTestEnable ? VK_TRUE : VK_FALSE,
 		};
 		return depthStencilState;
 	}

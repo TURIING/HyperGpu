@@ -9,7 +9,7 @@
 namespace HyperGpu {
 thread_local AGlContext* gLastContext = nullptr;
 
-void AGlContext::init() {
+void AGlContext::Init() {
 
 }
 

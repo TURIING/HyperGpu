@@ -18,10 +18,7 @@ public:
 	virtual void Reset() = 0;
 };
 
-class Semaphore : public GpuObject {
-public:
-	virtual ~Semaphore() = default;
-};
+class Semaphore : public GpuObject {};
 
 class GpuSyncManager : public GpuObject {
 public:

@@ -11,14 +11,15 @@
 #include "../context/GlContext.h"
 #include "../sync/GlSemaphore.h"
 
-GlSurface::GlSurface(OpenGlDevice* pDevice): m_pDevice(pDevice) {
+GlSurface::GlSurface(OpenGlDevice* pDevice, const PlatformWindowInfo &info): m_pDevice(pDevice) {
     m_pDevice->AddRef();
-    m_pContext = m_pDevice->CreateContext();
+    m_pContext = m_pDevice->CreateContext(info.handle);
     m_pImageAvailSemaphore = new GlSemaphore();
 }
 
 GlSurface::~GlSurface() {
     m_pImageAvailSemaphore->SubRef();
+	m_pContext->SubRef();
     m_pDevice->SubRef();
 }
 

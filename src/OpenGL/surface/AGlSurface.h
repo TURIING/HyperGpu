@@ -16,7 +16,7 @@ USING_GPU_NAMESPACE_BEGIN
 
 class AGlSurface final: public GlSurface {
 public:
-    AGlSurface(OpenGlDevice* pDevice, const PlatformWindowInfo &info): GlSurface(pDevice) {
+    AGlSurface(OpenGlDevice* pDevice, const PlatformWindowInfo &info): GlSurface(pDevice, info) {
         m_pContext->MakeCurrent();
 #if PLATFORM_IOS
         CALL_GL(glGenRenderbuffers(1, &m_rbo));

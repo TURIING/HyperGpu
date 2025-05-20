@@ -227,8 +227,8 @@ void VulCommandBuffer::TransitionImageLayout(VulImage2D* pImage, VkImageLayout n
 VkRenderPassBeginInfo VulRenderPassBeginInfo::GetRenderPassBeginInfo() const {
     return VkRenderPassBeginInfo {
         .sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
-        .framebuffer = pFrameBuffer->GetHandle(),
         .renderPass = pRenderPass->GetHandle(),
+        .framebuffer = pFrameBuffer->GetHandle(),
         .renderArea = renderArea,
         .clearValueCount = static_cast<uint32_t>(clearValues.size()),
         .pClearValues = clearValues.data()

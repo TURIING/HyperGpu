@@ -20,6 +20,7 @@ VulImage2D::VulImage2D(VulLogicDevice* device, const VulImage2DCreateInfo& info)
         const VkImageCreateInfo imageCreateInfo {
             .sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
             .imageType = VK_IMAGE_TYPE_2D,
+            .format = info.format,
             .extent = {
                 .width = info.size.width,
                 .height = info.size.height,
@@ -27,12 +28,11 @@ VulImage2D::VulImage2D(VulLogicDevice* device, const VulImage2DCreateInfo& info)
             },
             .mipLevels = info.mipLevels,
             .arrayLayers = 1,
-            .format = info.format,
-            .tiling = VK_IMAGE_TILING_OPTIMAL,
-            .initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
-            .usage = info.usage,
             .samples = info.samples,
+            .tiling = VK_IMAGE_TILING_OPTIMAL,
+            .usage = info.usage,
             .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
+            .initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
         };
         CALL_VK(vkCreateImage(m_pLogicDevice->GetHandle(), &imageCreateInfo, nullptr, &m_pHandle));
 

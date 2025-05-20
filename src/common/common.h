@@ -10,11 +10,12 @@
 
 #include <vector>
 #include <set>
-
+#include <queue>
+#include <variant>
 #include <vulkan/vulkan.h>
 
 #if !defined(PLATFORM_MACOS) && !defined(PLATFORM_IOS)
-#include <glew/include/GL/glew.h>
+#include <include/GL/glew.h>
 #elif PLATFORM_MACOS
 #include <OpenGL/gl3.h>
 #include <OpenGL/glext.h>

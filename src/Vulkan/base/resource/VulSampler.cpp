@@ -16,19 +16,19 @@ VulSampler::VulSampler(VulLogicDevice* device, const VulSamplerCreateInfo& info)
 		.sType					 = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,
 		.magFilter				 = info.magFilter,
 		.minFilter				 = info.minFilter,
+		.mipmapMode				 = VK_SAMPLER_MIPMAP_MODE_LINEAR,
 		.addressModeU = info.addressModeU,
 		.addressModeV = info.addressModeV,
 		.addressModeW = info.addressModeW,
+		.mipLodBias				 = 0.0f,
 		.anisotropyEnable		 = VK_TRUE,
 		.maxAnisotropy			 = m_pLogicDevice->GetPhysicalDevice()->GetGpuInfo().limits.maxSamplerAnisotropy,
-		.borderColor			 = VK_BORDER_COLOR_INT_OPAQUE_BLACK,
-		.unnormalizedCoordinates = VK_FALSE,
 		.compareEnable			 = VK_FALSE,
 		.compareOp				 = VK_COMPARE_OP_ALWAYS,
-		.mipmapMode				 = VK_SAMPLER_MIPMAP_MODE_LINEAR,
-		.mipLodBias				 = 0.0f,
 		.minLod					 = 0.0f,
 		.maxLod					 = 11.0f,
+		.borderColor			 = VK_BORDER_COLOR_INT_OPAQUE_BLACK,
+		.unnormalizedCoordinates = VK_FALSE,
 	};
 	CALL_VK(vkCreateSampler(m_pLogicDevice->GetHandle(), &samplerInfo, nullptr, &m_pHandle));
 	LOG_INFO("Created sampler");

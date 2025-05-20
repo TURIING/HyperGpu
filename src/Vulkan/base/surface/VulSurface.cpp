@@ -19,7 +19,7 @@ VulSurface::VulSurface(VulInstance* instance, const void *handle): m_pInstance(i
         .hwnd = (HWND)handle,
     };
 
-    CALL_VK(vkCreateWin32SurfaceKHR(m_pInstance->GetHandle(), &surfaceCreateInfo, nullptr, &m_pSurface));
+    CALL_VK(vkCreateWin32SurfaceKHR(m_pInstance->GetHandle(), &surfaceCreateInfo, nullptr, &m_pHandle));
     LOG_INFO("Successfully created surface!");
 #elif PLATFORM_MACOS
     const VkMacOSSurfaceCreateInfoMVK surfaceCreateInfo{

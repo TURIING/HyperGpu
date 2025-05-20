@@ -79,10 +79,10 @@ void VulSwapChain::createSwapChainImages() {
     m_vecSwapChainImages.reserve(imageCount);
     for (auto image : images) {
         VulImage2DCreateInfo info{
-            .handle = image,
             .format = m_pSwapChainSurfaceFormat.format,
+            .aspectFlags = VK_IMAGE_ASPECT_COLOR_BIT,
             .mipLevels = 1,
-            .aspectFlags = VK_IMAGE_ASPECT_COLOR_BIT
+            .handle = image,
         };
         m_vecSwapChainImages.emplace_back(new VulImage2D(m_pLogicDevice, info));
     }
