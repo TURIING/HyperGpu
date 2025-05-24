@@ -44,6 +44,7 @@ public:
         CALL_GL(glFramebufferTexture2D(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_pSrcImage->GetHandle(), 0));
         CHECK_FRAMEBUFFER_COMPLETE(GL_READ_FRAMEBUFFER);
         CALL_GL(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_pSurface->GetSurfaceFbo()));
+        CHECK_FRAMEBUFFER_COMPLETE(GL_DRAW_FRAMEBUFFER);
 
         for (auto range: m_ranges) {
             CALL_GL(glBlitFramebuffer(

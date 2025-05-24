@@ -12,6 +12,8 @@
 #include <set>
 #include <queue>
 #include <variant>
+#include <algorithm>
+#include <thread>
 #include <vulkan/vulkan.h>
 
 #if !defined(PLATFORM_MACOS) && !defined(PLATFORM_IOS)

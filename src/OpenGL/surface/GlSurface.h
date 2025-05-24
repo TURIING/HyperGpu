@@ -22,7 +22,7 @@ public:
     Semaphore* AcquireNextImage(uint32_t& imageIndex) override;
     void Bind() const;
     void Unbind() const;
-    [[nodiscard]] GLuint GetSurfaceFbo() const { return 0; }
+    [[nodiscard]] virtual GLuint GetSurfaceFbo() const { return 0; }
     virtual void SwapBuffers() = 0;
 
 protected:

@@ -1,7 +1,17 @@
-set(VULKAN_LIB ${CMAKE_SOURCE_DIR}/lib/vulkan-1.lib)
-
 add_definitions(-DPLATFORM_IOS)
-add_definitions(-DVK_USE_PLATFORM_IOS_MVK)
-set(EXTERNAL_LIB spdlog::spdlog ${Vulkan_LIBRARIES})
+add_definitions(-DVK_USE_PLATFORM_METAL_EXT)
+
+set (CMAKE_FIND_ROOT_PATH_MODE_LIBRARY BOTH)
+set (CMAKE_FIND_ROOT_PATH_MODE_INCLUDE BOTH)
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+
+find_package(Vulkan REQUIRED COMPONENTS MoltenVK)
+find_library(UIKIT_LIB UiKit)
+find_library(COREMEDIA_LIB CoreMedia)
+find_library(METAL_LIB Metal)
+find_library(OPENGLES_LIB OpenGLES)
+
+set(EXTERNAL_LIB spdlog::spdlog ${Vulkan_LIBRARIES} ${UIKIT_LIB} ${OPENGLES_LIB} ${COREMEDIA_LIB} ${METAL_LIB})
 set(EXTERNAL_INCLUDE ${Vulkan_INCLUDE_DIR} ${EXTERNAL}/glm ${EXTERNAL}/spdlog ${EXTERNAL}/SPIRV-Reflect)
+
 file(GLOB_RECURSE SOURCE CONFIGURE_DEPENDS ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h ${PROJECT_SOURCE_DIR}/src/*.mm)

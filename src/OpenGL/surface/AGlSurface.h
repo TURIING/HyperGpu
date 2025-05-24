@@ -31,6 +31,12 @@ public:
 #endif
     }
 
+#if PLATFORM_IOS
+    GLuint GetSurfaceFbo() const override {
+        return m_fbo;
+    }
+#endif
+
     void SwapBuffers() override {
         m_pContext->SwapBuffer();
     }

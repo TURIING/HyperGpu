@@ -23,6 +23,7 @@ VulSwapChain::VulSwapChain(VulLogicDevice* device, VulSurface* surface): m_pLogi
     this->chooseSwapSurfaceFormat();
     VkPresentModeKHR presentMode = this->chooseSwapPresentMode();
     VkExtent2D swapExtent = this->getSwapChainExtent();
+    LOG_INFO("extent: {},{}", swapExtent.width, swapExtent.height);
     uint32_t imageCount = this->getSwapChainImageCount();
 
     VkSwapchainCreateInfoKHR swapChainCreateInfo {
@@ -127,22 +128,22 @@ void VulSwapChain::acquireSwapChainSupportDetails() {
     auto physicalDevice = m_pLogicDevice->GetPhysicalDevice()->GetHandle();
     auto surface        = m_pSurface->GetHandle();
 
-    vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &m_swapChainSupportDetails.capabilities);
+    CALL_VK(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &m_swapChainSupportDetails.capabilities));
 
     uint32_t formatCount = 0;
-    vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount, nullptr);
+    CALL_VK(vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount, nullptr));
     if (formatCount != 0) {
         m_swapChainSupportDetails.formats.resize(formatCount);
-        vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount,
-                                             m_swapChainSupportDetails.formats.data());
+        CALL_VK(vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount,
+                                             m_swapChainSupportDetails.formats.data()));
     }
 
     uint32_t presentModeCount = 0;
-    vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &presentModeCount, nullptr);
+    CALL_VK(vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &presentModeCount, nullptr));
     if (presentModeCount != 0) {
         m_swapChainSupportDetails.presentModes.resize(presentModeCount);
-        vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &presentModeCount,
-                                                  m_swapChainSupportDetails.presentModes.data());
+        CALL_VK(vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &presentModeCount,
+                                                  m_swapChainSupportDetails.presentModes.data()));
     }
 
     if (m_swapChainSupportDetails.formats.empty() && m_swapChainSupportDetails.presentModes.empty()) {

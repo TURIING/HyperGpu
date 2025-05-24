@@ -43,6 +43,10 @@ VulkanDevice::VulkanDevice(const DeviceCreateInfo &info) {
                     .AddExtensions("VK_MVK_macos_surface")
                     .AddExtensions(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME)
                     .AddExtensions(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME)
+#elif PLATFORM_IOS
+                    .AddExtensions("VK_EXT_metal_surface")
+                    .AddExtensions(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME)
+                    .AddExtensions(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME)
 #endif
                     .Build();
 
@@ -50,9 +54,9 @@ VulkanDevice::VulkanDevice(const DeviceCreateInfo &info) {
 	m_pPhysicalDevice = VulPhysicalDevice::Builder()
 							.SetVulInstance(m_pInstance)
 							.AddExtension(VK_KHR_SWAPCHAIN_EXTENSION_NAME)
-#if PLATFORM_MACOS
+//#if PLATFORM_MACOS
 							.AddExtension("VK_KHR_portability_subset")
-#endif
+//#endif
 							.Build();
 
 	constexpr VkPhysicalDeviceFeatures deviceFeatures{
@@ -63,9 +67,9 @@ VulkanDevice::VulkanDevice(const DeviceCreateInfo &info) {
                         .SetPhysicalDevice(m_pPhysicalDevice)
 						.SetQueueInfos(info.pQueueInfo, info.queueInfoCount)
                         .AddExtension(VK_KHR_SWAPCHAIN_EXTENSION_NAME)
-#if PLATFORM_MACOS
+//#if PLATFORM_MACOS
                         .AddExtension("VK_KHR_portability_subset")
-#endif
+//#endif
                         .SetDeviceFeatures(deviceFeatures)
                         .Build();
 

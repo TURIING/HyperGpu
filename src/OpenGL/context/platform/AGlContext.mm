@@ -4,6 +4,8 @@
 #import <AppKit/AppKit.h>
 #elif PLATFORM_IOS
 #import <UIKit/UIKit.h>
+#import <OpenGLES/ES3/gl.h>
+#import <OpenGLES/ES3/glext.h>
 #endif
 
 namespace HyperGpu {

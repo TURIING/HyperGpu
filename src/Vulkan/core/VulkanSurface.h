@@ -38,7 +38,7 @@ private:
 	VulkanDevice* m_pVulkanDevice = nullptr;
 	VulSurface*	m_pSurface		   = nullptr;
 	VulSwapChain* m_pSwapChain	 = nullptr;
-	VulkanSemaphore* m_pImageAcquiredSemaphore = nullptr;
+	std::vector<VulkanSemaphore*> m_vecImageAcquiredSemaphore;
 	int32_t	m_frameIndex = -1;
 };
 

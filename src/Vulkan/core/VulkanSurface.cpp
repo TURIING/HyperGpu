@@ -19,17 +19,21 @@ VulkanSurface::VulkanSurface(VulkanDevice* device, HyperGpu::PlatformWindowInfo 
 	m_pVulkanDevice->AddRef();
 	m_pSurface = new VulSurface(m_pVulkanDevice->GetInstance(), platformWindowInfo.handle);
 	m_pSwapChain = new VulSwapChain(m_pVulkanDevice->GetLogicDevice(), m_pSurface);
-	m_pImageAcquiredSemaphore = new VulkanSemaphore(m_pVulkanDevice);
+//	m_pImageAcquiredSemaphore = new VulkanSemaphore(m_pVulkanDevice);
+    for(auto i = 0; i < 3; i++) {
+        m_vecImageAcquiredSemaphore.push_back(new VulkanSemaphore(m_pVulkanDevice));
+    }
 }
 
 VulkanSurface::~VulkanSurface() {
-	m_pImageAcquiredSemaphore->SubRef();
+//	m_pImageAcquiredSemaphore->SubRef();
 	m_pSwapChain->SubRef();
 	m_pVulkanDevice->SubRef();
 }
 
 Semaphore* VulkanSurface::AcquireNextImage(uint32_t& imageIndex) {
-	auto result = m_pSwapChain->AcquireNextImage(m_pImageAcquiredSemaphore->GetHandle(), imageIndex);
+    m_frameIndex = (m_frameIndex + 1) % m_pSwapChain->GetImageCount();
+	auto result = m_pSwapChain->AcquireNextImage(m_vecImageAcquiredSemaphore[m_frameIndex]->GetHandle(), imageIndex);
 	if(result == VK_ERROR_OUT_OF_DATE_KHR) {
 		LOG_ASSERT(false);
 		// this->OnResize(m_size);
@@ -38,9 +42,9 @@ Semaphore* VulkanSurface::AcquireNextImage(uint32_t& imageIndex) {
 		LOG_CRITICAL("Failed to acquire swap chain image!");
 	}
 
-	m_frameIndex = (m_frameIndex + 1) % m_pSwapChain->GetImageCount();
+	
 
-	return m_pImageAcquiredSemaphore;
+	return m_vecImageAcquiredSemaphore[m_frameIndex];
 }
 
 VulImage2D* VulkanSurface::GetCurrentImage() const {

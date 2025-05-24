@@ -8,7 +8,7 @@
 #ifndef HYPERRENDER_ICONTEXT_H
 #define HYPERRENDER_ICONTEXT_H
 
-#include "../../../include/Gpu.h"
+#include "Gpu.h"
 
 namespace HyperGpu
 {

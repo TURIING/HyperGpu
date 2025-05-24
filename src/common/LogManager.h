@@ -10,12 +10,12 @@
 #define LOGMANAGER_H
 
 #include <memory>
-#include <format>
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_TRACE
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/async.h>
 #include "../common/Singleton.h"
+#include <spdlog/fmt/bundled/core.h>
 
 class LogManager {
 public:
@@ -28,19 +28,19 @@ private:
 
 #ifdef NDEBUG
 #define LOG_DEBUG(...)
-#define LOG_INFO(...) SPDLOG_LOGGER_INFO(Singleton<LogManager>::GetInstance()->GetLogger(), std::format(__VA_ARGS__))
+#define LOG_INFO(...) SPDLOG_LOGGER_INFO(Singleton<LogManager>::GetInstance()->GetLogger(), fmt::format(__VA_ARGS__))
 #define LOG_WARNING(...)
 #define LOG_CRITICAL(...) \
-SPDLOG_LOGGER_CRITICAL(Singleton<LogManager>::GetInstance()->GetLogger(), std::format(__VA_ARGS__)); \
+SPDLOG_LOGGER_CRITICAL(Singleton<LogManager>::GetInstance()->GetLogger(), fmt::format(__VA_ARGS__)); \
 std::exit(EXIT_FAILURE);
 #define LOG_ASSERT(CONDITION)
 #define LOG_ASSERT_INFO(CONDITION, INFO)
 #else
-#define LOG_DEBUG(...) SPDLOG_LOGGER_DEBUG(Singleton<LogManager>::GetInstance()->GetLogger(), std::format(__VA_ARGS__))
-#define LOG_INFO(...) SPDLOG_LOGGER_INFO(Singleton<LogManager>::GetInstance()->GetLogger(), std::format(__VA_ARGS__))
-#define LOG_WARNING(...) SPDLOG_LOGGER_WARN(Singleton<LogManager>::GetInstance()->GetLogger(), std::format(__VA_ARGS__))
+#define LOG_DEBUG(...) SPDLOG_LOGGER_DEBUG(Singleton<LogManager>::GetInstance()->GetLogger(), fmt::format(__VA_ARGS__))
+#define LOG_INFO(...) SPDLOG_LOGGER_INFO(Singleton<LogManager>::GetInstance()->GetLogger(), fmt::format(__VA_ARGS__))
+#define LOG_WARNING(...) SPDLOG_LOGGER_WARN(Singleton<LogManager>::GetInstance()->GetLogger(), fmt::format(__VA_ARGS__))
 #define LOG_CRITICAL(...) \
-SPDLOG_LOGGER_CRITICAL(Singleton<LogManager>::GetInstance()->GetLogger(), std::format(__VA_ARGS__)); \
+SPDLOG_LOGGER_CRITICAL(Singleton<LogManager>::GetInstance()->GetLogger(), fmt::format(__VA_ARGS__)); \
 std::exit(EXIT_FAILURE);
 
 #define LOG_ASSERT(CONDITION) if(!(CONDITION)){ LOG_CRITICAL("Assert failed({0})", #CONDITION); }

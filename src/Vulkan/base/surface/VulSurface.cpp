@@ -30,6 +30,16 @@ VulSurface::VulSurface(VulInstance* instance, const void *handle): m_pInstance(i
 
     CALL_VK(vkCreateMacOSSurfaceMVK(m_pInstance->GetHandle(), &surfaceCreateInfo, nullptr, &m_pHandle));
     LOG_INFO("Successfully created surface!");
+#elif PLATFORM_IOS
+    const auto layer = reinterpret_cast<const CAMetalLayer*>(handle);
+    const VkMetalSurfaceCreateInfoEXT surfaceCreateInfo{
+        .sType = VK_STRUCTURE_TYPE_METAL_SURFACE_CREATE_INFO_EXT,
+        .pNext = nullptr,
+        .pLayer = layer,
+    };
+
+    CALL_VK(vkCreateMetalSurfaceEXT(m_pInstance->GetHandle(), &surfaceCreateInfo, nullptr, &m_pHandle));
+    LOG_INFO("Successfully created surface!");
 #endif
 }
 

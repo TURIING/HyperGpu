@@ -1,4 +1,4 @@
-set(VULKAN_LIB ${CMAKE_SOURCE_DIR}/lib/vulkan-1.lib)
+find_package(Vulkan REQUIRED)
 
 add_definitions(-DPLATFORM_ANDROID)
 add_definitions(-DVK_USE_PLATFORM_ANDROID_KHR)
