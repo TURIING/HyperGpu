@@ -11,6 +11,8 @@
 #include "../VulObject.h"
 #include "../../../common/common.h"
 
+USING_GPU_NAMESPACE_BEGIN
+
 class VulLogicDevice;
 
 class VulCommandPool final : public VulObject<VkCommandPool>{
@@ -22,6 +24,5 @@ private:
     VulLogicDevice* m_pDevice = nullptr;
 };
 
-
-
+USING_GPU_NAMESPACE_END
 #endif //VULCOMMANDPOOL_H

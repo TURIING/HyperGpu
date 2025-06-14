@@ -8,6 +8,8 @@
 #include "VulSemaphore.h"
 #include "../device/VulLogicDevice.h"
 
+USING_GPU_NAMESPACE_BEGIN
+
 VulSemaphore::VulSemaphore(VulLogicDevice* device) : m_pLogicDevice(device) {
 	m_pLogicDevice->AddRef();
 	VkSemaphoreCreateInfo semaphoreInfo = {
@@ -22,3 +24,5 @@ VulSemaphore::~VulSemaphore() {
 	vkDestroySemaphore(m_pLogicDevice->GetHandle(), m_pHandle, nullptr);
 	m_pLogicDevice->SubRef();
 }
+
+USING_GPU_NAMESPACE_END

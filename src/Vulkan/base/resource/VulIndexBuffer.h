@@ -10,6 +10,8 @@
 
 #include "../../../common/common.h"
 
+USING_GPU_NAMESPACE_BEGIN
+
 class VulBuffer;
 class VulLogicDevice;
 
@@ -23,4 +25,5 @@ private:
 	VulBuffer* m_pBuffer = nullptr;
 };
 
+USING_GPU_NAMESPACE_END
 #endif //VULINDEXBUFFER_H

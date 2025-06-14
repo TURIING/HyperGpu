@@ -11,6 +11,7 @@
 #include "../VulObject.h"
 #include "../.././../common/common.h"
 
+USING_GPU_NAMESPACE_BEGIN
 class VulInstance;
 
 class VulSurface final : public VulObject<VkSurfaceKHR>{
@@ -22,4 +23,5 @@ private:
     VulInstance* m_pInstance = nullptr;
 };
 
+USING_GPU_NAMESPACE_END
 #endif //VULSURFACE_H

@@ -29,7 +29,7 @@ public:
     void ClearColorImage(Image2D* image, const Color &color) override;
     void SetViewport(const Viewport& viewport) override;
     void SetScissor(const Scissor& scissor) override;
-    void Execute(GlContext* pContext);
+    void Execute(GlContext* pContext) const;
     void BlitImageToSurface(Image2D* pImage, GpuSurface* surface, ImageBlitRange* pRange, uint32_t rangeCount, Filter filter) override;
 
 private:

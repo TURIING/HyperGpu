@@ -15,6 +15,8 @@
 #include "../command/VulCommandBuffer.h"
 #include "../surface/VulSurface.h"
 
+USING_GPU_NAMESPACE_BEGIN
+
 VulLogicDevice::VulLogicDevice(VulInstance* pInstance, VulPhysicalDevice* pPhysicalDevice, VulSurface* surface, const VulLogicDeviceCreateInfo& info)
 	: m_pInstance(pInstance), m_pPhysicalDevice(pPhysicalDevice) {
 	m_pInstance->AddRef();
@@ -95,3 +97,5 @@ VulLogicDeviceBuilder& VulLogicDeviceBuilder::SetQueueInfos(HyperGpu::QueueInfo*
 VulLogicDevice* VulLogicDeviceBuilder::Build() const {
 	return new VulLogicDevice(m_pInstance, m_pPhysicalDevice, m_pSurface, m_createInfo);
 }
+
+USING_GPU_NAMESPACE_END

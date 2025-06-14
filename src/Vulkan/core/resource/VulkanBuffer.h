@@ -10,6 +10,7 @@
 
 #include "../../../common/common.h"
 #include "GpuResource.h"
+USING_GPU_NAMESPACE_BEGIN
 
 class VulUniformBuffer;
 class VulIndexBuffer;
@@ -22,11 +23,12 @@ public:
 	[[nodiscard]] VulVertexBuffer*  GetVertexBuffer() const { return std::get<VulVertexBuffer*>(m_pBuffer); }
 	[[nodiscard]] VulIndexBuffer*   GetIndexBuffer() const { return std::get<VulIndexBuffer*>(m_pBuffer); }
 	[[nodiscard]] VulUniformBuffer* GetUniformBuffer() const { return std::get<VulUniformBuffer*>(m_pBuffer); }
-	void                            UpdateData(const uint8_t* data, uint64_t dataSize) override;
+	void UpdateData(const uint8_t* data, uint64_t dataSize) override;
 
 private:
 	std::variant<VulVertexBuffer*, VulIndexBuffer*, VulUniformBuffer*> m_pBuffer;
-	BufferType										m_type;
+	BufferType m_type;
 };
 
+USING_GPU_NAMESPACE_END
 #endif // VULKANBUFFER_H

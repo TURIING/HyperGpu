@@ -11,6 +11,7 @@
 #include "../VulObject.h"
 #include "../../../common/common.h"
 
+USING_GPU_NAMESPACE_BEGIN
 class VulLogicDevice;
 class VulBuffer;
 
@@ -68,4 +69,5 @@ private:
 	VkDeviceSize	m_size			= 0;
 };
 
+USING_GPU_NAMESPACE_END
 #endif // VULBUFFER_H

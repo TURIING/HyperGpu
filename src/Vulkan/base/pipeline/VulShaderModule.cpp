@@ -9,6 +9,8 @@
 
 #include "../device/VulLogicDevice.h"
 
+USING_GPU_NAMESPACE_BEGIN
+
 VulShaderModule::VulShaderModule(VulLogicDevice* device, const uint8_t *code, uint32_t size): m_pLogicDevice(device) {
 	m_pLogicDevice->AddRef();
     VkShaderModuleCreateInfo shaderModuleCreateInfo = {
@@ -24,3 +26,5 @@ VulShaderModule::~VulShaderModule() {
     vkDestroyShaderModule(m_pLogicDevice->GetHandle(), m_pHandle, nullptr);
 	m_pLogicDevice->SubRef();
 }
+
+USING_GPU_NAMESPACE_END

@@ -11,17 +11,14 @@
 #include "../../../common/common.h"
 #include "../VulTypeDefine.h"
 
-namespace HyperGpu
-{
-    struct ShaderInfo;
-}
+struct SpvReflectShaderModule;
+USING_GPU_NAMESPACE_BEGIN
 
 class VulPipeLineLayout;
 class VulShaderModule;
 struct VulDescriptorSetLayoutBindInfo;
 class VulDescriptorSetLayout;
 class VulLogicDevice;
-struct SpvReflectShaderModule;
 
 class VulShader final {
 public:
@@ -52,4 +49,6 @@ private:
     std::vector<VkPushConstantRange> m_pushConstantRanges;
     std::unordered_map<std::string, uint8_t> m_mapResourceBinding;
 };
+
+USING_GPU_NAMESPACE_END
 #endif //VULSHADER_H

@@ -12,6 +12,8 @@
 #include "../../../common/common.h"
 #include "../VulTypeDefine.h"
 
+USING_GPU_NAMESPACE_BEGIN
+
 class VulLogicDevice;
 
 class VulPipeline final : public VulObject<VkPipeline> {
@@ -23,4 +25,5 @@ private:
     VulLogicDevice* m_pDevice = nullptr;
 };
 
+USING_GPU_NAMESPACE_END
 #endif //VULPIPELINE_H

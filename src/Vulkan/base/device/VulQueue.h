@@ -13,6 +13,8 @@
 #include "../../../common/common.h"
 #include "../VulObject.h"
 
+USING_GPU_NAMESPACE_BEGIN
+
 class VulSwapChain;
 class VulCommandBuffer;
 class VulFence;
@@ -51,4 +53,5 @@ private:
     u32 m_queueFamily = 0;
 };
 
+USING_GPU_NAMESPACE_END
 #endif //VULQUEUE_H

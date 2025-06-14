@@ -10,6 +10,8 @@
 #include "VulkanPipeline.h"
 #include "VulkanDevice.h"
 
+USING_GPU_NAMESPACE_BEGIN
+
 VulkanPipelineManager::VulkanPipelineManager(VulkanDevice* device) : m_pDevice(device) {
 	m_pDevice->AddRef();
 }
@@ -21,3 +23,5 @@ VulkanPipelineManager::~VulkanPipelineManager() {
 Pipeline* VulkanPipelineManager::CreateRenderPipeline(const RenderEnvInfo& renderEnvInfo) {
 	return new VulkanPipeline(m_pDevice, renderEnvInfo);
 }
+
+USING_GPU_NAMESPACE_END

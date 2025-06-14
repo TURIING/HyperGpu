@@ -10,6 +10,8 @@
 #include "../device/VulPhysicalDevice.h"
 #include "../command/VulCommandBuffer.h"
 
+USING_GPU_NAMESPACE_BEGIN
+
 VulImage2D::VulImage2D(VulLogicDevice* device, const VulImage2DCreateInfo& info) : m_pLogicDevice(device), m_mipLevels(info.mipLevels){
 	m_pLogicDevice->AddRef();
 
@@ -79,3 +81,5 @@ VulImage2D::~VulImage2D() {
     vkDestroyImageView(m_pLogicDevice->GetHandle(), m_pImageView, nullptr);
 	m_pLogicDevice->SubRef();
 }
+
+USING_GPU_NAMESPACE_END

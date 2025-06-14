@@ -11,16 +11,18 @@
 #include "../../../common/common.h"
 #include "../VulObject.h"
 
+USING_GPU_NAMESPACE_BEGIN
 
 class VulLogicDevice;
 
 class VulSemaphore final : public VulObject<VkSemaphore>{
 public:
 	explicit VulSemaphore(VulLogicDevice* device);
-	~		 VulSemaphore() override;
+	~VulSemaphore() override;
 
 private:
 	VulLogicDevice* m_pLogicDevice = nullptr;
 };
 
+USING_GPU_NAMESPACE_END
 #endif //VULSEMAPHORE_H

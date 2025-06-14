@@ -11,6 +11,8 @@
 #include "../../../common/common.h"
 #include "../VulObject.h"
 
+USING_GPU_NAMESPACE_BEGIN
+
 class VulImage2D;
 class VulUniformBuffer;
 class VulDescriptorSetLayout;
@@ -20,19 +22,25 @@ class VulLogicDevice;
 class VulDescriptorSet final : public VulObject<VkDescriptorSet> {
 public:
 	struct ImageBindingInfo {
-		VkDescriptorImageInfo* imageInfo;
-        const char* name = nullptr;
+		VkDescriptorImageInfo* imageInfo = nullptr;
+        std::string name;
+	};
+
+	struct UniformBindingInfo {
+		VkDescriptorBufferInfo* pBufferInfo = nullptr;
+		std::string name;
 	};
 
 public:
 	VulDescriptorSet(VulLogicDevice* device, VulDescriptorPool* pool, VulDescriptorSetLayout* layout, std::unordered_map<std::string, uint8_t> resourceBinding);
 	~VulDescriptorSet() override;
-	void SetImage(const std::vector<ImageBindingInfo>& vecImageInfo) const;
-	void SetUniformBuffer(VulUniformBuffer** buffers, uint32_t count) const;
+	void SetImage(const std::vector<ImageBindingInfo>& vecImageInfo);
+	void SetUniformBuffer(const std::vector<UniformBindingInfo> &vecBufferInfo);
 
 private:
 	VulLogicDevice* m_pLogicDevice = nullptr;
     std::unordered_map<std::string, uint8_t> m_mapResourceBinding;
 };
 
+USING_GPU_NAMESPACE_END
 #endif // VULDESCRIPTORSET_H

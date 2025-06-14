@@ -10,6 +10,8 @@
 #include <GpuCmd.h>
 #include <memory>
 
+USING_GPU_NAMESPACE_BEGIN
+
 class VulkanImage2D;
 class VulFrameBuffer;
 class VulFence;
@@ -47,4 +49,5 @@ private:
 	std::unordered_map<size_t, VulFrameBuffer*> m_vecFrameBuffer;
 };
 
+USING_GPU_NAMESPACE_END
 #endif // VULKANCMD_H

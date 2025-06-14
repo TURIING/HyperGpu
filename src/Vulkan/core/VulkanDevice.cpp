@@ -31,6 +31,8 @@ constexpr bool ENABLE_VALIDATION_LAYER = false;
 constexpr bool ENABLE_VALIDATION_LAYER = true;
 #endif
 
+USING_GPU_NAMESPACE_BEGIN
+
 VulkanDevice::VulkanDevice(const DeviceCreateInfo &info) {
 	Singleton<LogManager>::GetInstance()->Init();
 
@@ -98,3 +100,5 @@ GpuSurface* VulkanDevice::CreateSurface(const PlatformWindowInfo &platformWindow
 Queue* VulkanDevice::CreateQueue(QueueType queueType) {
 	return new VulkanQueue(this, queueType);
 }
+
+USING_GPU_NAMESPACE_END

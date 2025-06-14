@@ -12,6 +12,8 @@
 
 #include "../../common/common.h"
 
+USING_GPU_NAMESPACE_BEGIN
+
 class VulQueue;
 class VulkanDevice;
 class VulCommandPool;
@@ -19,11 +21,11 @@ class VulCommandBuffer;
 
 class VulkanCmdManager final : public GpuCmdManager{
 public:
-	explicit			  VulkanCmdManager(VulkanDevice* device);
-	~					  VulkanCmdManager() override;
+	explicit VulkanCmdManager(VulkanDevice* device);
+	~VulkanCmdManager() override;
 	[[nodiscard]] GpuCmd* CreateCommandBuffer() override;
-	void                  WithSingleCmdBuffer(const std::function<void(VulCommandBuffer* cmd)>& func) const;
-	void                  WithSingleCmdBuffer(const std::function<void(GpuCmd*)>& func) override;
+	void WithSingleCmdBuffer(const std::function<void(VulCommandBuffer* cmd)>& func) const;
+	void WithSingleCmdBuffer(const std::function<void(GpuCmd*)>& func) override;
 
 private:
 	VulkanDevice*	m_pVulkanDevice = nullptr;
@@ -31,4 +33,5 @@ private:
 	VulQueue*		m_pQueue		= nullptr;
 };
 
+USING_GPU_NAMESPACE_END
 #endif //VULKANCMDMANAGER_H

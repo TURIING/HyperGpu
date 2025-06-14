@@ -12,6 +12,8 @@
 #include "../CmdBase.h"
 #include "../../resource/GlImage2D.h"
 
+USING_GPU_NAMESPACE_BEGIN
+
 class CmdClearColorImage final: public CmdBase {
 public:
     static constexpr auto CMD_TYPE =  CmdType::ClearColorImage;
@@ -45,4 +47,5 @@ private:
     Color m_color;
 };
 
+USING_GPU_NAMESPACE_END
 #endif //CMDCLEARCOLORIMAGE_H

@@ -40,17 +40,7 @@ struct RenderEnvInfo {
 	uint32_t					attachmentCount = 0;
 };
 
-class Pipeline : public GpuObject {
-public:
-	struct ImageBindingInfo {
-		Image2D* pImage  = nullptr;
-		uint32_t binding = 0;
-	};
-
-public:
-	virtual void SetUniformBuffers(Buffer** buffer, uint32_t count) = 0;
-	virtual void SetImages(ImageBindingInfo* infos, uint32_t count) = 0;
-};
+class Pipeline : public GpuObject {};
 
 class PipelineManager : public GpuObject {
 public:

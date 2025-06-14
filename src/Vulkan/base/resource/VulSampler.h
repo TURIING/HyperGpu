@@ -11,6 +11,8 @@
 #include "../../../common/common.h"
 #include "../VulObject.h"
 
+USING_GPU_NAMESPACE_BEGIN
+
 class VulLogicDevice;
 
 struct VulSamplerCreateInfo {
@@ -30,4 +32,5 @@ private:
 	VulLogicDevice* m_pLogicDevice = nullptr;
 };
 
+USING_GPU_NAMESPACE_END
 #endif // VULSAMPLER_H

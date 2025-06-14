@@ -11,18 +11,21 @@
 #include <GpuSync.h>
 
 #include "../../common/common.h"
+
+USING_GPU_NAMESPACE_BEGIN
+
 class VulSemaphore;
 class VulkanDevice;
-using namespace HyperGpu;
 
 class VulkanSemaphore final : public Semaphore {
 public:
-	explicit					VulkanSemaphore(VulkanDevice* device);
-	~							VulkanSemaphore() override;
-	[[nodiscard]] VulSemaphore* GetHandle() const { return m_pSemaphore; }
+	explicit VulkanSemaphore(VulkanDevice* device);
+	~VulkanSemaphore() override;
+	NODISCARD VulSemaphore* GetHandle() const { return m_pSemaphore; }
 
 private:
 	VulSemaphore* m_pSemaphore = nullptr;
 };
 
+USING_GPU_NAMESPACE_END
 #endif // VULKANSEMAPHORE_H

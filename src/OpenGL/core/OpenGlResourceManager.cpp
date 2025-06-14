@@ -29,3 +29,7 @@ Buffer* OpenGlResourceManager::CreateBuffer(const Buffer::BufferCreateInfo& crea
 Sampler* OpenGlResourceManager::CreateSampler(const Sampler::SamplerCreateInfo& info) {
     return nullptr;
 }
+
+InputAssembler* OpenGlResourceManager::CreateInputAssembler(const InputAssemblerInfo& info) {
+    return nullptr;
+}

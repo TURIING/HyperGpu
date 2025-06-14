@@ -10,6 +10,8 @@
 
 #include "../../../common/common.h"
 
+USING_GPU_NAMESPACE_BEGIN
+
 class VulBuffer;
 class VulLogicDevice;
 
@@ -18,12 +20,13 @@ public:
     VulUniformBuffer(VulLogicDevice* device, uint64_t bufferSize);
     ~VulUniformBuffer() override;
     [[nodiscard]] VkBuffer GetHandle() const;
-    [[nodiscard]] VkDescriptorBufferInfo GetDescriptorBufferInfo() const { return m_descriptorInfo; }
-    void                   UpdateData(const uint8_t* data, uint64_t size) const;
+    [[nodiscard]] VkDescriptorBufferInfo* GetDescriptorBufferInfo() { return &m_descriptorInfo; }
+    void UpdateData(const uint8_t* data, uint64_t size) const;
 
 private:
     VulBuffer* m_pBuffer = nullptr;
     VkDescriptorBufferInfo m_descriptorInfo {};
 };
 
+USING_GPU_NAMESPACE_END
 #endif //VULUNIFORMBUFFER_H

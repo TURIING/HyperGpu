@@ -11,6 +11,8 @@
 #include "../../common/common.h"
 #include "GpuPipeline.h"
 
+USING_GPU_NAMESPACE_BEGIN
+
 class VulDescriptorSetLayout;
 class VulIndexBuffer;
 class VulVertexBuffer;
@@ -18,7 +20,6 @@ class VulDescriptorPool;
 class VulDescriptorSet;
 class VulPipeline;
 class VulRenderPass;
-using namespace HyperGpu;
 
 class VulPipeLineLayout;
 class VulkanDevice;
@@ -31,8 +32,8 @@ public:
 	[[nodiscard]] VulRenderPass*     GetRenderPass() const { return m_pRenderPass; }
 	[[nodiscard]] VulDescriptorSet*  GetDescriptorSet() const { return m_pDescriptorSet; }
 	[[nodiscard]] VulPipeLineLayout* GetPipelineLayout() const { return m_pPipelineLayout; }
-	void                             SetUniformBuffers(Buffer** buffer, uint32_t count) override;
-	void                             SetImages(ImageBindingInfo* infos, uint32_t count) override;
+	void SetUniformBuffers(GpuCmd::UniformBinding* infos, uint32_t count) const;
+	void SetImages(GpuCmd::ImageBinding* infos, uint32_t count) const;
 
 private:
 	VulkanDevice*           m_pVulkanDevice        = nullptr;
@@ -44,4 +45,5 @@ private:
 	VulDescriptorSetLayout* m_pDescriptorSetLayout = nullptr;
 };
 
+USING_GPU_NAMESPACE_END
 #endif // VULKANPIPELINE_H

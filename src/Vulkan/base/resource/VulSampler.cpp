@@ -10,6 +10,8 @@
 #include "../device/VulLogicDevice.h"
 #include "../device/VulPhysicalDevice.h"
 
+USING_GPU_NAMESPACE_BEGIN
+
 VulSampler::VulSampler(VulLogicDevice* device, const VulSamplerCreateInfo& info) : m_pLogicDevice(device) {
 	m_pLogicDevice->AddRef();
 	VkSamplerCreateInfo samplerInfo = {
@@ -38,3 +40,5 @@ VulSampler::~VulSampler() {
 	vkDestroySampler(m_pLogicDevice->GetHandle(), m_pHandle, nullptr);
 	m_pLogicDevice->SubRef();
 }
+
+USING_GPU_NAMESPACE_END

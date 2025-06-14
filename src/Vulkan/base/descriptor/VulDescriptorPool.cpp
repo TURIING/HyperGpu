@@ -7,8 +7,9 @@
 ********************************************************************************/
 
 #include "VulDescriptorPool.h"
-
 #include "../device/VulLogicDevice.h"
+
+USING_GPU_NAMESPACE_BEGIN
 
 constexpr uint32_t DESCRIPTOR_POOL_MAX_SET_COUNT = 100;
 
@@ -49,3 +50,5 @@ VulDescriptorPoolBuilder& VulDescriptorPoolBuilder::AddPoolSize(VulDescriptorPoo
 VulDescriptorPool* VulDescriptorPoolBuilder::Build() {
     return new VulDescriptorPool(m_pDevice, m_createInfo);
 }
+
+USING_GPU_NAMESPACE_END

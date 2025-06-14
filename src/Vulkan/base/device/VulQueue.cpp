@@ -14,6 +14,8 @@
 #include "HyperGpu/src/Vulkan/base/sync/VulFence.h"
 #include "HyperGpu/src/Vulkan/base/sync/VulSemaphore.h"
 
+USING_GPU_NAMESPACE_BEGIN
+
 VulQueue::VulQueue(VulLogicDevice* pLogicDevice, u32 queueFamily): m_pLogicDevice(pLogicDevice), m_queueFamily(queueFamily) {
 	m_pLogicDevice->AddRef();
 	vkGetDeviceQueue(pLogicDevice->GetHandle(), m_queueFamily, 0, &m_pHandle);
@@ -65,3 +67,5 @@ void VulQueue::Present(const VulQueuePresentInfo& info) const {
     };
     vkQueuePresentKHR(m_pHandle, &presentInfo);
 }
+
+USING_GPU_NAMESPACE_END

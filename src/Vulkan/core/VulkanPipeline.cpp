@@ -8,6 +8,7 @@
 #include "VulkanPipeline.h"
 
 #include "../base/device/VulPhysicalDevice.h"
+#include "../base/device/VulLogicDevice.h"
 #include "../base/descriptor/VulDescriptorPool.h"
 #include "../base/descriptor/VulDescriptorSet.h"
 #include "../base/pipeline/VulPipeline.h"
@@ -20,6 +21,8 @@
 #include "resource/ResourceCache.h"
 #include "resource/VulkanBuffer.h"
 #include "resource/VulkanImage2D.h"
+
+USING_GPU_NAMESPACE_BEGIN
 
 VulkanPipeline::VulkanPipeline(VulkanDevice* pDevice, const RenderEnvInfo& renderEnvInfo) : m_pVulkanDevice(pDevice) {
 	m_pVulkanDevice->AddRef();
@@ -83,24 +86,28 @@ VulkanPipeline::~VulkanPipeline() {
 	m_pVulkanDevice->SubRef();
 }
 
-void VulkanPipeline::SetUniformBuffers(Buffer** buffer, uint32_t count) {
-	std::vector<VulUniformBuffer*> uniformBuffers;
-	uniformBuffers.reserve(count);
+void VulkanPipeline::SetUniformBuffers(GpuCmd::UniformBinding* infos, uint32_t count) const {
+	std::vector<VulDescriptorSet::UniformBindingInfo> vecBindingInfo;
+	vecBindingInfo.reserve(count);
 	for (auto i = 0; i < count; i++) {
-		uniformBuffers.push_back(dynamic_cast<VulkanBuffer*>(buffer[i])->GetUniformBuffer());
+		vecBindingInfo.push_back({
+			.pBufferInfo = dynamic_cast<VulUniformBuffer*>(infos[i].buffer)->GetDescriptorBufferInfo(),
+			.name = infos[i].name,
+		});
 	}
-	m_pDescriptorSet->SetUniformBuffer(uniformBuffers.data(), uniformBuffers.size());
+	m_pDescriptorSet->SetUniformBuffer(vecBindingInfo);
 }
 
-void VulkanPipeline::SetImages(ImageBindingInfo* infos, uint32_t count) {
+void VulkanPipeline::SetImages(GpuCmd::ImageBinding* infos, uint32_t count) const {
 	std::vector<VulDescriptorSet::ImageBindingInfo> vecBindingInfo;
 	vecBindingInfo.reserve(count);
 	for (auto i = 0; i < count; i++) {
-        // todo binding
-//		vecBindingInfo.push_back({
-//			.imageInfo = dynamic_cast<VulkanImage2D*>(infos[i].pImage)->GetDescriptorImageInfo(),
-//			.binding = infos[i].binding,
-//		});
+		vecBindingInfo.push_back({
+			.imageInfo = dynamic_cast<VulkanImage2D*>(infos[i].pImage)->GetDescriptorImageInfo(),
+			.name = infos[i].name,
+		});
 	}
 	m_pDescriptorSet->SetImage(vecBindingInfo);
 };
+
+USING_GPU_NAMESPACE_END

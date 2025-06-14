@@ -45,21 +45,45 @@ namespace HyperGpu {
 		enum BufferType { Vertex, Index, Uniform };
 		struct BufferCreateInfo {
 			BufferType bufferType = BufferType::Uniform;
-			uint64_t           bufferSize = 0;
-			uint8_t*           data       = nullptr;				// 当buffer类型为uniform时，该字段为nullptr就行
-			uint32_t           binding    = 0;
+			uint64_t bufferSize = 0;
+			const uint8_t *data = nullptr;				// 当buffer类型为uniform时，该字段为nullptr就行
 		};
 		virtual void UpdateData(const uint8_t* data, uint64_t dataSize) = 0;
 	};
 
+    enum class AttributeDataType { Float, Int, Vec2, Vec3, Vec4, Mat4 };
+
+    struct VertexAttribute {
+        uint8_t location = 0;
+        AttributeDataType dataType = AttributeDataType::Float;
+    };
+
+    struct InputAssemblerInfo {
+        uint8_t attributeCount = 0;
+        const VertexAttribute *pAttributes = nullptr;
+
+        const uint8_t *pVertexData = nullptr;
+        uint32_t vertexSize  = 0;
+
+        const uint8_t *pIndexData = nullptr;
+        uint32_t indexSize = 0;
+
+        PrimitiveType primitiveType = PrimitiveType::TRIANGLE;
+        uint32_t vertexCount = 0;
+        uint32_t indexCount = 0;
+    };
+
+    class InputAssembler: public GpuObject {};
+
 	class GpuResourceManager : public GpuObject {
 	public:
-		[[nodiscard]] virtual Image2D* CreateImage2D(const Image2D::Image2DCreateInfo& info) = 0;
-		[[nodiscard]] virtual Buffer*  CreateBuffer(const Buffer::BufferCreateInfo& createInfo) = 0;
-		[[nodiscard]] virtual Sampler* CreateSampler(const Sampler::SamplerCreateInfo& info) = 0;
-		static void                    DestroyBuffer(Buffer* buffer) { buffer->SubRef(); }
-		static void                    DestroyImage(Image2D* image) { image->SubRef(); }
-		static void                    DestroySampler(Sampler* sampler) { sampler->SubRef(); }
+		virtual Image2D* CreateImage2D(const Image2D::Image2DCreateInfo& info) = 0;
+		virtual Buffer*  CreateBuffer(const Buffer::BufferCreateInfo& createInfo) = 0;
+		virtual Sampler* CreateSampler(const Sampler::SamplerCreateInfo& info) = 0;
+        virtual InputAssembler* CreateInputAssembler(const InputAssemblerInfo &info) = 0;
+		void DestroyBuffer(Buffer* buffer) { buffer->SubRef(); }
+		void DestroyImage(Image2D* image) { image->SubRef(); }
+		void DestroySampler(Sampler* sampler) { sampler->SubRef(); }
 	};
 } // namespace HyperGpu
 #endif // GPURESOURCE_H

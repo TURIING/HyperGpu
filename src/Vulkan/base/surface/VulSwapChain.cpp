@@ -14,6 +14,8 @@
 #include "../sync/VulSemaphore.h"
 #include "HyperGpu/src/Vulkan/base/resource/VulImage2D.h"
 
+USING_GPU_NAMESPACE_BEGIN
+
 VulSwapChain::VulSwapChain(VulLogicDevice* device, VulSurface* surface): m_pLogicDevice(device), m_pSurface(surface) {
     m_pLogicDevice->AddRef();
     m_pSurface->AddRef();
@@ -164,3 +166,5 @@ void VulSwapChain::chooseSwapSurfaceFormat() {
     }
     m_pSwapChainSurfaceFormat = m_swapChainSupportDetails.formats[0];
 }
+
+USING_GPU_NAMESPACE_END

@@ -8,6 +8,7 @@
 #include "VulVertexBuffer.h"
 
 #include "VulBuffer.h"
+USING_GPU_NAMESPACE_BEGIN
 
 VulVertexBuffer::VulVertexBuffer(VulLogicDevice* device, const uint8_t* data, uint64_t size) {
 	const auto stageBuffer = VulBuffer::Builder()
@@ -27,7 +28,6 @@ VulVertexBuffer::VulVertexBuffer(VulLogicDevice* device, const uint8_t* data, ui
 	m_pBuffer->CopyFrom(stageBuffer);
 
 	stageBuffer->SubRef();
-	LOG_INFO("Vertex buffer created, size: {}.", size);
 }
 
 VulVertexBuffer::~VulVertexBuffer() {
@@ -37,3 +37,5 @@ VulVertexBuffer::~VulVertexBuffer() {
 VkBuffer VulVertexBuffer::GetHandle() const {
     return m_pBuffer->GetHandle();
 }
+
+USING_GPU_NAMESPACE_END

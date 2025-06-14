@@ -10,6 +10,8 @@
 
 #include "../common/common.h"
 
+USING_GPU_NAMESPACE_BEGIN
+
 class GlObject {
 public:
     [[nodiscard]] uint32_t GetHandle() const { return m_handle; }
@@ -17,4 +19,6 @@ public:
 protected:
     uint32_t m_handle = 0;
 };
+
+USING_GPU_NAMESPACE_END
 #endif //GLOBJECT_H

@@ -11,6 +11,8 @@
 #include "resource/VulkanImage2D.h"
 #include "resource/VulkanSampler.h"
 
+USING_GPU_NAMESPACE_BEGIN
+
 VulkanResourceManager::VulkanResourceManager(VulkanDevice* device) : m_pVulkanDevice(device) {
 	m_pVulkanDevice->AddRef();
 }
@@ -30,3 +32,8 @@ Buffer* VulkanResourceManager::CreateBuffer(const Buffer::BufferCreateInfo& crea
 Sampler* VulkanResourceManager::CreateSampler(const Sampler::SamplerCreateInfo& info) {
 	return new VulkanSampler(m_pVulkanDevice, info);
 }
+
+InputAssembler* VulkanResourceManager::CreateInputAssembler(const InputAssemblerInfo& info) {
+
+}
+USING_GPU_NAMESPACE_END

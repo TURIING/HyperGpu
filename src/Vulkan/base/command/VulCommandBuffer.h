@@ -11,6 +11,8 @@
 #include "../VulObject.h"
 #include "../../../common/common.h"
 
+USING_GPU_NAMESPACE_BEGIN
+
 class VulFence;
 class VulSemaphore;
 class VulIndexBuffer;
@@ -60,6 +62,5 @@ private:
     VulCommandPool* m_pCommandPool = nullptr;
 };
 
-
-
+USING_GPU_NAMESPACE_END
 #endif //VULCOMMANDBUFFER_H

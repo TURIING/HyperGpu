@@ -8,6 +8,8 @@
 #include "VulDescriptorSetLayout.h"
 #include "../device/VulLogicDevice.h"
 
+USING_GPU_NAMESPACE_BEGIN
+
 VulDescriptorSetLayout::VulDescriptorSetLayout(VulLogicDevice* device, const VulDescriptorSetLayoutCreateInfo &createInfo): m_pDevice(device) {
 	m_pDevice->AddRef();
     std::vector<VkDescriptorSetLayoutBinding> bindings;
@@ -54,3 +56,5 @@ VulDescriptorSetLayoutBuilder& VulDescriptorSetLayoutBuilder::AddDescriptorBindi
 VulDescriptorSetLayout* VulDescriptorSetLayoutBuilder::Build() const {
     return new VulDescriptorSetLayout(m_pDevice, m_createInfo);
 }
+
+USING_GPU_NAMESPACE_END

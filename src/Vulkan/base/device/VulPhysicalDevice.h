@@ -12,6 +12,8 @@
 #include "../../../common/common.h"
 #include "../VulObject.h"
 
+USING_GPU_NAMESPACE_BEGIN
+
 class VulPhysicalDevice;
 class VulInstance;
 class VulSurface;
@@ -60,4 +62,5 @@ private:
 	std::vector<VkQueueFamilyProperties> m_queueFamilyProperties;
 };
 
+USING_GPU_NAMESPACE_END
 #endif // VULPHYSICALDEVICE_H

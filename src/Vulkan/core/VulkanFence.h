@@ -8,9 +8,10 @@
 #ifndef VULKANFENCE_H
 #define VULKANFENCE_H
 
-#include <GpuSync.h>
-
 #include "../../common/common.h"
+
+USING_GPU_NAMESPACE_BEGIN
+
 class VulFence;
 class VulkanDevice;
 using namespace HyperGpu;
@@ -27,4 +28,5 @@ private:
 	VulFence* m_pFence;
 };
 
+USING_GPU_NAMESPACE_END
 #endif // VULKANFENCE_H

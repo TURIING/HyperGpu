@@ -16,6 +16,7 @@
 #include "VulkanSampler.h"
 #include "../VulkanCmd.h"
 
+USING_GPU_NAMESPACE_BEGIN
 constexpr VkFormat gPixelFormatToVkFormat[] = {
 	VK_FORMAT_R8G8B8A8_SRGB,		// R8G8B8A8
 	VK_FORMAT_B8G8R8A8_SRGB,		// B8G8R8A8
@@ -111,3 +112,4 @@ void VulkanImage2D::FillPixels(GpuCmd* pCmd, const uint8_t* data, uint64_t dataS
 
 	stageBuffer->SubRef();
 }
+USING_GPU_NAMESPACE_END

@@ -81,9 +81,9 @@ namespace HyperGpu
         enum GpuType { OPENGL, VULKAN };
 
     public:
-        explicit                 GpuFactory(GpuType type);
+        explicit GpuFactory(GpuType type);
         [[nodiscard]] GpuDevice* CreateDevice(const DeviceCreateInfo& info) const;
-        static void              DestroyDevice(GpuDevice* device) { device->SubRef(); }
+        static void DestroyDevice(GpuDevice* device) { device->SubRef(); }
 
     private:
         GpuType m_type;

@@ -11,7 +11,8 @@
 #include "../../common/common.h"
 #include "GpuPipeline.h"
 
-using namespace HyperGpu;
+USING_GPU_NAMESPACE_BEGIN
+
 class VulkanDevice;
 
 class VulkanPipelineManager final : public PipelineManager {
@@ -23,4 +24,6 @@ public:
 private:
 	VulkanDevice* m_pDevice = nullptr;
 };
+
+USING_GPU_NAMESPACE_END
 #endif //VULKANPIPELINEMANAGER_H

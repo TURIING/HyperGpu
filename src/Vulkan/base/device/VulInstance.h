@@ -12,6 +12,8 @@
 #include "../../../common/common.h"
 #include "../VulObject.h"
 
+USING_GPU_NAMESPACE_BEGIN
+
 class VulInstance;
 
 struct VulInstanceCreateInfo {
@@ -51,4 +53,5 @@ private:
     bool m_enableValidationLayers = false;
 };
 
+USING_GPU_NAMESPACE_END
 #endif //VULINSTANCE_H

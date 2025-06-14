@@ -9,17 +9,12 @@
 #define VULKANSURFACE_H
 
 #include "../../common/common.h"
-#include <GpuDevice.h>
-#include <GpuSurface.h>
+
+USING_GPU_NAMESPACE_BEGIN
 
 class VulImage2D;
 class VulkanSemaphore;
 class VulSurface;
-
-namespace HyperGpu {
-class Semaphore;
-}
-
 class VulFrameBuffer;
 class VulkanPipeline;
 class VulSwapChain;
@@ -42,4 +37,5 @@ private:
 	int32_t	m_frameIndex = -1;
 };
 
+USING_GPU_NAMESPACE_END
 #endif // VULKANSURFACE_H

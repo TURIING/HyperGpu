@@ -11,6 +11,8 @@
 #include "../../../common/common.h"
 #include "GpuResource.h"
 
+USING_GPU_NAMESPACE_BEGIN
+
 class VulSampler;
 class VulkanDevice;
 
@@ -25,4 +27,5 @@ private:
     VulSampler*   m_pVulSampler   = nullptr;
 };
 
+USING_GPU_NAMESPACE_END
 #endif //VULKANSAMPLER_H

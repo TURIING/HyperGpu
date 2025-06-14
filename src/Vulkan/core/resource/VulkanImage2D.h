@@ -11,6 +11,8 @@
 #include "GpuResource.h"
 #include "../../../common/common.h"
 
+USING_GPU_NAMESPACE_BEGIN
+
 class VulCommandBuffer;
 class VulkanDevice;
 class VulImage2D;
@@ -41,5 +43,5 @@ private:
 	Size				  m_size;
 	ImageUsage			  m_usage;
 };
-
+USING_GPU_NAMESPACE_END
 #endif // VULKANIMAGE2D_H

@@ -18,6 +18,7 @@ using namespace HyperGpu;
 #define USING_GPU_NAMESPACE_END }
 #define BIT(x) (1 << (x))
 #define CASE_FROM_TO(FROM, TO) case FROM: return TO;
+#define NODISCARD [[nodiscard]]
 
 template <typename T>
 uint32_t TO_U32(T value) {

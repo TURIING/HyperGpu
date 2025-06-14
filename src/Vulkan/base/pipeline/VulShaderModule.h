@@ -11,6 +11,8 @@
 #include "../VulObject.h"
 #include "../../../common/common.h"
 
+USING_GPU_NAMESPACE_BEGIN
+
 class VulLogicDevice;
 
 class VulShaderModule final: public VulObject<VkShaderModule> {
@@ -21,4 +23,6 @@ public:
 private:
     VulLogicDevice* m_pLogicDevice = nullptr;
 };
+
+USING_GPU_NAMESPACE_END
 #endif //VULSHADERMODULE_H

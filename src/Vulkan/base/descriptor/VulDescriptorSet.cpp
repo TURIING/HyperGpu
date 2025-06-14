@@ -14,6 +14,8 @@
 #include "VulDescriptorSetLayout.h"
 #include "../resource/VulUniformBuffer.h"
 
+USING_GPU_NAMESPACE_BEGIN
+
 VulDescriptorSet::VulDescriptorSet(VulLogicDevice* device, VulDescriptorPool* pool, VulDescriptorSetLayout* layout, std::unordered_map<std::string, uint8_t> resourceBinding)
 : m_pLogicDevice(device), m_mapResourceBinding(std::move(resourceBinding)) {
 	m_pLogicDevice->AddRef();
@@ -33,42 +35,39 @@ VulDescriptorSet::~VulDescriptorSet() {
 	m_pLogicDevice->SubRef();
 }
 
-void VulDescriptorSet::SetImage(const std::vector<ImageBindingInfo>& vecImageInfo) const {
+void VulDescriptorSet::SetImage(const std::vector<ImageBindingInfo>& vecImageInfo) {
 	std::vector<VkWriteDescriptorSet> vecWriteDescriptorSet;
 	vecWriteDescriptorSet.reserve(vecImageInfo.size());
-	for (const auto& imageBindingInfo : vecImageInfo) {
+	for (auto& imageBindingInfo : vecImageInfo) {
 		vecWriteDescriptorSet.push_back({
 			.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
 			.dstSet = m_pHandle,
-            // todo binding
-//			.dstBinding = m_mapResourceBinding[imageBindingInfo.name],
+			.dstBinding = m_mapResourceBinding[imageBindingInfo.name],
 			.dstArrayElement = 0,
 			.descriptorCount = 1,
 			.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
 			.pImageInfo = imageBindingInfo.imageInfo,
 		});
 	}
-	vkUpdateDescriptorSets(m_pLogicDevice->GetHandle(), vecWriteDescriptorSet.size(), vecWriteDescriptorSet.data(), 0,
-	                       nullptr);
+	vkUpdateDescriptorSets(m_pLogicDevice->GetHandle(), vecWriteDescriptorSet.size(), vecWriteDescriptorSet.data(), 0, nullptr);
 }
 
-void VulDescriptorSet::SetUniformBuffer(VulUniformBuffer** buffers, uint32_t count) const {
+void VulDescriptorSet::SetUniformBuffer(const std::vector<UniformBindingInfo> &vecBufferInfo) {
 	std::vector<VkWriteDescriptorSet> vecWriteDescriptorSet;
+	vecWriteDescriptorSet.reserve(vecBufferInfo.size());
 
-	for (auto i = 0; i < count; i++) {
-		const auto bufferInfo = buffers[i]->GetDescriptorBufferInfo();
-
+	for (auto &bufferBindingInfo : vecBufferInfo) {
 		vecWriteDescriptorSet.push_back({
 			.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
 			.dstSet = m_pHandle,
-            // todo binding
-//			.dstBinding = buffers[i]->GetBinding(),
+			.dstBinding = m_mapResourceBinding[bufferBindingInfo.name],
 			.dstArrayElement = 0,
 			.descriptorCount = 1,
 			.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-			.pBufferInfo = &bufferInfo,
+			.pBufferInfo = bufferBindingInfo.pBufferInfo,
 		});
 	}
-	vkUpdateDescriptorSets(m_pLogicDevice->GetHandle(), vecWriteDescriptorSet.size(), vecWriteDescriptorSet.data(), 0,
-	                       nullptr);
+	vkUpdateDescriptorSets(m_pLogicDevice->GetHandle(), vecWriteDescriptorSet.size(), vecWriteDescriptorSet.data(), 0, nullptr);
 }
+
+USING_GPU_NAMESPACE_END

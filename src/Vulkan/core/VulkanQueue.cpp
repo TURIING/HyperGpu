@@ -18,6 +18,8 @@
 #include "../base/sync/VulSemaphore.h"
 #include "VulkanSurface.h"
 
+USING_GPU_NAMESPACE_BEGIN
+
 VulkanQueue::VulkanQueue(VulkanDevice* pVulkanDevice, QueueType queueType): m_pVulkanDevice(pVulkanDevice) {
     m_pVulQueue = new VulQueue(m_pVulkanDevice->GetLogicDevice(), m_pVulkanDevice->GetPhysicalDevice()->GetQueueFamily(queueType));
 }
@@ -77,3 +79,5 @@ void VulkanQueue::Present(const Queue::PresentInfo &presentInfo) {
     };
     m_pVulQueue->Present(info);
 }
+
+USING_GPU_NAMESPACE_END

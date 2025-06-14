@@ -13,6 +13,8 @@
 #include "VulkanCmd.h"
 #include "VulkanDevice.h"
 
+USING_GPU_NAMESPACE_BEGIN
+
 VulkanCmdManager::VulkanCmdManager(VulkanDevice* device) : m_pVulkanDevice(device) {
 	m_pVulkanDevice->AddRef();
 	m_pCmdPool = new VulCommandPool(m_pVulkanDevice->GetLogicDevice(), m_pVulkanDevice->GetPhysicalDevice()->GetQueueFamily(QueueType::Graphics));
@@ -62,3 +64,5 @@ void VulkanCmdManager::WithSingleCmdBuffer(const std::function<void(GpuCmd*)>& f
 
 	vulkanCmd->SubRef();
 }
+
+USING_GPU_NAMESPACE_END

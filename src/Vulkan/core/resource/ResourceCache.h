@@ -10,6 +10,8 @@
 
 #include "../../../common/common.h"
 
+USING_GPU_NAMESPACE_BEGIN
+
 struct VulAttachmentInfo;
 class VulkanDevice;
 class VulRenderPass;
@@ -45,4 +47,5 @@ private:
     ResourceCacheMap<VulRenderPass*> m_mapRenderPasses;
 };
 
+USING_GPU_NAMESPACE_END
 #endif //RESOURCECACHE_H

@@ -10,6 +10,8 @@
 #include "../base/sync/VulSemaphore.h"
 #include "VulkanDevice.h"
 
+USING_GPU_NAMESPACE_BEGIN
+
 VulkanSemaphore::VulkanSemaphore(VulkanDevice* device) {
 	m_pSemaphore = new VulSemaphore(device->GetLogicDevice());
 }
@@ -17,3 +19,5 @@ VulkanSemaphore::VulkanSemaphore(VulkanDevice* device) {
 VulkanSemaphore::~VulkanSemaphore() {
 	m_pSemaphore->SubRef();
 }
+
+USING_GPU_NAMESPACE_END

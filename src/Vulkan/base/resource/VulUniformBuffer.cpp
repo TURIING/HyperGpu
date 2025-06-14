@@ -9,6 +9,8 @@
 
 #include "VulBuffer.h"
 
+USING_GPU_NAMESPACE_BEGIN
+
 VulUniformBuffer::VulUniformBuffer(VulLogicDevice* device, uint64_t bufferSize) {
     m_pBuffer = VulBuffer::Builder()
                 .SetLogicDevice(device)
@@ -37,3 +39,5 @@ VkBuffer VulUniformBuffer::GetHandle() const {
 void VulUniformBuffer::UpdateData(const uint8_t* data, uint64_t size) const {
     m_pBuffer->MapData(0, size, data);
 }
+
+USING_GPU_NAMESPACE_END

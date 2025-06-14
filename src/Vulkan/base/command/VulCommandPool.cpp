@@ -8,6 +8,8 @@
 #include "VulCommandPool.h"
 #include "../device/VulLogicDevice.h"
 
+USING_GPU_NAMESPACE_BEGIN
+
 VulCommandPool::VulCommandPool(VulLogicDevice* device, uint32_t queueFamilyIndex) : m_pDevice(device) {
 	m_pDevice->AddRef();
 
@@ -24,3 +26,5 @@ VulCommandPool::~VulCommandPool() {
 	vkDestroyCommandPool(m_pDevice->GetHandle(), m_pHandle, nullptr);
 	m_pDevice->SubRef();
 }
+
+USING_GPU_NAMESPACE_END

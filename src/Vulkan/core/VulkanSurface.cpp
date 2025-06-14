@@ -15,6 +15,8 @@
 #include "../base/surface/VulSurface.h"
 #include "../base/device/VulPhysicalDevice.h"
 
+USING_GPU_NAMESPACE_BEGIN
+
 VulkanSurface::VulkanSurface(VulkanDevice* device, HyperGpu::PlatformWindowInfo platformWindowInfo) : m_pVulkanDevice(device) {
 	m_pVulkanDevice->AddRef();
 	m_pSurface = new VulSurface(m_pVulkanDevice->GetInstance(), platformWindowInfo.handle);
@@ -54,3 +56,5 @@ VulImage2D* VulkanSurface::GetCurrentImage() const {
 Size VulkanSurface::GetSize() const {
 	return m_pSwapChain->GetSize();
 };
+
+USING_GPU_NAMESPACE_END

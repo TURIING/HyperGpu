@@ -12,8 +12,10 @@
 #include "../VulkanDevice.h"
 #include "../../base/resource/VulUniformBuffer.h"
 
+USING_GPU_NAMESPACE_BEGIN
+
 VulkanBuffer::VulkanBuffer(VulkanDevice* device, const BufferCreateInfo &createInfo) : m_type(createInfo.bufferType) {
-	const auto [type, size, data, binding] = createInfo;
+	const auto [type, size, data] = createInfo;
 
 	switch(m_type) {
 	case BufferType::Vertex:
@@ -23,8 +25,7 @@ VulkanBuffer::VulkanBuffer(VulkanDevice* device, const BufferCreateInfo &createI
 		m_pBuffer = new VulIndexBuffer(device->GetLogicDevice(), data, size);
 		break;
 	case BufferType::Uniform:
-//		m_pBuffer = new VulUniformBuffer(device->GetLogicDevice(), size, binding);
-        // todo binding
+		m_pBuffer = new VulUniformBuffer(device->GetLogicDevice(), size);
 		break;
 	default:
 		LOG_ASSERT(false);
@@ -39,3 +40,4 @@ void VulkanBuffer::UpdateData(const uint8_t* data, uint64_t dataSize) {
 		LOG_ASSERT(false);
 	}
 }
+USING_GPU_NAMESPACE_END

@@ -12,6 +12,8 @@
 #include "../../../common/common.h"
 #include "../VulTypeDefine.h"
 
+USING_GPU_NAMESPACE_BEGIN
+
 class VulLogicDevice;
 class VulDescriptorPool;
 
@@ -45,4 +47,5 @@ private:
     VulLogicDevice* m_pDevice = nullptr;
 };
 
+USING_GPU_NAMESPACE_END
 #endif //VULDESCRIPTORPOOL_H

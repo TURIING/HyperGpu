@@ -9,7 +9,8 @@
 #define VULKANQUEUE_H
 
 #include "../../common/common.h"
-#include "GpuDevice.h"
+
+USING_GPU_NAMESPACE_BEGIN
 
 class VulQueue;
 class VulkanDevice;
@@ -27,4 +28,5 @@ private:
     VulkanDevice* m_pVulkanDevice = nullptr;
 };
 
+USING_GPU_NAMESPACE_END
 #endif //VULKANQUEUE_H

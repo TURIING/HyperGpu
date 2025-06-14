@@ -56,8 +56,8 @@ void GlCmd::SetViewport(const Viewport& viewport) {
 void GlCmd::SetScissor(const Scissor& scissor) {
 }
 
-void GlCmd::Execute(GlContext* pContext) {
-    for (auto pCmd : m_vecCmds) {
+void GlCmd::Execute(GlContext* pContext) const {
+    for (const auto pCmd : m_vecCmds) {
         pCmd->Execute(pContext);
     }
 }

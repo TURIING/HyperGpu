@@ -40,6 +40,8 @@ inline void hashParam(size_t &seed, T* const &pointer, u32 count) {
     }
 }
 
+USING_GPU_NAMESPACE_BEGIN
+
 ResourceCache::ResourceCache(VulkanDevice* pVulkanDevice): m_pVulkanDevice(pVulkanDevice) {
 }
 
@@ -94,3 +96,5 @@ VulRenderPass* ResourceCache::RequestRenderPass(const RenderPassCacheInfo& info)
 
     return *m_mapRenderPasses[hash];
 }
+
+USING_GPU_NAMESPACE_END

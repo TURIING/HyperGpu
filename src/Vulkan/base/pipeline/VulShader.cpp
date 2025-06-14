@@ -14,6 +14,8 @@
 #include "VulPipelineLayout.h"
 #include "VulShaderModule.h"
 
+USING_GPU_NAMESPACE_BEGIN
+
 VulShader::VulShader(VulLogicDevice* logicDevice, const ShaderInfo &shaderInfo): m_pLogicDevice(logicDevice) {
 	m_pLogicDevice->AddRef();
 
@@ -260,3 +262,4 @@ uint32_t VulShader::transformVkFormatToSize(const VkFormat format) {
     }
 }
 
+USING_GPU_NAMESPACE_END

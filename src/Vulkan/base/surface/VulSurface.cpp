@@ -9,6 +9,8 @@
 #include "VulSurface.h"
 #include "../device/VulInstance.h"
 
+USING_GPU_NAMESPACE_BEGIN
+
 VulSurface::VulSurface(VulInstance* instance, const void *handle): m_pInstance(instance) {
 	m_pInstance->AddRef();
 
@@ -47,3 +49,5 @@ VulSurface::~VulSurface() {
     vkDestroySurfaceKHR(m_pInstance->GetHandle(), m_pHandle, nullptr);
 	m_pInstance->SubRef();
 }
+
+USING_GPU_NAMESPACE_END

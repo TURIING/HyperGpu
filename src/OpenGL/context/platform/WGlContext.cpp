@@ -16,7 +16,6 @@
 namespace HyperGpu {
 using WGLbool = int;
 
-
 struct WGLFBConfig {
 	int redBits          = 0;
 	int greenBits        = 0;

@@ -8,6 +8,8 @@
 #include "VulPipeline.h"
 #include "../device/VulLogicDevice.h"
 
+USING_GPU_NAMESPACE_BEGIN
+
 VulPipeline::VulPipeline(VulLogicDevice* device, const VulPipelineState& state): m_pDevice(device) {
 	m_pDevice->AddRef();
     VkGraphicsPipelineCreateInfo pipelineCreateInfo {
@@ -35,3 +37,5 @@ VulPipeline::~VulPipeline() {
     vkDestroyPipeline(m_pDevice->GetHandle(), m_pHandle, nullptr);
 	m_pDevice->SubRef();
 }
+
+USING_GPU_NAMESPACE_END

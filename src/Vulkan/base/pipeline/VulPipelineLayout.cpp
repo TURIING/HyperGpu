@@ -8,6 +8,8 @@
 #include "VulPipelineLayout.h"
 #include "../device/VulLogicDevice.h"
 
+USING_GPU_NAMESPACE_BEGIN
+
 VulPipelineLayoutBuilder::VulPipelineLayoutBuilder() {
     m_pipelineLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 }
@@ -38,3 +40,5 @@ VulPipeLineLayout::~VulPipeLineLayout() {
     vkDestroyPipelineLayout(m_pDevice->GetHandle(), m_pHandle, nullptr);
 	m_pDevice->SubRef();
 }
+
+USING_GPU_NAMESPACE_END

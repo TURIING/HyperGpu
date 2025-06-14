@@ -10,6 +10,8 @@
 #include "../device/VulLogicDevice.h"
 #include "../pipeline/VulRenderPass.h"
 
+USING_GPU_NAMESPACE_BEGIN
+
 VulFrameBuffer::VulFrameBuffer(VulLogicDevice* device, const VulRenderPass* renderPass, VulFrameBufferCreateInfo &createInfo): m_pLogicDevice(device) {
 	m_pLogicDevice->AddRef();
 
@@ -40,3 +42,5 @@ VulFrameBufferBuilder& VulFrameBufferBuilder::AddAttachmentImageView(VkImageView
 VulFrameBuffer* VulFrameBufferBuilder::Build() {
     return new VulFrameBuffer(m_pLogicDevice, m_pRenderPass, m_createInfo);
 }
+
+USING_GPU_NAMESPACE_END

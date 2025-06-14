@@ -18,9 +18,11 @@
 #include "VulkanSurface.h"
 #include "../base/device/VulLogicDevice.h"
 #include "../base/resource/VulImage2D.h"
-#include "HyperGpu/src/Vulkan/base/surface/VulFrameBuffer.h"
+#include "../base/surface/VulFrameBuffer.h"
 #include "resource/ResourceCache.h"
 #include "resource/VulkanImage2D.h"
+#include "resource/VulkanInputAssembler.h"
+USING_GPU_NAMESPACE_BEGIN
 
 VulkanCmd::VulkanCmd(VulkanDevice* device, VulCommandPool* pool) : m_pVulkanDevice(device) {
 	m_pVulkanDevice->AddRef();
@@ -45,21 +47,16 @@ void VulkanCmd::End() {
 }
 
 void VulkanCmd::Draw(const DrawInfo& info) {
-	if (info.inputAssembler->vertexBuffer) {
-		m_pCmd->BindVertexBuffer(dynamic_cast<VulkanBuffer*>(info.inputAssembler->vertexBuffer)->GetVertexBuffer());
-	}
+	auto pInputAssembler = dynamic_cast<VulkanInputAssembler*>(info.pInputAssembler);
+	m_pCmd->BindVertexBuffer(pInputAssembler->GetVertexBuffer());
+	const auto pIndexBuffer = pInputAssembler->GetIndexBuffer();
 
-	if (info.inputAssembler->indexBuffer) {
-		m_pCmd->BindIndexBuffer(dynamic_cast<VulkanBuffer*>(info.inputAssembler->indexBuffer)->GetIndexBuffer());
+	if (pIndexBuffer) {
+		m_pCmd->BindIndexBuffer(pIndexBuffer);
+		m_pCmd->DrawIndex(pInputAssembler->GetIndexCount());
 	}
-
-	switch (info.drawType) {
-	case DrawType::Vertex: m_pCmd->Draw(info.inputAssembler->vertexCount);
-		break;
-	case DrawType::Index: m_pCmd->DrawIndex(info.inputAssembler->indexCount);
-		break;
-	default:
-		LOG_ASSERT(false);
+	else {
+		m_pCmd->Draw(pInputAssembler->GetVertexCount());
 	}
 }
 
@@ -73,7 +70,7 @@ void VulkanCmd::ClearColorImage(Image2D* image, const Color &color) {
 }
 
 void VulkanCmd::BeginRenderPass(const BeginRenderInfo& beginRenderInfo) {
-	m_pPipeline = dynamic_cast<VulkanPipeline*>(beginRenderInfo.pipeline);
+	m_pPipeline = dynamic_cast<VulkanPipeline*>(beginRenderInfo.pPipeline);
 	const auto pRenderPass = m_pPipeline->GetRenderPass();
 
 	VulRenderPassBeginInfo renderPassBeginInfo;
@@ -108,8 +105,8 @@ void VulkanCmd::BeginRenderPass(const BeginRenderInfo& beginRenderInfo) {
 	renderPassBeginInfo.pRenderPass = pRenderPass;
 
 	if (beginRenderInfo.renderAttachmentType == RenderAttachmentType::Surface) {
-		auto                                vulkanSurface = dynamic_cast<VulkanSurface*>(beginRenderInfo.surface);
-		auto                                imageView     = vulkanSurface->GetCurrentImage()->GetImageViewHandle();
+		auto vulkanSurface = dynamic_cast<VulkanSurface*>(beginRenderInfo.surface);
+		auto imageView = vulkanSurface->GetCurrentImage()->GetImageViewHandle();
 		ResourceCache::FrameBufferCacheInfo frameBufferCacheInfo;
 		frameBufferCacheInfo.attachmentCount = 1;
 		frameBufferCacheInfo.pAttachments    = &imageView;
@@ -211,7 +208,6 @@ VkViewport VulkanCmd::transViewportToVkViewport(const Viewport& viewport) {
 }
 
 VkRect2D VulkanCmd::transScissorToVkRect2D(const Scissor& scissor) {
-	// clang-format off
 	return VkRect2D {
 	.offset ={
 		.x = scissor.offsetX,
@@ -221,5 +217,6 @@ VkRect2D VulkanCmd::transScissorToVkRect2D(const Scissor& scissor) {
 		.width	= scissor.width,
 		.height = scissor.height,
 	}};
-	// clang-format on
 }
+
+USING_GPU_NAMESPACE_END

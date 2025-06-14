@@ -11,6 +11,8 @@
 #include "../VulObject.h"
 #include "../../../common/common.h"
 
+USING_GPU_NAMESPACE_BEGIN
+
 class VulFrameBuffer;
 class VulRenderPass;
 class VulLogicDevice;
@@ -47,5 +49,5 @@ private:
 };
 
 
-
+USING_GPU_NAMESPACE_END
 #endif //VULFRAMEBUFFER_H

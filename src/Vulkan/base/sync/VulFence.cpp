@@ -8,6 +8,8 @@
 #include "VulFence.h"
 #include "../device/VulLogicDevice.h"
 
+USING_GPU_NAMESPACE_BEGIN
+
 VulFence::VulFence(VulLogicDevice* device) : m_pLogicDevice(device) {
 	m_pLogicDevice->AddRef();
 	VkFenceCreateInfo fenceCreateInfo = {
@@ -37,3 +39,5 @@ WaitState VulFence::Wait(u32 timeout) const {
 void VulFence::Reset() const {
     CALL_VK(vkResetFences(m_pLogicDevice->GetHandle(), 1, &m_pHandle));
 }
+
+USING_GPU_NAMESPACE_END

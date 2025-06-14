@@ -11,6 +11,7 @@
 
 #include "../VulObject.h"
 
+USING_GPU_NAMESPACE_BEGIN
 
 class VulLogicDevice;
 class VulCommandBuffer;
@@ -43,6 +44,5 @@ private:
     VkImageLayout   m_currentLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 };
 
-
-
+USING_GPU_NAMESPACE_END
 #endif //VULIMAGE2D_H

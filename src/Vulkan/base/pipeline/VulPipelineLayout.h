@@ -11,6 +11,8 @@
 #include "../VulObject.h"
 #include "../../../common/common.h"
 
+USING_GPU_NAMESPACE_BEGIN
+
 class VulDescriptorSetLayout;
 class VulLogicDevice;
 class VulPipeLineLayout;
@@ -38,4 +40,5 @@ private:
     VulLogicDevice* m_pDevice = nullptr;
 };
 
+USING_GPU_NAMESPACE_END
 #endif //VULPIPELINELAYOUT_H

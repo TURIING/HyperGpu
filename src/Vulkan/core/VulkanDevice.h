@@ -11,9 +11,9 @@
 #include "../../common/common.h"
 #include "GpuDevice.h"
 
-class ResourceCache;
-using namespace HyperGpu;
+USING_GPU_NAMESPACE_BEGIN
 
+class ResourceCache;
 class VulLogicDevice;
 class VulSurface;
 class VulInstance;
@@ -45,4 +45,5 @@ private:
 	ResourceCache*		m_pResourceCache   = nullptr;
 };
 
+USING_GPU_NAMESPACE_END
 #endif // VULKANDEVICE_H

@@ -10,6 +10,8 @@
 #include "../base/sync/VulFence.h"
 #include "VulkanDevice.h"
 
+USING_GPU_NAMESPACE_BEGIN
+
 VulkanFence::VulkanFence(const VulkanDevice* device) {
 	m_pFence = new VulFence(device->GetLogicDevice());
 }
@@ -25,3 +27,5 @@ WaitState VulkanFence::Wait(uint32_t timeout) {
 void VulkanFence::Reset() {
 	m_pFence->Reset();
 }
+
+USING_GPU_NAMESPACE_END

@@ -8,6 +8,8 @@
 
 #include "VulInstance.h"
 
+USING_GPU_NAMESPACE_BEGIN
+
 VkBool32 VKAPI_CALL debugCallBack(VkDebugUtilsMessageSeverityFlagBitsEXT messageServerity,
                                   VkDebugUtilsMessageTypeFlagsEXT messageType,
                                   const VkDebugUtilsMessengerCallbackDataEXT *pCallBackData,
@@ -175,3 +177,5 @@ VulInstanceBuilder& VulInstanceBuilder::AddLayer(const char* layer) {
 VulInstance* VulInstanceBuilder::Build() const {
 	return new VulInstance(m_createInfo);
 }
+
+USING_GPU_NAMESPACE_END

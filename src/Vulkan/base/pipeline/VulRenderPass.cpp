@@ -8,6 +8,8 @@
 #include "VulRenderPass.h"
 #include "../device/VulLogicDevice.h"
 
+USING_GPU_NAMESPACE_BEGIN
+
 VulRenderPass::VulRenderPass(VulLogicDevice* device, VulRenderPassCreateInfo &createInfo): m_pDevice(device) {
     m_pDevice->AddRef();
 
@@ -108,3 +110,5 @@ VulRenderPassBuilder& VulRenderPassBuilder::AddAttachment(const VulAttachmentInf
 VulRenderPass* VulRenderPassBuilder::Build() {
     return new VulRenderPass(m_pDevice, m_renderPassCreateInfo);
 }
+
+USING_GPU_NAMESPACE_END

@@ -13,6 +13,8 @@
 #include "../VulObject.h"
 #include "../../../common/common.h"
 
+USING_GPU_NAMESPACE_BEGIN
+
 class VulCommandBuffer;
 class VulkanCmdManager;
 class VulLogicDevice;
@@ -58,4 +60,5 @@ private:
 	VulkanCmdManager*  m_pCmdManager	 = nullptr;
 };
 
+USING_GPU_NAMESPACE_END
 #endif // VULLOGICDEVICE_H

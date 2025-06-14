@@ -11,6 +11,8 @@
 #include "../VulObject.h"
 #include "../../../common/common.h"
 
+USING_GPU_NAMESPACE_BEGIN
+
 class VulImage2D;
 class VulSemaphore;
 class VulSurface;
@@ -50,4 +52,5 @@ private:
     Size m_size;
 };
 
+USING_GPU_NAMESPACE_END
 #endif //VULSWAPCHAIN_H

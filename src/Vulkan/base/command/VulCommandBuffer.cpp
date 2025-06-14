@@ -14,9 +14,9 @@
 #include "../pipeline/VulRenderPass.h"
 #include "../resource/VulIndexBuffer.h"
 #include "../resource/VulVertexBuffer.h"
-#include "../sync/VulFence.h"
-#include "../sync/VulSemaphore.h"
 #include "../resource/VulImage2D.h"
+
+USING_GPU_NAMESPACE_BEGIN
 
 VulCommandBuffer::VulCommandBuffer(VulLogicDevice* logicDevice, VulCommandPool* commandPool) : m_pLogicDevice(logicDevice), m_pCommandPool(commandPool) {
 	m_pLogicDevice->AddRef();
@@ -99,7 +99,18 @@ void VulCommandBuffer::CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, const 
 }
 
 void VulCommandBuffer::PipelineBarrier(VkPipelineStageFlags srcStageFlags, VkPipelineStageFlags dstStageFlags, const VkImageMemoryBarrier& barrier) const {
-    vkCmdPipelineBarrier(m_pHandle, srcStageFlags, dstStageFlags, 0, 0, nullptr, 0, nullptr, 1, &barrier);
+    vkCmdPipelineBarrier(
+        m_pHandle,
+        srcStageFlags,
+        dstStageFlags,
+        0,
+        0,
+        nullptr,
+        0,
+        nullptr,
+        1,
+        &barrier
+    );
 }
 
 void VulCommandBuffer::FillImageByBuffer(VkBuffer srcBuffer, VkImage dstImage, VkImageLayout imageLayout, const VkBufferImageCopy& regions) const {
@@ -234,3 +245,5 @@ VkRenderPassBeginInfo VulRenderPassBeginInfo::GetRenderPassBeginInfo() const {
         .pClearValues = clearValues.data()
     };
 }
+
+USING_GPU_NAMESPACE_END

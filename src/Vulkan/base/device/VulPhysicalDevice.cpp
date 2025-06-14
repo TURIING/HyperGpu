@@ -10,6 +10,8 @@
 #include "VulInstance.h"
 #include "../surface/VulSurface.h"
 
+USING_GPU_NAMESPACE_BEGIN
+
 VulPhysicalDevice::VulPhysicalDevice(VulInstance* pInstance, const VulPhysicalDeviceCreateInfo& createInfo) : m_pInstance(pInstance) {
 	m_pInstance->AddRef();
 
@@ -150,3 +152,4 @@ VulPhysicalDeviceBuilder& VulPhysicalDeviceBuilder::AddExtension(const char* ext
     return *this;
 }
 
+USING_GPU_NAMESPACE_END
