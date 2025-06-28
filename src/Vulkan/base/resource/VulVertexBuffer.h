@@ -17,7 +17,7 @@ class VulLogicDevice;
 
 class VulVertexBuffer final : public GpuObject {
 public:
-	VulVertexBuffer(VulLogicDevice* device, const uint8_t* data, uint64_t size);
+	VulVertexBuffer(VulLogicDevice* device, const void* data, uint64_t size);
 	~VulVertexBuffer() override;
 	[[nodiscard]] VkBuffer GetHandle() const;
 

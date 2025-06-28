@@ -42,7 +42,7 @@ VulkanPipeline::VulkanPipeline(VulkanDevice* pDevice, const RenderEnvInfo& rende
 		attachmentInfos.push_back({
 			attachment.type,
 			attachment.index,
-			static_cast<VkFormat>(attachment.format),
+			gPixelFormatToVkFormat[static_cast<int>(attachment.format)],
 		});
 	}
 	m_pRenderPass = m_pVulkanDevice->GetResourceCache()->RequestRenderPass({ attachmentInfos.data(), TO_U32(attachmentInfos.size()) });

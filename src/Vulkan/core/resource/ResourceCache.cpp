@@ -58,7 +58,9 @@ ResourceCache::~ResourceCache() {
 
 VulFrameBuffer* ResourceCache::RequestFrameBuffer(const FrameBufferCacheInfo &info) {
     size_t hash = 0;
-    hashParam(hash, info.pAttachments, info.attachmentCount);
+    for (auto i = 0; i < info.attachmentCount; i++) {
+        hashParam(hash, info.pAttachments[i]);
+    }
     hashParam(hash, info.pRenderPass);
     hashParam(hash, info.size);
     hashParam(hash, info.layerCount);
@@ -71,6 +73,9 @@ VulFrameBuffer* ResourceCache::RequestFrameBuffer(const FrameBufferCacheInfo &in
                                             .SetSize(info.size)
                                             .SetLayerCount(info.layerCount)
                                             .SetRenderPass(info.pRenderPass);
+    for (auto i = 0; i < info.attachmentCount; i++) {
+        builder.AddAttachmentImageView(info.pAttachments[i]);
+    }
     m_mapFrameBuffers[hash] = std::make_unique<VulFrameBuffer*>(builder.Build());
 
     return *m_mapFrameBuffers[hash];

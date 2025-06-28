@@ -47,6 +47,10 @@ void VulkanCmd::End() {
 }
 
 void VulkanCmd::Draw(const DrawInfo& info) {
+	LOG_ASSERT_INFO(m_pPipeline, "Pipeline is null, possibly BeginRenderPass be not called.")
+	m_pPipeline->SetImages(info.pImageBinding, info.imageBindingCount);
+	m_pPipeline->SetUniformBuffers(info.pUniformBinding, info.uniformBindingCount);
+
 	auto pInputAssembler = dynamic_cast<VulkanInputAssembler*>(info.pInputAssembler);
 	m_pCmd->BindVertexBuffer(pInputAssembler->GetVertexBuffer());
 	const auto pIndexBuffer = pInputAssembler->GetIndexBuffer();

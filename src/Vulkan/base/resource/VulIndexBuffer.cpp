@@ -8,7 +8,7 @@
 #include "VulIndexBuffer.h"
 #include "VulBuffer.h"
 
-VulIndexBuffer::VulIndexBuffer(VulLogicDevice* device, const uint8_t* data, uint64_t size) {
+VulIndexBuffer::VulIndexBuffer(VulLogicDevice* device, const void* data, uint64_t size) {
 	const auto stageBuffer = VulBuffer::Builder()
 								 .SetLogicDevice(device)
 								 .SetSize(size)

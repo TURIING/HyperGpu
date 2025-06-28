@@ -7,15 +7,6 @@
 ********************************************************************************/
 #include "GlImage2D.h"
 #include "../core/OpenGlDevice.h"
-constexpr GLuint gPixelFormatToGlFormat[] = {
-    GL_RGBA,                    // R8G8B8A8
-    GL_BGRA,                    // B8G8R8A8
-};
-
-constexpr GLuint gPixelFormatToDataFormat[] = {
-    GL_UNSIGNED_BYTE,           // R8G8B8A8
-    GL_UNSIGNED_BYTE,           // B8G8R8A8
-};
 
 GlImage2D::GlImage2D(OpenGlDevice* pDevice, const Image2DCreateInfo& info): m_pDevice(pDevice) {
     m_pDevice->AddRef();

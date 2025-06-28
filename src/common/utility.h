@@ -190,4 +190,20 @@ static std::string GetFileExtension(const std::string& filename) {
         return ""; // 无扩展名
 }
 }
+
+/**************************************************** Type Convert BEGIN ***************************************************/
+constexpr VkFormat gPixelFormatToVkFormat[] = {
+        VK_FORMAT_R8G8B8A8_SRGB,                    // R8G8B8A8
+        VK_FORMAT_B8G8R8A8_SRGB,                    // B8G8R8A8
+};
+
+constexpr GLuint gPixelFormatToGlFormat[] = {
+        GL_RGBA,                    // R8G8B8A8
+        GL_BGRA,                    // B8G8R8A8
+};
+
+constexpr GLuint gPixelFormatToDataFormat[] = {
+        GL_UNSIGNED_BYTE,           // R8G8B8A8
+        GL_UNSIGNED_BYTE,           // B8G8R8A8
+};
 #endif //UTILITY_H

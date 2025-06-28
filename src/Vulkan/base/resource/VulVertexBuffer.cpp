@@ -10,7 +10,7 @@
 #include "VulBuffer.h"
 USING_GPU_NAMESPACE_BEGIN
 
-VulVertexBuffer::VulVertexBuffer(VulLogicDevice* device, const uint8_t* data, uint64_t size) {
+VulVertexBuffer::VulVertexBuffer(VulLogicDevice* device, const void* data, uint64_t size) {
 	const auto stageBuffer = VulBuffer::Builder()
 								 .SetLogicDevice(device)
 								 .SetSize(size)

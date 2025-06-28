@@ -68,11 +68,11 @@ VulRenderPass::VulRenderPass(VulLogicDevice* device, VulRenderPassCreateInfo &cr
                 .layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL
             };
             attachments.push_back(depthAttachment);
+            subpass.pDepthStencilAttachment = &depthAttachmentRef;
         }
 
         subpass.colorAttachmentCount = vecColorAttachmentRef.size();
         subpass.pColorAttachments = vecColorAttachmentRef.data();
-        subpass.pDepthStencilAttachment = &depthAttachmentRef;
     }
 
     VkSubpassDependency dependency = {

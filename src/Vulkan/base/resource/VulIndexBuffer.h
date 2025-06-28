@@ -17,7 +17,7 @@ class VulLogicDevice;
 
 class VulIndexBuffer final : public GpuObject {
 public:
-	VulIndexBuffer(VulLogicDevice* device, const uint8_t* data, uint64_t size);
+	VulIndexBuffer(VulLogicDevice* device, const void* data, uint64_t size);
 	~VulIndexBuffer() override;
 	[[nodiscard]] VkBuffer GetHandle() const;
 

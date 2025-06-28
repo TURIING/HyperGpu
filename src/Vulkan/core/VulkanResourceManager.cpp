@@ -9,6 +9,7 @@
 
 #include "resource/VulkanBuffer.h"
 #include "resource/VulkanImage2D.h"
+#include "resource/VulkanInputAssembler.h"
 #include "resource/VulkanSampler.h"
 
 USING_GPU_NAMESPACE_BEGIN
@@ -34,6 +35,6 @@ Sampler* VulkanResourceManager::CreateSampler(const Sampler::SamplerCreateInfo& 
 }
 
 InputAssembler* VulkanResourceManager::CreateInputAssembler(const InputAssemblerInfo& info) {
-
+	return new VulkanInputAssembler(m_pVulkanDevice, info);
 }
 USING_GPU_NAMESPACE_END

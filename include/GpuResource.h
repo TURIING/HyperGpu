@@ -46,7 +46,7 @@ namespace HyperGpu {
 		struct BufferCreateInfo {
 			BufferType bufferType = BufferType::Uniform;
 			uint64_t bufferSize = 0;
-			const uint8_t *data = nullptr;				// 当buffer类型为uniform时，该字段为nullptr就行
+			const void *data = nullptr;				// 当buffer类型为uniform时，该字段为nullptr就行
 		};
 		virtual void UpdateData(const uint8_t* data, uint64_t dataSize) = 0;
 	};
@@ -59,13 +59,13 @@ namespace HyperGpu {
     };
 
     struct InputAssemblerInfo {
-        uint8_t attributeCount = 0;
+        uint32_t attributeCount = 0;
         const VertexAttribute *pAttributes = nullptr;
 
-        const uint8_t *pVertexData = nullptr;
+        const void *pVertexData = nullptr;
         uint32_t vertexSize  = 0;
 
-        const uint8_t *pIndexData = nullptr;
+        const void *pIndexData = nullptr;
         uint32_t indexSize = 0;
 
         PrimitiveType primitiveType = PrimitiveType::TRIANGLE;
