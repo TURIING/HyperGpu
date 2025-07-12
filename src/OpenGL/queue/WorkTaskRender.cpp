@@ -103,4 +103,10 @@ void WorkTaskRender::Signal() {
     this->SignalFinish();
 }
 
+void WorkTaskRender::Reset() {
+    for (const auto &pCmd:  m_vecCmds) {
+        pCmd->Reset();
+    }
+}
+
 USING_GPU_NAMESPACE_END

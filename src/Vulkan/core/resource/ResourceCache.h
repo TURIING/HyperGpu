@@ -16,6 +16,7 @@ struct VulAttachmentInfo;
 class VulkanDevice;
 class VulRenderPass;
 class VulFrameBuffer;
+class VulkanPipeline;
 
 template<typename T>
 using ResourceCacheMap = std::unordered_map<std::size_t, std::unique_ptr<T>>;
@@ -38,13 +39,15 @@ public:
 public:
     explicit ResourceCache(VulkanDevice* pVulkanDevice);
     ~ResourceCache() override;
-    VulFrameBuffer* RequestFrameBuffer(const FrameBufferCacheInfo &info);
-    VulRenderPass* RequestRenderPass(const RenderPassCacheInfo &info);
+    NODISCARD VulFrameBuffer* RequestFrameBuffer(const FrameBufferCacheInfo &info);
+    NODISCARD VulRenderPass* RequestRenderPass(const RenderPassCacheInfo &info);
+    NODISCARD VulkanPipeline* RequestPipeline(const RenderEnvInfo &info);
 
 private:
     VulkanDevice* m_pVulkanDevice = nullptr;
     ResourceCacheMap<VulFrameBuffer*> m_mapFrameBuffers;
     ResourceCacheMap<VulRenderPass*> m_mapRenderPasses;
+    ResourceCacheMap<VulkanPipeline*> m_mapPipelines;
 };
 
 USING_GPU_NAMESPACE_END

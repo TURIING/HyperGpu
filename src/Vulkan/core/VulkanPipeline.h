@@ -20,7 +20,6 @@ class VulDescriptorPool;
 class VulDescriptorSet;
 class VulPipeline;
 class VulRenderPass;
-
 class VulPipeLineLayout;
 class VulkanDevice;
 
@@ -32,8 +31,8 @@ public:
 	[[nodiscard]] VulRenderPass*     GetRenderPass() const { return m_pRenderPass; }
 	[[nodiscard]] VulDescriptorSet*  GetDescriptorSet() const { return m_pDescriptorSet; }
 	[[nodiscard]] VulPipeLineLayout* GetPipelineLayout() const { return m_pPipelineLayout; }
-	void SetUniformBuffers(GpuCmd::UniformBinding* infos, uint32_t count) const;
-	void SetImages(GpuCmd::ImageBinding* infos, uint32_t count) const;
+	void SetUniformBuffers(UniformBinding* infos, uint32_t count) const;
+	void SetImages(ImageBinding* infos, uint32_t count) const;
 
 private:
 	VulkanDevice*           m_pVulkanDevice        = nullptr;

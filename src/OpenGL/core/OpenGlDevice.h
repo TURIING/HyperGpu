@@ -18,6 +18,7 @@ class GlThreadPool;
 class OpenGlResourceManager;
 class OpenGlSyncManager;
 class OpenGlCmdManager;
+class OpenGlPipelineManager;
 
 class OpenGlDevice final : public GpuDevice {
 public:
@@ -42,6 +43,7 @@ private:
 	OpenGlResourceManager* m_pResourceManager = nullptr;
 	OpenGlSyncManager* m_pSyncManager = nullptr;
 	OpenGlCmdManager* m_pCmdManager = nullptr;
+	OpenGlPipelineManager* m_pPipelineManager = nullptr;
 };
 
 USING_GPU_NAMESPACE_END

@@ -21,28 +21,28 @@ VulRenderPass::VulRenderPass(VulLogicDevice* device, VulRenderPassCreateInfo &cr
     std::vector<VkAttachmentReference> vecColorAttachmentRef;
     VkAttachmentReference depthAttachmentRef;
 
-    for(const auto & [type, attachmentIndex, format] : createInfo.attachment) {
+    for(const auto &attachment : createInfo.attachment) {
         // 颜色附着
-        if(type == AttachmentType::COLOR) {
+        if(attachment.type == AttachmentType::COLOR) {
             const VkAttachmentDescription colorAttachment = {
-                .format = format,
+                .format = attachment.format,
                 .samples = VK_SAMPLE_COUNT_1_BIT,
 
                 // 对颜色和深度缓冲起效
-                .loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,                                      // 指定在渲染之前对附着中的数据进行的操作,使用一个常量值来清除附着的内容
-                .storeOp = VK_ATTACHMENT_STORE_OP_STORE,                                    // 渲染之后对附着中的数据进行的操作,渲染的内容会被存储起来，以便之后读取
+                .loadOp = attachment.loadOp,                                                // 指定在渲染之前对附着中的数据进行的操作,使用一个常量值来清除附着的内容
+                .storeOp = attachment.storeOp,                                              // 渲染之后对附着中的数据进行的操作,渲染的内容会被存储起来，以便之后读取
 
                 // 对模板缓冲起效
                 .stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE,                           // 设置对模板缓冲不关心
                 .stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
 
                 // 图像的像素数据在内存中的分布取决于我们要对图像进行的操作
-                .initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,             // 用于指定渲染流程开始前的图像布局方式,我们不关心之前的图像布局方式
-                .finalLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL // 用于指定渲染流程结束后的图像布局方式,图像被用在交换链中进行呈现操作
+                .initialLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,                  // Vulkan会在render pass开始时，从这个initialLayout自动转到你在subpass中指定的layout（通过VkAttachmentReference.layout设置）
+                .finalLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL                     // RenderPass执行完毕后，这个attachment的VkImage将会被转换到的layout
             };
 
             VkAttachmentReference colorAttachmentRef = {
-                .attachment = attachmentIndex,                                              // 用于指定要引用的附着在附着描述结构体数组中的索引
+                .attachment = attachment.attachmentIndex,                                   // 用于指定要引用的附着在附着描述结构体数组中的索引
                 .layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL                          // 用于指定进行子流程时引用的附着使用的布局方式，Vulkan会在子流程开始时自动将引用的附着转换到layout成员变量指定的图像布局
             };
 
@@ -51,9 +51,9 @@ VulRenderPass::VulRenderPass(VulLogicDevice* device, VulRenderPassCreateInfo &cr
         }
 
         // 深度附着
-        else if(type == AttachmentType::DEPTH) {
+        else if(attachment.type == AttachmentType::DEPTH_STENCIL) {
             const VkAttachmentDescription depthAttachment = {
-                .format = format,
+                .format = attachment.format,
                 .samples = VK_SAMPLE_COUNT_1_BIT,
                 .loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,
                 .storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
@@ -64,7 +64,7 @@ VulRenderPass::VulRenderPass(VulLogicDevice* device, VulRenderPassCreateInfo &cr
             };
 
             depthAttachmentRef = {
-                .attachment = attachmentIndex,
+                .attachment = attachment.attachmentIndex,
                 .layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL
             };
             attachments.push_back(depthAttachment);

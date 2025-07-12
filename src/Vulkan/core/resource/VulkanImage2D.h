@@ -23,17 +23,12 @@ class VulkanImage2D final : public Image2D {
 public:
 	VulkanImage2D(VulkanDevice* device, const Image2DCreateInfo& info);
 	~VulkanImage2D() override;
-	[[nodiscard]] VulkanSampler* GetSampler() const { return m_pSampler; }
-	[[nodiscard]] VulImage2D* GetHandle() const { return m_pImage; }
-	[[nodiscard]] VkImageView GetImageView() const;
-	[[nodiscard]] VkDescriptorImageInfo* GetDescriptorImageInfo() { return &m_imageInfo; }
-	[[nodiscard]] Size GetSize() const { return m_size; }
-	void FillPixels(GpuCmd* pCmd, const uint8_t* data, uint64_t dataSize) override;
-
- private:
-	[[nodiscard]] static VkFormat			transPixelFormatToVkFormat(PixelFormat format);
-	[[nodiscard]] static VkImageAspectFlags transImageUsageToVkAspectFlag(ImageUsage usage);
-	[[nodiscard]] VkDescriptorImageInfo		GetDescriptorImageInfo() const { return m_imageInfo; }
+	NODISCARD VulkanSampler* GetSampler() const { return m_pSampler; }
+	NODISCARD VulImage2D* GetHandle() const { return m_pImage; }
+	NODISCARD VkImageView GetImageView() const;
+	NODISCARD VkDescriptorImageInfo* GetDescriptorImageInfo();
+	NODISCARD Size GetSize() const override { return m_size; }
+	NODISCARD ImageUsage GetUsage() const override { return m_usage; };
 
 private:
 	VulImage2D*			  m_pImage		  = nullptr;

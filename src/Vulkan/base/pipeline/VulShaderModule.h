@@ -17,7 +17,7 @@ class VulLogicDevice;
 
 class VulShaderModule final: public VulObject<VkShaderModule> {
 public:
-    VulShaderModule(VulLogicDevice* logicDevice, const uint8_t *code, uint32_t size);
+    VulShaderModule(VulLogicDevice* logicDevice, const void *code, uint32_t size);
     ~VulShaderModule() override;
 
 private:

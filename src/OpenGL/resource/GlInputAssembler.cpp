@@ -10,15 +10,7 @@
 #include "../core/OpenGlDevice.h"
 #include "GlBuffer.h"
 
-constexpr GLuint gPrimitiveTypeToGlType[] = {
-    GL_POINTS,              // POINT
-    GL_LINES,               // LINE
-    GL_LINE_STRIP,          // LINE_STRIP
-    GL_TRIANGLES,           // TRIANGLE
-    GL_TRIANGLE_STRIP,      // TRIANGLE_STRIP
-};
-
-constexpr uint32_t gAttributeTypeToSize[] = {
+constexpr GLsizei gAttributeTypeToSize[] = {
     4,          // float
     4,          // int
     8,          // vec2
@@ -27,10 +19,27 @@ constexpr uint32_t gAttributeTypeToSize[] = {
     64,         // mat4
 };
 
+constexpr GLint gAttributeTypeToComponentCount[] = {
+    1,          // float
+    1,          // int
+    2,          // vec2
+    3,          // vec3
+    4,          // vec4
+    16,         // mat4
+};
+
+constexpr GLenum gAttributeTypeToComponentType[] = {
+    GL_FLOAT,          // float
+    GL_INT,            // int
+    GL_FLOAT,          // vec2
+    GL_FLOAT,          // vec3
+    GL_FLOAT,          // vec4
+    GL_FLOAT,          // mat4
+};
+
 USING_GPU_NAMESPACE_BEGIN
 GlInputAssembler::GlInputAssembler(OpenGlDevice* pDevice, const InputAssemblerInfo& info): m_pDevice(pDevice) {
     m_pDevice->AddRef();
-    m_primitiveType = gPrimitiveTypeToGlType[static_cast<int>((info.primitiveType))];
     m_vertexCount = info.vertexCount;
     m_indexCount = info.indexCount;
 
@@ -64,23 +73,45 @@ GlInputAssembler::GlInputAssembler(OpenGlDevice* pDevice, const InputAssemblerIn
 }
 
 GlInputAssembler::~GlInputAssembler() {
+    m_pVertexBuffer->SubRef();
+    m_pIndexBuffer->SubRef();
     m_pDevice->RunWithContext([&](GlContext*) {
         CALL_GL(glDeleteVertexArrays(1, &m_vao));
-    });
+    }, false);
     m_pDevice->SubRef();
 }
 
-void GlInputAssembler::Bind() {
+void GlInputAssembler::Bind() const {
     CALL_GL(glBindVertexArray(m_vao));
 
     // vertex
     CALL_GL(glBindBuffer(GL_ARRAY_BUFFER, m_pVertexBuffer->GetHandle()));
-    for (const auto& attr : m_vertexAttributes) {
+    CALL_GL(glBindVertexArray(m_vao));
+    int stridePassed = 0;
+    for (auto &attr: m_vertexAttributes) {
+        stridePassed += gAttributeTypeToSize[static_cast<int>(attr.dataType)];
 
+        CALL_GL(glVertexAttribPointer(
+            attr.location,
+            gAttributeTypeToComponentCount[static_cast<int>(attr.dataType)],
+            gAttributeTypeToComponentType[static_cast<int>(attr.dataType)],
+            GL_FALSE,
+            m_vertexStride,
+            (void*)stridePassed
+        ));
+        CALL_GL(glEnableVertexAttribArray(attr.location));
+    }
+
+    // index
+    if (m_pIndexBuffer) {
+        CALL_GL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_pIndexBuffer->GetHandle()));
     }
 }
 
 void GlInputAssembler::UnBind() {
+    CALL_GL(glBindVertexArray(0));
+    CALL_GL(glBindBuffer(GL_ARRAY_BUFFER, 0));
+    CALL_GL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
 }
 
 USING_GPU_NAMESPACE_END

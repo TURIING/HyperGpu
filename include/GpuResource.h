@@ -28,7 +28,7 @@ namespace HyperGpu {
 
 	class Image2D : public GpuObject {
 	public:
-		enum class ImageUsage { Color, Depth, Stencil };
+		enum class ImageUsage { Color, Depth_Stencil };
 
 		struct Image2DCreateInfo {
 			Size        size;
@@ -37,7 +37,8 @@ namespace HyperGpu {
 			Sampler*    pSampler = nullptr;
 		};
 
-		virtual void FillPixels(GpuCmd* pCmd, const uint8_t* data, uint64_t dataSize) = 0;
+		virtual ImageUsage GetUsage() const = 0;
+		virtual Size GetSize() const = 0;
 	};
 
 	class Buffer : public GpuObject {
@@ -68,7 +69,6 @@ namespace HyperGpu {
         const void *pIndexData = nullptr;
         uint32_t indexSize = 0;
 
-        PrimitiveType primitiveType = PrimitiveType::TRIANGLE;
         uint32_t vertexCount = 0;
         uint32_t indexCount = 0;
     };

@@ -18,8 +18,10 @@ class GlInputAssembler final: public InputAssembler {
 public:
     GlInputAssembler(OpenGlDevice* pDevice, const InputAssemblerInfo &info);
     ~GlInputAssembler() override;
-    void Bind();
+    void Bind() const;
     void UnBind();
+    NODISCARD u32 GetVertexCount() const { return m_vertexCount; }
+    NODISCARD u32 GetIndexCount() const { return m_indexCount; }
 
 private:
     OpenGlDevice *m_pDevice = nullptr;
@@ -27,11 +29,9 @@ private:
     GlBuffer *m_pIndexBuffer = nullptr;
 
     std::vector<VertexAttribute> m_vertexAttributes;
-    uint32_t m_vertexStride = 0;
-    GLuint m_primitiveType = GL_NONE;
-    uint8_t m_vertexCount = 0;
-    uint8_t m_indexCount = 0;
-
+    int m_vertexStride = 0;
+    u32 m_vertexCount = 0;
+    u32 m_indexCount = 0;
     GLuint m_vao = GL_NONE;
 };
 

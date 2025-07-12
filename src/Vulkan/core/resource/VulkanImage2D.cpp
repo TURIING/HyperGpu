@@ -29,7 +29,7 @@ VulkanImage2D::VulkanImage2D(VulkanDevice* device, const Image2DCreateInfo& info
 		.size				 = info.size,
 		.format				 = gPixelFormatToVkFormat[static_cast<int>(info.format)],
 		.usage				 = VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
-		.aspectFlags		 = transImageUsageToVkAspectFlag(info.usage),
+		.aspectFlags		 = gImageUsageToVkImageAspectFlag[static_cast<int>(info.usage)],
 		.memoryPropertyFlags = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
 	};
 	m_pImage = new VulImage2D(m_pVulkanDevice->GetLogicDevice(), vulImage2DCreateInfo);
@@ -52,64 +52,11 @@ VulkanImage2D::~VulkanImage2D() {
 
 VkImageView VulkanImage2D::GetImageView() const {
 	return m_pImage->GetImageViewHandle();
-};
-
-VkImageAspectFlags VulkanImage2D::transImageUsageToVkAspectFlag(ImageUsage usage) {
-	switch(usage) {
-		CASE_FROM_TO(ImageUsage::Color, VK_IMAGE_ASPECT_COLOR_BIT)
-		CASE_FROM_TO(ImageUsage::Depth, VK_IMAGE_ASPECT_DEPTH_BIT)
-		CASE_FROM_TO(ImageUsage::Stencil, VK_IMAGE_ASPECT_STENCIL_BIT)
-	default:
-		LOG_CRITICAL("Unrecognized image usage");
-	}
 }
 
-void VulkanImage2D::FillPixels(GpuCmd* pCmd, const uint8_t* data, uint64_t dataSize) {
-	const auto vulkanCmd = dynamic_cast<VulkanCmd*>(pCmd);
-	const auto vulCmd = vulkanCmd->GetHandle();
-
-	// 拷贝数据到暂存缓冲
-	const auto stageBuffer = VulBuffer::Builder()
-								 .SetSize(dataSize)
-								 .SetUsage(VK_BUFFER_USAGE_TRANSFER_SRC_BIT)
-								 .SetProperties(VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT)
-								 .SetLogicDevice(m_pVulkanDevice->GetLogicDevice())
-								 .Build();
-	stageBuffer->MapData(0, dataSize, data);
-
-	// 转换布局
-	vulCmd->TransitionImageLayout(m_pImage,  VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-
-	// 从暂存缓冲拷贝数据到image
-	const VkBufferImageCopy region = {
-		.bufferOffset	   = 0,
-		.bufferRowLength   = 0,
-		.bufferImageHeight = 0,
-		.imageSubresource =
-			{
-				.aspectMask		= transImageUsageToVkAspectFlag(m_usage),
-				.mipLevel		= 0,
-				.baseArrayLayer = 0,
-				.layerCount		= 1,
-			},
-		.imageOffset =
-			{
-				.x = 0,
-				.y = 0,
-				.z = 0,
-			},
-		.imageExtent =
-			{
-				.width	= m_size.width,
-				.height = m_size.height,
-				.depth	= 1,
-			},
-	};
-	vulCmd->FillImageByBuffer(stageBuffer->GetHandle(), m_pImage->GetHandle(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, region);
-
-	// 再次转换布局
-	vulCmd->TransitionImageLayout(m_pImage, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-
-	stageBuffer->SubRef();
+VkDescriptorImageInfo * VulkanImage2D::GetDescriptorImageInfo() {
+	m_imageInfo.imageLayout = m_pImage->GetCurrentImageLayout();
+	return &m_imageInfo;
 }
+
 USING_GPU_NAMESPACE_END

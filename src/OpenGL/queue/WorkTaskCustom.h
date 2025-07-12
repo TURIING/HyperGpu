@@ -15,9 +15,10 @@ class WorkTaskCustom final: public WorkTask {
 public:
     using TaskFunc = std::function<void(GlContext* context)>;
     WorkTaskCustom(GlQueue* pQueue, const TaskFunc &func): WorkTask(pQueue), m_func(func) {};
-    void      Execute(GlContext* pContext) override;
+    void Execute(GlContext* pContext) override;
     WaitState Wait(uint32_t timeout) override;
-    void      Signal() override;
+    void Reset() override {};
+    void Signal() override;
 
 private:
     TaskFunc m_func;

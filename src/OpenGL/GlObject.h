@@ -14,10 +14,10 @@ USING_GPU_NAMESPACE_BEGIN
 
 class GlObject {
 public:
-    [[nodiscard]] uint32_t GetHandle() const { return m_handle; }
+    [[nodiscard]] GLuint GetHandle() const { return m_handle; }
 
 protected:
-    uint32_t m_handle = 0;
+    GLuint m_handle = GL_NONE;
 };
 
 USING_GPU_NAMESPACE_END

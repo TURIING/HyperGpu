@@ -24,6 +24,7 @@ public:
     void Execute(GlContext* pContext) override;
     WaitState Wait(uint32_t timeout) override;
     void Signal() override;
+    void Reset() override {};
 
 private:
     GlSurface* m_pSurface = nullptr;

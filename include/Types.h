@@ -16,13 +16,45 @@ namespace HyperGpu
 	enum class PolygonMode { FILL, LINE, POINT };
 	enum class CullMode { NONE, FRONT, BACK };
 	enum class FrontFace { COUNTER_CLOCK_WISE, CLOCK_WISE };
-	enum class AttachmentType { COLOR, DEPTH };
+	enum class AttachmentType { COLOR, DEPTH_STENCIL };
 	enum class Filter { NEAREST, LINEAR };
 	enum class PixelFormat {
 		R8G8B8A8,
 		B8G8R8A8,
 	};
 	enum class WaitState { Success, Failed, Timeout };
+	enum class BlendFactor {
+		ZERO,
+		ONE,
+		SRC_COLOR,
+		ONE_MINUS_SRC_COLOR,
+		DST_COLOR,
+		ONE_MINUS_DST_COLOR,
+		SRC_ALPHA,
+		ONE_MINUS_SRC_ALPHA,
+		DST_ALPHA,
+		ONE_MINUS_DST_ALPHA,
+		CONSTANT_COLOR,
+		ONE_MINUS_CONSTANT_COLOR,
+		CONSTANT_ALPHA,
+		ONE_MINUS_CONSTANT_ALPHA,
+	};
+	enum class BlendOp {
+		ADD,
+		SUBTRACT,
+		REVERSE_SUBTRACT,
+		MIN,
+		MAX,
+	};
+	enum class AttachmentLoadOp {
+		LOAD,			// 保留之前内容
+		CLEAR,			// 清除为指定值
+		DONT_CARE,		// 不关心
+	};
+	enum class AttachmentStoreOp {
+		STORE,			// 保留供后续使用
+		DONT_CARE,		// 不保留
+	};
 
 	struct Viewport {
 		float x      = 0;
@@ -80,6 +112,11 @@ namespace HyperGpu
 	};
 
 	struct ImageBlitRange {
+		Area srcArea;
+		Area dstArea;
+	};
+
+	struct ImageCopyRange {
 		Area srcArea;
 		Area dstArea;
 	};

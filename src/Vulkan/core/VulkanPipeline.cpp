@@ -8,7 +8,6 @@
 #include "VulkanPipeline.h"
 
 #include "../base/device/VulPhysicalDevice.h"
-#include "../base/device/VulLogicDevice.h"
 #include "../base/descriptor/VulDescriptorPool.h"
 #include "../base/descriptor/VulDescriptorSet.h"
 #include "../base/pipeline/VulPipeline.h"
@@ -25,24 +24,26 @@
 USING_GPU_NAMESPACE_BEGIN
 
 VulkanPipeline::VulkanPipeline(VulkanDevice* pDevice, const RenderEnvInfo& renderEnvInfo) : m_pVulkanDevice(pDevice) {
+	this->renderEnvInfo = renderEnvInfo;
 	m_pVulkanDevice->AddRef();
 	VulShader shader(pDevice->GetLogicDevice(), renderEnvInfo.shaderInfo);
 
 	VulPipelineInputAssemblyState pipelineInputAssembly{renderEnvInfo.rasterInfo.primitiveType};
-	VulPipelineRasterizationState pipelineRasterizationState = renderEnvInfo.rasterInfo;
+	VulPipelineRasterizationState pipelineRasterizationState(renderEnvInfo.rasterInfo);
 	VulPipelineMultiSampleState	  pipelineMultiSampleState;
-	VulPipelineColorBlendState	  pipelineColorBlendState;
+	VulPipelineColorBlendState	  pipelineColorBlendState(renderEnvInfo.blendInfo);
 	VulPipelineDynamicState		  pipelineDynamicState;
 	VulPipelineDepthStencilState  pipelineDepthStencilState;
 
 	std::vector<VulAttachmentInfo> attachmentInfos;
-	attachmentInfos.reserve(renderEnvInfo.attachmentCount);
-	for(auto i = 0; i < renderEnvInfo.attachmentCount; i++) {
-		auto attachment = renderEnvInfo.pAttachment[i];
+	attachmentInfos.reserve(renderEnvInfo.attachments.size());
+	for(auto attachment : renderEnvInfo.attachments) {
 		attachmentInfos.push_back({
 			attachment.type,
 			attachment.index,
-			gPixelFormatToVkFormat[static_cast<int>(attachment.format)],
+			gPixelFormatToVkFormat[TO_I32(attachment.format)],
+			gAttachmentLoadOpToVkAttachmentLoadOp[TO_I32(attachment.loadOp)],
+			gAttachmentStoreOpToVkAttachmentStoreOp[TO_I32(attachment.storeOp)],
 		});
 	}
 	m_pRenderPass = m_pVulkanDevice->GetResourceCache()->RequestRenderPass({ attachmentInfos.data(), TO_U32(attachmentInfos.size()) });
@@ -54,7 +55,7 @@ VulkanPipeline::VulkanPipeline(VulkanDevice* pDevice, const RenderEnvInfo& rende
 	m_pDescriptorSetLayout = shader.GetDescriptorSetLayout();
 	m_pDescriptorSetLayout->AddRef();
 
-	auto			 vertexInputState = shader.GetPipelineVertexInputState();
+	auto vertexInputState = shader.GetPipelineVertexInputState();
 	VulPipelineState pipelineState{
 		.shaderStages		= shader.GetShaderStages(),
 		.pipeLineLayout		= m_pPipelineLayout->GetHandle(),
@@ -86,7 +87,9 @@ VulkanPipeline::~VulkanPipeline() {
 	m_pVulkanDevice->SubRef();
 }
 
-void VulkanPipeline::SetUniformBuffers(GpuCmd::UniformBinding* infos, uint32_t count) const {
+void VulkanPipeline::SetUniformBuffers(UniformBinding* infos, uint32_t count) const {
+	if (count <= 0) return;
+
 	std::vector<VulDescriptorSet::UniformBindingInfo> vecBindingInfo;
 	vecBindingInfo.reserve(count);
 	for (auto i = 0; i < count; i++) {
@@ -98,7 +101,9 @@ void VulkanPipeline::SetUniformBuffers(GpuCmd::UniformBinding* infos, uint32_t c
 	m_pDescriptorSet->SetUniformBuffer(vecBindingInfo);
 }
 
-void VulkanPipeline::SetImages(GpuCmd::ImageBinding* infos, uint32_t count) const {
+void VulkanPipeline::SetImages(ImageBinding* infos, uint32_t count) const {
+	if (count <= 0) return;
+
 	std::vector<VulDescriptorSet::ImageBindingInfo> vecBindingInfo;
 	vecBindingInfo.reserve(count);
 	for (auto i = 0; i < count; i++) {

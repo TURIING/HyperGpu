@@ -22,13 +22,15 @@ public:
     Semaphore* AcquireNextImage(uint32_t& imageIndex) override;
     void Bind() const;
     void Unbind() const;
-    [[nodiscard]] virtual GLuint GetSurfaceFbo() const { return 0; }
+    NODISCARD virtual GLuint GetSurfaceFbo() const { return 0; }
+    NODISCARD Size GetSize() const { return m_size; }
     virtual void SwapBuffers() = 0;
 
 protected:
     OpenGlDevice* m_pDevice = nullptr;
     GlContext* m_pContext = nullptr;
     GlSemaphore* m_pImageAvailSemaphore = nullptr;
+    Size m_size;
 };
 
 USING_GPU_NAMESPACE_END

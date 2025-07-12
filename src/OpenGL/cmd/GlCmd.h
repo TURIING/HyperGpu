@@ -15,6 +15,7 @@ USING_GPU_NAMESPACE_BEGIN
 class CmdBase;
 class GlContext;
 class OpenGlDevice;
+class CmdBeginRenderPass;
 
 class GlCmd final : public GpuCmd {
 public:
@@ -31,6 +32,8 @@ public:
     void SetScissor(const Scissor& scissor) override;
     void Execute(GlContext* pContext) const;
     void BlitImageToSurface(Image2D* pImage, GpuSurface* surface, ImageBlitRange* pRange, uint32_t rangeCount, Filter filter) override;
+    void CopyImage(Image2D *pSrcImage, Image2D *pDstImage, ImageCopyRange *pRange, uint32_t rangeCount) override;
+    void CopyBufferToImage(Image2D *pImage, const void *pData, uint64_t size, const Area &area) override;
 
 private:
     template<class CmdClass, typename... Params>
@@ -67,6 +70,7 @@ private:
     OpenGlDevice* m_pDevice = nullptr;
     std::vector<CmdBase*> m_vecCmds;
     std::unordered_map<CmdType, std::vector<CmdBase*>> m_freeCmds;
+    CmdBeginRenderPass* m_pLastCmdBeginRenderPass = nullptr;
 };
 
 USING_GPU_NAMESPACE_END

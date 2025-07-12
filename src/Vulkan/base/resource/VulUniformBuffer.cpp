@@ -24,8 +24,6 @@ VulUniformBuffer::VulUniformBuffer(VulLogicDevice* device, uint64_t bufferSize) 
         .offset = 0,
         .range = bufferSize
     };
-
-    LOG_DEBUG("Uniform buffer created, size: {}.", bufferSize);
 }
 
 VulUniformBuffer::~VulUniformBuffer() {

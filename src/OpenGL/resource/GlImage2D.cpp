@@ -8,7 +8,7 @@
 #include "GlImage2D.h"
 #include "../core/OpenGlDevice.h"
 
-GlImage2D::GlImage2D(OpenGlDevice* pDevice, const Image2DCreateInfo& info): m_pDevice(pDevice) {
+GlImage2D::GlImage2D(OpenGlDevice* pDevice, const Image2DCreateInfo& info): m_pDevice(pDevice), m_usage(info.usage), m_size(info.size) {
     m_pDevice->AddRef();
     m_pDevice->RunWithContext([&](GlContext* pContext) {
         this->init(info);
@@ -20,9 +20,6 @@ GlImage2D::~GlImage2D() {
         CALL_GL(glDeleteTextures(1, &m_handle));
     });
     m_pDevice->SubRef();
-}
-
-void GlImage2D::FillPixels(GpuCmd* pCmd, const uint8_t* data, uint64_t dataSize) {
 }
 
 void GlImage2D::init(const Image2DCreateInfo& info) {

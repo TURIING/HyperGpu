@@ -19,13 +19,16 @@ class GlImage2D final: public Image2D, public GlObject {
 public:
     GlImage2D(OpenGlDevice* pDevice, const Image2DCreateInfo &info);
     ~GlImage2D() override;
-    void FillPixels(GpuCmd* pCmd, const uint8_t* data, uint64_t dataSize) override;
+    NODISCARD ImageUsage GetUsage() const override { return m_usage; };
+    NODISCARD Size GetSize() const override { return m_size; };
 
 private:
     void init(const Image2DCreateInfo &info);
 
 private:
     OpenGlDevice* m_pDevice = nullptr;
+    ImageUsage m_usage;
+    Size m_size;
 };
 
 USING_GPU_NAMESPACE_END

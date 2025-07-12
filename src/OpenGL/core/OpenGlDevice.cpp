@@ -18,6 +18,7 @@
 #include "OpenGlCmdManager.h"
 #include "../cmd/GlCmd.h"
 #include "../queue/WorkTaskRender.h"
+#include "OpenGlPipelineManager.h"
 
 USING_GPU_NAMESPACE_BEGIN
 OpenGlDevice::OpenGlDevice(const DeviceCreateInfo& info) {
@@ -30,6 +31,7 @@ OpenGlDevice::OpenGlDevice(const DeviceCreateInfo& info) {
     m_pResourceManager = new OpenGlResourceManager(this);
     m_pSyncManager = new OpenGlSyncManager(this);
     m_pCmdManager = new OpenGlCmdManager(this);
+    m_pPipelineManager = new OpenGlPipelineManager(this);
 }
 
 OpenGlDevice::~OpenGlDevice() {
@@ -41,11 +43,12 @@ OpenGlDevice::~OpenGlDevice() {
     m_pResourceManager->SubRef();
     m_pSyncManager->SubRef();
     m_pCmdManager->SubRef();
+    m_pPipelineManager->SubRef();
     m_pMainContext->SubRef();
 }
 
 PipelineManager* OpenGlDevice::GetPipelineManager() {
-	return nullptr;
+	return m_pPipelineManager;
 }
 
 GpuCmdManager* OpenGlDevice::GetCmdManager() {

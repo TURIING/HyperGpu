@@ -25,7 +25,6 @@ VulSwapChain::VulSwapChain(VulLogicDevice* device, VulSurface* surface): m_pLogi
     this->chooseSwapSurfaceFormat();
     VkPresentModeKHR presentMode = this->chooseSwapPresentMode();
     VkExtent2D swapExtent = this->getSwapChainExtent();
-    LOG_INFO("extent: {},{}", swapExtent.width, swapExtent.height);
     uint32_t imageCount = this->getSwapChainImageCount();
 
     VkSwapchainCreateInfoKHR swapChainCreateInfo {

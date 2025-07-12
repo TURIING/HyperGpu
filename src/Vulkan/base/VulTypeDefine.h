@@ -124,27 +124,31 @@ struct VulPipelineColorBlendState
 {
     bool enable = false;
     VkPipelineColorBlendAttachmentState colorBlendAttachmentState {};
+	Color constantColor;
 
-    [[nodiscard]] VkPipelineColorBlendStateCreateInfo GetCreateInfo()
-    {
+	VulPipelineColorBlendState(const BlendInfo &info) {
+		colorBlendAttachmentState.blendEnable = info.enable ? VK_TRUE : VK_FALSE;
 		colorBlendAttachmentState.colorWriteMask	  = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
-		colorBlendAttachmentState.blendEnable		  = enable ? VK_TRUE : VK_FALSE;
-		colorBlendAttachmentState.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA; // 正确的枚举值
-		colorBlendAttachmentState.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
-		colorBlendAttachmentState.colorBlendOp		  = VK_BLEND_OP_ADD;
-		colorBlendAttachmentState.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
-		colorBlendAttachmentState.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
-		colorBlendAttachmentState.alphaBlendOp		  = VK_BLEND_OP_ADD;
+		colorBlendAttachmentState.srcColorBlendFactor = gBlendFactorToVkBlendFactor[TO_I32(info.srcColorBlendFactor)];
+		colorBlendAttachmentState.dstColorBlendFactor = gBlendFactorToVkBlendFactor[TO_I32(info.dstColorBlendFactor)];
+		colorBlendAttachmentState.srcAlphaBlendFactor = gBlendFactorToVkBlendFactor[TO_I32(info.srcAlphaBlendFactor)];
+		colorBlendAttachmentState.dstAlphaBlendFactor = gBlendFactorToVkBlendFactor[TO_I32(info.dstAlphaBlendFactor)];
+		colorBlendAttachmentState.colorBlendOp = gBlendOpToVkBlendOp[TO_I32(info.colorBlendOp)];
+		colorBlendAttachmentState.alphaBlendOp = gBlendOpToVkBlendOp[TO_I32(info.alphaBlendOp)];
+		constantColor = info.constantColor;
+	}
+
+    NODISCARD VkPipelineColorBlendStateCreateInfo GetCreateInfo() const {
 		VkPipelineColorBlendStateCreateInfo colorBlending{};
 		colorBlending.sType				= VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
 		colorBlending.logicOpEnable		= VK_FALSE;
 		colorBlending.logicOp			= VK_LOGIC_OP_COPY;
 		colorBlending.attachmentCount	= 1;
 		colorBlending.pAttachments		= &colorBlendAttachmentState;
-		colorBlending.blendConstants[0] = 0.0f;
-		colorBlending.blendConstants[1] = 0.0f;
-		colorBlending.blendConstants[2] = 0.0f;
-		colorBlending.blendConstants[3] = 0.0f;
+		colorBlending.blendConstants[0] = constantColor.r;
+		colorBlending.blendConstants[1] = constantColor.g;
+		colorBlending.blendConstants[2] = constantColor.b;
+		colorBlending.blendConstants[3] = constantColor.a;
 		return colorBlending;
 	}
 };

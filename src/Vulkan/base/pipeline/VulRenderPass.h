@@ -20,6 +20,8 @@ struct VulAttachmentInfo {
     AttachmentType type;
     uint32_t attachmentIndex;
     VkFormat format;
+    VkAttachmentLoadOp loadOp;
+    VkAttachmentStoreOp storeOp;
 };
 
 struct VulRenderPassCreateInfo {

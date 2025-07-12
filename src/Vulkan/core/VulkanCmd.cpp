@@ -7,7 +7,6 @@
 ********************************************************************************/
 #include "../../common/common.h"
 #include "VulkanCmd.h"
-
 #include "../base/command/VulCommandBuffer.h"
 #include "../base/command/VulCommandPool.h"
 #include "../base/descriptor/VulDescriptorSet.h"
@@ -16,12 +15,12 @@
 #include "VulkanDevice.h"
 #include "VulkanPipeline.h"
 #include "VulkanSurface.h"
-#include "../base/device/VulLogicDevice.h"
 #include "../base/resource/VulImage2D.h"
-#include "../base/surface/VulFrameBuffer.h"
+#include "../base/resource/VulBuffer.h"
 #include "resource/ResourceCache.h"
 #include "resource/VulkanImage2D.h"
 #include "resource/VulkanInputAssembler.h"
+
 USING_GPU_NAMESPACE_BEGIN
 
 VulkanCmd::VulkanCmd(VulkanDevice* device, VulCommandPool* pool) : m_pVulkanDevice(device) {
@@ -73,8 +72,56 @@ void VulkanCmd::ClearColorImage(Image2D* image, const Color &color) {
 	m_pCmd->TransitionImageLayout(pVulImage, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 }
 
+void VulkanCmd::CopyBufferToImage(Image2D *pImage, const void *pData, uint64_t size, const Area &area) {
+	const auto pVulkanImage  = dynamic_cast<VulkanImage2D*>(pImage);
+
+	// 拷贝数据到暂存缓冲
+	const auto stageBuffer = VulBuffer::Builder()
+								 .SetSize(size)
+								 .SetUsage(VK_BUFFER_USAGE_TRANSFER_SRC_BIT)
+								 .SetProperties(VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT)
+								 .SetLogicDevice(m_pVulkanDevice->GetLogicDevice())
+								 .Build();
+	stageBuffer->MapData(0, size, pData);
+
+	// 转换布局
+	m_pCmd->TransitionImageLayout(pVulkanImage->GetHandle(),  VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+
+	// 从暂存缓冲拷贝数据到image
+	const VkBufferImageCopy region = {
+		.bufferOffset	   = 0,
+		.bufferRowLength   = 0,
+		.bufferImageHeight = 0,
+		.imageSubresource =
+			{
+			.aspectMask		= gImageUsageToVkImageAspectFlag[static_cast<int>(pVulkanImage->GetUsage())],
+			.mipLevel		= 0,
+			.baseArrayLayer = 0,
+			.layerCount		= 1,
+		},
+	.imageOffset =
+		{
+			.x = area.offset.x,
+			.y = area.offset.y,
+			.z = 0,
+		},
+	.imageExtent =
+		{
+			.width	= area.size.width,
+			.height = area.size.height,
+			.depth	= 1,
+		},
+};
+	m_pCmd->CopyBufferToImage(stageBuffer->GetHandle(), pVulkanImage->GetHandle()->GetHandle(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, region);
+
+	// 再次转换布局
+	m_pCmd->TransitionImageLayout(pVulkanImage->GetHandle(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+
+	// stageBuffer->SubRef();
+}
+
 void VulkanCmd::BeginRenderPass(const BeginRenderInfo& beginRenderInfo) {
-	m_pPipeline = dynamic_cast<VulkanPipeline*>(beginRenderInfo.pPipeline);
+	m_pPipeline = m_pVulkanDevice->GetResourceCache()->RequestPipeline(beginRenderInfo.pPipeline->renderEnvInfo);
 	const auto pRenderPass = m_pPipeline->GetRenderPass();
 
 	VulRenderPassBeginInfo renderPassBeginInfo;
@@ -117,15 +164,17 @@ void VulkanCmd::BeginRenderPass(const BeginRenderInfo& beginRenderInfo) {
 		frameBufferCacheInfo.pRenderPass     = pRenderPass;
 		frameBufferCacheInfo.size            = vulkanSurface->GetSize();
 
-		renderPassBeginInfo.pFrameBuffer = m_pVulkanDevice->GetResourceCache()->
-		                                                    RequestFrameBuffer(frameBufferCacheInfo);
+		renderPassBeginInfo.pFrameBuffer = m_pVulkanDevice->GetResourceCache()->RequestFrameBuffer(frameBufferCacheInfo);
 	}
 	else if (beginRenderInfo.renderAttachmentType == RenderAttachmentType::Image2D) {
-		auto                     [count, images] = beginRenderInfo.renderAttachment;
+		auto [count, images] = beginRenderInfo.renderAttachment;
+
 		std::vector<VkImageView> imageViews;
 		imageViews.reserve(count);
 		for (auto i = 0; i < count; i++) {
-			imageViews.push_back(dynamic_cast<VulkanImage2D*>(images[i])->GetImageView());
+			auto pVulkanImage = dynamic_cast<VulkanImage2D*>(images[i]);
+			imageViews.push_back(pVulkanImage->GetImageView());
+			m_pCmd->TransitionImageLayout(pVulkanImage->GetHandle(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 		}
 
 		ResourceCache::FrameBufferCacheInfo frameBufferCacheInfo;
@@ -134,14 +183,12 @@ void VulkanCmd::BeginRenderPass(const BeginRenderInfo& beginRenderInfo) {
 		frameBufferCacheInfo.pAttachments    = imageViews.data();
 		frameBufferCacheInfo.size            = dynamic_cast<VulkanImage2D*>(images[0])->GetSize();
 
-		renderPassBeginInfo.pFrameBuffer = m_pVulkanDevice->GetResourceCache()->
-		                                                    RequestFrameBuffer(frameBufferCacheInfo);
+		renderPassBeginInfo.pFrameBuffer = m_pVulkanDevice->GetResourceCache()->RequestFrameBuffer(frameBufferCacheInfo);
 	}
 
 	m_pCmd->BeginRenderPass(renderPassBeginInfo);
 	m_pCmd->BindPipeline(m_pPipeline->GetHandle());
-	m_pCmd->BindDescriptorSets(VK_PIPELINE_BIND_POINT_GRAPHICS, m_pPipeline->GetPipelineLayout()->GetHandle(),
-                               m_pPipeline->GetDescriptorSet()->GetHandle());
+	m_pCmd->BindDescriptorSets(VK_PIPELINE_BIND_POINT_GRAPHICS, m_pPipeline->GetPipelineLayout()->GetHandle(),m_pPipeline->GetDescriptorSet()->GetHandle());
 }
 
 void VulkanCmd::EndRenderPass() {
@@ -198,6 +245,37 @@ void VulkanCmd::BlitImageToSurface(Image2D* pImage, GpuSurface* surface, ImageBl
 	m_pCmd->BlitImage(pVulImage, pVulSurfaceImage, imageBlit, static_cast<VkFilter>(filter));
 	m_pCmd->TransitionImageLayout(pVulImage, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 	m_pCmd->TransitionImageLayout(pVulSurfaceImage, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
+}
+
+void VulkanCmd::CopyImage(Image2D *pSrcImage, Image2D *pDstImage, ImageCopyRange *pRange, uint32_t rangeCount) {
+	const auto pVulSrcImage = dynamic_cast<VulkanImage2D*>(pSrcImage)->GetHandle();
+	const auto pVulDstImage = dynamic_cast<VulkanImage2D*>(pDstImage)->GetHandle();
+
+	VkImageSubresourceLayers subresourceLayers{
+		.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
+		.mipLevel = 0,
+		.baseArrayLayer = 0,
+		.layerCount = 1
+	};
+
+	std::vector<VkImageCopy> vecImageCopy;
+	vecImageCopy.reserve(rangeCount);
+	for (auto i = 0; i < rangeCount; i++) {
+		const auto range = pRange[i];
+		vecImageCopy.push_back({
+			.srcSubresource = subresourceLayers,
+			.srcOffset = {.x = range.srcArea.offset.x, .y = range.srcArea.offset.y, .z = 0},
+			.dstSubresource = subresourceLayers,
+			.dstOffset = {.x = range.dstArea.offset.x, .y = range.dstArea.offset.y, .z = 0},
+			.extent = {.width = range.srcArea.size.width, .height = range.srcArea.size.height, .depth = 1},
+		});
+	}
+
+	m_pCmd->TransitionImageLayout(pVulSrcImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+	m_pCmd->TransitionImageLayout(pVulDstImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+	m_pCmd->CopyImage(pVulSrcImage, pVulDstImage, vecImageCopy);
+	m_pCmd->TransitionImageLayout(pVulSrcImage, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+	m_pCmd->TransitionImageLayout(pVulDstImage, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
 }
 
 VkViewport VulkanCmd::transViewportToVkViewport(const Viewport& viewport) {

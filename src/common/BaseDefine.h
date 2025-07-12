@@ -22,13 +22,13 @@ using namespace HyperGpu;
 
 template <typename T>
 uint32_t TO_U32(T value) {
-    static_assert(std::is_arithmetic<T>::value, "T must be numeric");
+    static_assert(std::is_arithmetic_v<T> || std::is_enum_v<T>, "T must be numeric or enum");
     return static_cast<uint32_t>(value);
 }
 
 template <typename T>
 int32_t TO_I32(T value) {
-    static_assert(std::is_arithmetic<T>::value, "T must be numeric");
+    static_assert(std::is_arithmetic_v<T> || std::is_enum_v<T>, "T must be numeric or enum");
     return static_cast<int32_t>(value);
 }
 
@@ -57,6 +57,11 @@ enum class CmdType {
     EndRender,
     BlitImageToSurface,
     ClearColorImage,
+    BeginRenderPass,
+    EndRenderPass,
+    SetViewport,
+    SetScissor,
+    Draw
 };
 
 /************************************************* Variable *********************************************************/
@@ -68,9 +73,100 @@ constexpr int THREAD_NUM = 1;
 constexpr int THREAD_NUM = 5;
 #endif
 
+/**************************************************** Type Convert ***************************************************/
+constexpr VkFormat gPixelFormatToVkFormat[] = {
+    VK_FORMAT_R8G8B8A8_SRGB,                    // R8G8B8A8
+    VK_FORMAT_B8G8R8A8_SRGB,                    // B8G8R8A8
+};
+
+constexpr VkImageAspectFlags gImageUsageToVkImageAspectFlag[] = {
+    VK_IMAGE_ASPECT_COLOR_BIT,          // ImageUsage::Color
+    VK_IMAGE_ASPECT_DEPTH_BIT,          // ImageUsage::Depth
+    VK_IMAGE_ASPECT_STENCIL_BIT,        // ImageUsage::Stencil
+};
+
+constexpr VkBlendFactor gBlendFactorToVkBlendFactor[] = {
+    VK_BLEND_FACTOR_ZERO,
+    VK_BLEND_FACTOR_ONE,
+    VK_BLEND_FACTOR_SRC_COLOR,
+    VK_BLEND_FACTOR_ONE_MINUS_SRC_COLOR,
+    VK_BLEND_FACTOR_DST_COLOR,
+    VK_BLEND_FACTOR_ONE_MINUS_DST_COLOR,
+    VK_BLEND_FACTOR_SRC_ALPHA,
+    VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA,
+    VK_BLEND_FACTOR_DST_ALPHA,
+    VK_BLEND_FACTOR_ONE_MINUS_DST_ALPHA,
+    VK_BLEND_FACTOR_CONSTANT_COLOR,
+    VK_BLEND_FACTOR_ONE_MINUS_CONSTANT_COLOR,
+    VK_BLEND_FACTOR_CONSTANT_ALPHA,
+    VK_BLEND_FACTOR_ONE_MINUS_CONSTANT_ALPHA,
+};
+
+constexpr VkBlendOp gBlendOpToVkBlendOp[] = {
+    VK_BLEND_OP_ADD,
+    VK_BLEND_OP_SUBTRACT,
+    VK_BLEND_OP_REVERSE_SUBTRACT,
+    VK_BLEND_OP_MIN,
+    VK_BLEND_OP_MAX,
+};
+
+constexpr VkAttachmentLoadOp gAttachmentLoadOpToVkAttachmentLoadOp[] = {
+    VK_ATTACHMENT_LOAD_OP_LOAD,         // LOAD
+    VK_ATTACHMENT_LOAD_OP_CLEAR,        // CLEAR
+    VK_ATTACHMENT_LOAD_OP_DONT_CARE,    // DONT_CARE
+};
+
+constexpr VkAttachmentStoreOp gAttachmentStoreOpToVkAttachmentStoreOp[] = {
+    VK_ATTACHMENT_STORE_OP_STORE,       // STORE
+    VK_ATTACHMENT_STORE_OP_DONT_CARE,   // DONT_CARE
+};
+
 constexpr GLuint gFilterToGlFilter[] = {
     GL_NEAREST,         // NEAREST
     GL_LINEAR,          // LINEAR
+};
+
+constexpr GLuint gPixelFormatToGlFormat[] = {
+    GL_RGBA,                    // R8G8B8A8
+    GL_BGRA,                    // B8G8R8A8
+};
+
+constexpr GLuint gPixelFormatToDataFormat[] = {
+    GL_UNSIGNED_BYTE,           // R8G8B8A8
+    GL_UNSIGNED_BYTE,           // B8G8R8A8
+};
+
+constexpr GLuint gPrimitiveTypeToGlType[] = {
+    GL_POINTS,              // POINT
+    GL_LINES,               // LINE
+    GL_LINE_STRIP,          // LINE_STRIP
+    GL_TRIANGLES,           // TRIANGLE
+    GL_TRIANGLE_STRIP,      // TRIANGLE_STRIP
+};
+
+constexpr GLenum gBlendFactorToGlBlendFactor[] = {
+    GL_ZERO,
+    GL_ONE,
+    GL_SRC_COLOR,
+    GL_ONE_MINUS_SRC_COLOR,
+    GL_DST_COLOR,
+    GL_ONE_MINUS_DST_COLOR,
+    GL_SRC_ALPHA,
+    GL_ONE_MINUS_SRC_ALPHA,
+    GL_DST_ALPHA,
+    GL_ONE_MINUS_DST_ALPHA,
+    GL_CONSTANT_COLOR,
+    GL_ONE_MINUS_CONSTANT_COLOR,
+    GL_CONSTANT_ALPHA,
+    GL_ONE_MINUS_CONSTANT_ALPHA
+};
+
+constexpr GLenum gBlendOpToGlBlendOp[] = {
+    GL_FUNC_ADD,
+    GL_FUNC_SUBTRACT,
+    GL_FUNC_REVERSE_SUBTRACT,
+    GL_MIN,
+    GL_MAX,
 };
 
 #endif //BASEDEFINE_H

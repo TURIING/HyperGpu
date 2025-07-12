@@ -9,7 +9,7 @@
 
 #include "VulkanPipeline.h"
 #include "VulkanDevice.h"
-
+#include "resource/ResourceCache.h"
 USING_GPU_NAMESPACE_BEGIN
 
 VulkanPipelineManager::VulkanPipelineManager(VulkanDevice* device) : m_pDevice(device) {
@@ -21,7 +21,7 @@ VulkanPipelineManager::~VulkanPipelineManager() {
 }
 
 Pipeline* VulkanPipelineManager::CreateRenderPipeline(const RenderEnvInfo& renderEnvInfo) {
-	return new VulkanPipeline(m_pDevice, renderEnvInfo);
+	return m_pDevice->GetResourceCache()->RequestPipeline(renderEnvInfo);
 }
 
 USING_GPU_NAMESPACE_END

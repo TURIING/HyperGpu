@@ -7,16 +7,71 @@
 ********************************************************************************/
 #include "ResourceCache.h"
 
+#include <typeindex>
+
 #include "HyperGpu/src/Vulkan/base/pipeline/VulRenderPass.h"
 #include "HyperGpu/src/Vulkan/base/surface/VulFrameBuffer.h"
 #include "HyperGpu/src/Vulkan/core/VulkanDevice.h"
+#include "../VulkanPipeline.h"
 
 template <>
 struct std::hash<Size> {
-    std::size_t operator()(const Size &size) const {
+    std::size_t operator()(const Size &size) const noexcept {
         std::size_t result = 0;
         HASH_COMBINE(result, size.width);
         HASH_COMBINE(result, size.height);
+        return result;
+    }
+};
+
+template <>
+struct std::hash<Color> {
+    std::size_t operator()(const Color &color) const noexcept {
+        std::size_t result = 0;
+        HASH_COMBINE(result, color.r);
+        HASH_COMBINE(result, color.g);
+        HASH_COMBINE(result, color.b);
+        HASH_COMBINE(result, color.a);
+        return result;
+    }
+};
+
+template <>
+struct std::hash<ShaderInfo> {
+    std::size_t operator()(const ShaderInfo &shaderInfo) const noexcept {
+        std::size_t result = 0;
+        HASH_COMBINE(result, shaderInfo.pSpvVertexCode);
+        HASH_COMBINE(result, shaderInfo.spvVertexCodeSize);
+        HASH_COMBINE(result, shaderInfo.pSpvFragCode);
+        HASH_COMBINE(result, shaderInfo.spvFragCodeSize);
+        return result;
+    }
+};
+
+template <>
+struct std::hash<RasterizationInfo> {
+    std::size_t operator()(const RasterizationInfo &rasterInfo) const noexcept {
+        std::size_t result = 0;
+        HASH_COMBINE(result, TO_I32(rasterInfo.primitiveType));
+        HASH_COMBINE(result, TO_I32(rasterInfo.polygonMode));
+        HASH_COMBINE(result, TO_I32(rasterInfo.cullMode));
+        HASH_COMBINE(result, TO_I32(rasterInfo.frontFace));
+        HASH_COMBINE(result, rasterInfo.lineWidth);
+        return result;
+    }
+};
+
+template <>
+struct std::hash<BlendInfo> {
+    std::size_t operator()(const BlendInfo &blendInfo) const noexcept {
+        std::size_t result = 0;
+        HASH_COMBINE(result, TO_I32(blendInfo.srcColorBlendFactor));
+        HASH_COMBINE(result, TO_I32(blendInfo.srcAlphaBlendFactor));
+        HASH_COMBINE(result, TO_I32(blendInfo.dstColorBlendFactor));
+        HASH_COMBINE(result, TO_I32(blendInfo.dstAlphaBlendFactor));
+        HASH_COMBINE(result, TO_I32(blendInfo.colorBlendOp));
+        HASH_COMBINE(result, TO_I32(blendInfo.alphaBlendOp));
+        HASH_COMBINE(result, blendInfo.constantColor);
         return result;
     }
 };
@@ -46,12 +101,15 @@ ResourceCache::ResourceCache(VulkanDevice* pVulkanDevice): m_pVulkanDevice(pVulk
 }
 
 ResourceCache::~ResourceCache() {
-
     for(auto &pair: m_mapFrameBuffers) {
         (*pair.second)->SubRef();
     }
 
     for(auto &pair: m_mapRenderPasses) {
+        (*pair.second)->SubRef();
+    }
+
+    for(auto &pair: m_mapPipelines) {
         (*pair.second)->SubRef();
     }
 }
@@ -87,6 +145,9 @@ VulRenderPass* ResourceCache::RequestRenderPass(const RenderPassCacheInfo& info)
     for(auto i = 0; i < info.attachmentInfoCount; i++) {
         hashParam(hash, info.pAttachmentInfos[i].type);
         hashParam(hash, info.pAttachmentInfos[i].attachmentIndex);
+        hashParam(hash, info.pAttachmentInfos[i].loadOp);
+        hashParam(hash, info.pAttachmentInfos[i].storeOp);
+        hashParam(hash, info.pAttachmentInfos[i].format);
     }
 
     if(const auto it =  m_mapRenderPasses.find(hash); it != m_mapRenderPasses.end()) {
@@ -100,6 +161,21 @@ VulRenderPass* ResourceCache::RequestRenderPass(const RenderPassCacheInfo& info)
     m_mapRenderPasses[hash] = std::make_unique<VulRenderPass*>(builder.Build());
 
     return *m_mapRenderPasses[hash];
+}
+
+VulkanPipeline* ResourceCache::RequestPipeline(const RenderEnvInfo &info) {
+    size_t hash = 0;
+    hashParam(hash, info.shaderInfo);
+    hashParam(hash, info.rasterInfo);
+    hashParam(hash, info.blendInfo);
+
+    if (const auto it = m_mapPipelines.find(hash); it != m_mapPipelines.end()) {
+        return *it->second;
+    }
+
+    m_mapPipelines[hash] = std::make_unique<VulkanPipeline*>(new VulkanPipeline(m_pVulkanDevice, info));
+
+    return *m_mapPipelines[hash];
 }
 
 USING_GPU_NAMESPACE_END

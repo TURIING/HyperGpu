@@ -43,8 +43,8 @@ std::exit(EXIT_FAILURE);
 SPDLOG_LOGGER_CRITICAL(Singleton<LogManager>::GetInstance()->GetLogger(), fmt::format(__VA_ARGS__)); \
 std::exit(EXIT_FAILURE);
 
-#define LOG_ASSERT(CONDITION) if(!(CONDITION)){ LOG_CRITICAL("Assert failed({0})", #CONDITION); }
-#define LOG_ASSERT_INFO(CONDITION, INFO) if(!(CONDITION)){ LOG_CRITICAL("Assert failed({0}): {1}", #CONDITION, INFO); }
+#define LOG_ASSERT(CONDITION) if(!(CONDITION)){ LOG_CRITICAL("Assert failed({})", #CONDITION); }
+#define LOG_ASSERT_INFO(CONDITION, INFO) if(!(CONDITION)){ LOG_CRITICAL("Assert failed({}): {}", #CONDITION, INFO); }
 
 #endif
 

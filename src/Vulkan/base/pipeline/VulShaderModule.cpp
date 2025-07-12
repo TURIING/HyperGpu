@@ -11,12 +11,12 @@
 
 USING_GPU_NAMESPACE_BEGIN
 
-VulShaderModule::VulShaderModule(VulLogicDevice* device, const uint8_t *code, uint32_t size): m_pLogicDevice(device) {
+VulShaderModule::VulShaderModule(VulLogicDevice* device, const void *code, uint32_t size): m_pLogicDevice(device) {
 	m_pLogicDevice->AddRef();
     VkShaderModuleCreateInfo shaderModuleCreateInfo = {
         .sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
         .codeSize = size,
-        .pCode = reinterpret_cast<const uint32_t*>(code),
+        .pCode = static_cast<const uint32_t*>(code),
     };
     CALL_VK(vkCreateShaderModule(m_pLogicDevice->GetHandle(), &shaderModuleCreateInfo, nullptr, &m_pHandle));
     LOG_INFO("Shader module created successfully!");

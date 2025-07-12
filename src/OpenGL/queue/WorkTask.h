@@ -27,6 +27,7 @@ public:
     virtual void Execute(GlContext* pContext) = 0;
     virtual WaitState Wait(uint32_t timeout = 0) = 0;
     virtual void Signal() = 0;
+    virtual void Reset() = 0;
     void WaitFinish() {
         std::unique_lock<std::mutex> locker(m_lock);
         m_condition.wait(locker, [&] { return m_finish; });
