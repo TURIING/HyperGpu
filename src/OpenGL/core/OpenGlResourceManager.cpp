@@ -33,3 +33,7 @@ Sampler* OpenGlResourceManager::CreateSampler(const Sampler::SamplerCreateInfo& 
 InputAssembler* OpenGlResourceManager::CreateInputAssembler(const InputAssemblerInfo& info) {
     return nullptr;
 }
+
+InputAssembler * OpenGlResourceManager::CreateInputAssembler(const InstanceInputAssemblerInfo &info) {
+    return nullptr;
+}

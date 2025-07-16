@@ -32,7 +32,7 @@ VulkanBuffer::VulkanBuffer(VulkanDevice* device, const BufferCreateInfo &createI
 	}
 }
 
-void VulkanBuffer::UpdateData(const uint8_t* data, uint64_t dataSize) {
+void VulkanBuffer::UpdateData(const void* data, uint64_t dataSize) {
 	if(m_type == BufferType::Uniform) {
 		std::get<VulUniformBuffer*>(m_pBuffer)->UpdateData(data, dataSize);
 	} else {

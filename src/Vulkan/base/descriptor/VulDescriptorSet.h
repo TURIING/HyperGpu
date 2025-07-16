@@ -22,7 +22,7 @@ class VulLogicDevice;
 class VulDescriptorSet final : public VulObject<VkDescriptorSet> {
 public:
 	struct ImageBindingInfo {
-		VkDescriptorImageInfo* imageInfo = nullptr;
+		std::vector<VkDescriptorImageInfo> vecImageInfo;
         std::string name;
 	};
 

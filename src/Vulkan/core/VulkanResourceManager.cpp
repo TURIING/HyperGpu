@@ -37,4 +37,9 @@ Sampler* VulkanResourceManager::CreateSampler(const Sampler::SamplerCreateInfo& 
 InputAssembler* VulkanResourceManager::CreateInputAssembler(const InputAssemblerInfo& info) {
 	return new VulkanInputAssembler(m_pVulkanDevice, info);
 }
+
+InputAssembler * VulkanResourceManager::CreateInputAssembler(const InstanceInputAssemblerInfo &info) {
+	return new VulkanInputAssembler(m_pVulkanDevice, info);
+}
+
 USING_GPU_NAMESPACE_END

@@ -17,13 +17,13 @@ class VulIndexBuffer;
 class VulVertexBuffer;
 class VulkanDevice;
 
-class VulkanBuffer final : public HyperGpu::Buffer {
+class VulkanBuffer final : public Buffer {
 public:
 	VulkanBuffer(VulkanDevice* device, const BufferCreateInfo &createInfo);
-	[[nodiscard]] VulVertexBuffer*  GetVertexBuffer() const { return std::get<VulVertexBuffer*>(m_pBuffer); }
-	[[nodiscard]] VulIndexBuffer*   GetIndexBuffer() const { return std::get<VulIndexBuffer*>(m_pBuffer); }
+	[[nodiscard]] VulVertexBuffer* GetVertexBuffer() const { return std::get<VulVertexBuffer*>(m_pBuffer); }
+	[[nodiscard]] VulIndexBuffer* GetIndexBuffer() const { return std::get<VulIndexBuffer*>(m_pBuffer); }
 	[[nodiscard]] VulUniformBuffer* GetUniformBuffer() const { return std::get<VulUniformBuffer*>(m_pBuffer); }
-	void UpdateData(const uint8_t* data, uint64_t dataSize) override;
+	void UpdateData(const void* data, uint64_t dataSize) override;
 
 private:
 	std::variant<VulVertexBuffer*, VulIndexBuffer*, VulUniformBuffer*> m_pBuffer;

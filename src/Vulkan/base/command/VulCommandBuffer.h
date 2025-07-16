@@ -45,8 +45,8 @@ public:
     void BindPipeline(VulPipeline* pipeline) const;
     void SetViewport(const std::vector<VkViewport>& viewports) const;
     void SetScissor(const std::vector<VkRect2D>& scissors) const;
-    void BindVertexBuffer(VulVertexBuffer* vertexBuffer) const;
-    void BindIndexBuffer(VulIndexBuffer* indexBuffer) const;
+    void BindVertexBuffer(const VulVertexBuffer* vertexBuffer, const VulVertexBuffer* instanceBuffer) const;
+    void BindIndexBuffer(const VulIndexBuffer* indexBuffer) const;
 	void BindDescriptorSets(VkPipelineBindPoint bindPoint, VkPipelineLayout layout, VkDescriptorSet descriptorSet) const;
     void CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size) const;
     void PipelineBarrier(VkPipelineStageFlags srcStageFlags, VkPipelineStageFlags dstStageFlags, const VkImageMemoryBarrier& barrier) const;
@@ -55,8 +55,8 @@ public:
     void BlitImage(VulImage2D* pSrcImage, VulImage2D* pDstImage, const std::vector<VkImageBlit> &vecImageBlit, VkFilter filter) const;
     void CopyImage(VulImage2D* pSrcImage, VulImage2D* pDstImage, const std::vector<VkImageCopy> &regions) const;
     void TransitionImageLayout(VulImage2D* pImage, VkImageLayout newLayout, VkImageAspectFlags aspectFlags = VK_IMAGE_ASPECT_COLOR_BIT) const;
-    void Draw(uint32_t vertexCount) const;
-    void DrawIndex(uint32_t indexCount) const;
+    void Draw(uint32_t vertexCount, u32 instanceCount = 1) const;
+    void DrawIndex(uint32_t indexCount, u32 instanceCount = 1) const;
 
 private:
     VulLogicDevice* m_pLogicDevice = nullptr;

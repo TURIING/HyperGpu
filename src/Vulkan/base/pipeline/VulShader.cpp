@@ -41,7 +41,10 @@ VulShader::VulShader(VulLogicDevice* logicDevice, const ShaderInfo &shaderInfo):
     std::vector<VulDescriptorSetLayoutBindInfo> descriptorSetLayoutBindInfos;
     computeDescriptorSetLayout(spvReflectVertexShaderModule, descriptorSetLayoutBindInfos);
     computeDescriptorSetLayout(spvReflectFragShaderModule, descriptorSetLayoutBindInfos);
-    m_pDescriptorSetLayout = VulDescriptorSetLayout::Builder().SetLogicDevice(m_pLogicDevice).AddDescriptorBindings(descriptorSetLayoutBindInfos).Build();
+    m_pDescriptorSetLayout = VulDescriptorSetLayout::Builder()
+                                .SetLogicDevice(m_pLogicDevice)
+                                .AddDescriptorBindings(descriptorSetLayoutBindInfos)
+                                .Build();
 
     // 生成PushConstants描述
     this->computePushConstant(spvReflectVertexShaderModule, VK_SHADER_STAGE_VERTEX_BIT);
@@ -67,13 +70,14 @@ void VulShader::computeInputState(const SpvReflectShaderModule& module) {
     result = spvReflectEnumerateInputVariables(&module, &count, inputVars.data());
     LOG_ASSERT(result == SPV_REFLECT_RESULT_SUCCESS);
 
-    auto &bindingDescription = m_pipelineVertexInputState.bindingDescription;
     auto &attributeDescription = m_pipelineVertexInputState.attributeDescriptions;
+    attributeDescription.reserve(inputVars.size());
 
-    bindingDescription.binding = 0;
-    bindingDescription.stride = 0;  // computed below
-    bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
-    m_pipelineVertexInputState.attributeDescriptions.reserve(inputVars.size());
+    m_pipelineVertexInputState.vecBindingDescription.push_back({
+        .binding = 0,
+        .stride = 0,
+        .inputRate = VK_VERTEX_INPUT_RATE_VERTEX,
+    });
 
     for (size_t index = 0; index < inputVars.size(); ++index) {
         const SpvReflectInterfaceVariable& var = *(inputVars[index]);
@@ -83,25 +87,48 @@ void VulShader::computeInputState(const SpvReflectShaderModule& module) {
             continue;
         }
 
-        VkVertexInputAttributeDescription attr_desc{};
-        attr_desc.location = var.location;
-        attr_desc.binding = bindingDescription.binding;
-        attr_desc.format = static_cast<VkFormat>(var.format);
-        attr_desc.offset = 0;  // final offset computed below after sorting.
-        m_pipelineVertexInputState.attributeDescriptions.push_back(attr_desc);
-    	LOG_INFO("vertex input: location({}), binding({}), format({})", attr_desc.location, attr_desc.binding, static_cast<int>(attr_desc.format));
+        // vertex var
+        if (auto varName = std::string(var.name); varName.starts_with('v')) {
+            VkVertexInputAttributeDescription attr_desc{};
+            attr_desc.location = var.location;
+            attr_desc.binding = 0;
+            attr_desc.format = static_cast<VkFormat>(var.format);
+            attr_desc.offset = 0;  // final offset computed below after sorting.
+            m_pipelineVertexInputState.attributeDescriptions.push_back(attr_desc);
+        }
+        // instance var
+        else if (varName.starts_with('i')) {
+            if (m_pipelineVertexInputState.vecBindingDescription.size() == 1) {
+                m_pipelineVertexInputState.vecBindingDescription.push_back({
+                    .binding = 1,
+                    .stride = 0,
+                    .inputRate = VK_VERTEX_INPUT_RATE_INSTANCE,
+                });
+            }
+            auto &instanceBindingDescription = m_pipelineVertexInputState.vecBindingDescription[1];
+            VkVertexInputAttributeDescription attr_desc{};
+            attr_desc.location = var.location;
+            attr_desc.binding = 1;
+            attr_desc.format = static_cast<VkFormat>(var.format);
+            attr_desc.offset = 0;
+            m_pipelineVertexInputState.attributeDescriptions.push_back(attr_desc);
+        }
+        else {
+            LOG_ASSERT_INFO(false, "Unrecognized vertex variable name.");
+        }
     }
 
     // Sort attributes by location
     std::sort(std::begin(attributeDescription), std::end(attributeDescription), [](
         const VkVertexInputAttributeDescription& a, const VkVertexInputAttributeDescription& b) {
-                return a.location < b.location;
+            return a.location < b.location;
         }
     );
 
     // Compute final offsets of each attribute, and total vertex stride.
     for (auto& attribute : attributeDescription) {
         uint32_t format_size = transformVkFormatToSize(attribute.format);
+        auto &bindingDescription = m_pipelineVertexInputState.vecBindingDescription[attribute.binding];
         attribute.offset = bindingDescription.stride;
         bindingDescription.stride += format_size;
     }
@@ -123,10 +150,7 @@ void VulShader::computeDescriptorSetLayout(const SpvReflectShaderModule& module,
             const SpvReflectDescriptorBinding& reflectBinding = *(reflectSet.bindings[indexBinding]);
             VulDescriptorSetLayoutBindInfo bindInfo;
             bindInfo.bindIndex = reflectBinding.binding;
-            bindInfo.descriptorCount = 1;
-            for (uint32_t i_dim = 0; i_dim < reflectBinding.array.dims_count; ++i_dim) {
-                bindInfo.descriptorCount *= reflectBinding.array.dims[i_dim];
-            }
+            bindInfo.descriptorCount = reflectBinding.count;
             bindInfo.descriptorType = static_cast<VulDescriptorType>(reflectBinding.descriptor_type);
             bindInfo.stageFlags = static_cast<VkShaderStageFlagBits>(module.shader_stage);
             bindInfos.push_back(bindInfo);

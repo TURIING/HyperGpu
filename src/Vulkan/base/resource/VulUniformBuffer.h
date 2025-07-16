@@ -21,7 +21,7 @@ public:
     ~VulUniformBuffer() override;
     [[nodiscard]] VkBuffer GetHandle() const;
     [[nodiscard]] VkDescriptorBufferInfo* GetDescriptorBufferInfo() { return &m_descriptorInfo; }
-    void UpdateData(const uint8_t* data, uint64_t size) const;
+    void UpdateData(const void* data, uint64_t size) const;
 
 private:
     VulBuffer* m_pBuffer = nullptr;

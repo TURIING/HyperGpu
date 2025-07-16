@@ -1,13 +1,11 @@
 # HyperGpu
 ## ToDo
-- [ ] 纹理数组（TextureArray）
-
+- [ ] 纹理数组
 - [ ] 计算着色器
 - [ ] 多重采样
 - [ ] 实例化
 - [ ] Mipmap
-
-
+- [ ] SSBO
 
 ## Features
 

@@ -33,7 +33,7 @@ GpuCmd* VulkanCmdManager::CreateCommandBuffer() {
 
 void VulkanCmdManager::WithSingleCmdBuffer(const std::function<void(VulCommandBuffer* cmd)>& func) const {
 	const auto vulkanCmd = new VulkanCmd(m_pVulkanDevice, m_pCmdPool);
-	const auto cmd       = vulkanCmd->GetHandle();
+	const auto cmd = vulkanCmd->GetHandle();
 	cmd->BeginRecord(true);
 	func(cmd);
 	cmd->EndRecord();

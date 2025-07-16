@@ -14,8 +14,8 @@
 USING_GPU_NAMESPACE_BEGIN
 VulkanInputAssembler::VulkanInputAssembler(VulkanDevice* pDevice, const InputAssemblerInfo& info): m_pVulkanDevice(pDevice) {
     LOG_ASSERT(info.vertexCount > 0 && info.vertexSize > 0);
-
     m_pVulkanDevice->AddRef();
+
     m_pVertexBuffer = new VulVertexBuffer(m_pVulkanDevice->GetLogicDevice(), info.pVertexData, info.vertexSize);
     m_vertexCount = info.vertexCount;
 
@@ -23,6 +23,24 @@ VulkanInputAssembler::VulkanInputAssembler(VulkanDevice* pDevice, const InputAss
         m_indexCount = info.indexCount;
         m_pIndexBuffer = new VulIndexBuffer(m_pVulkanDevice->GetLogicDevice(),  info.pIndexData, info.indexSize);
     }
+}
+
+VulkanInputAssembler::VulkanInputAssembler(VulkanDevice *pDevice, const InstanceInputAssemblerInfo &info): m_pVulkanDevice(pDevice) {
+    LOG_ASSERT(info.vertexCount > 0 && info.vertexSize > 0);
+    LOG_ASSERT(info.instanceAttributeCount > 0 && info.instanceDataSize > 0 && info.pInstanceData && info.instanceCount > 0);
+
+    m_pVulkanDevice->AddRef();
+
+    m_pVertexBuffer = new VulVertexBuffer(m_pVulkanDevice->GetLogicDevice(), info.pVertexData, info.vertexSize);
+    m_vertexCount = info.vertexCount;
+
+    if (info.indexCount > 0) {
+        m_indexCount = info.indexCount;
+        m_pIndexBuffer = new VulIndexBuffer(m_pVulkanDevice->GetLogicDevice(),  info.pIndexData, info.indexSize);
+    }
+
+    m_pInstanceBuffer = new VulVertexBuffer(m_pVulkanDevice->GetLogicDevice(), info.pInstanceData, info.instanceDataSize);
+    m_instanceCount = info.instanceCount;
 }
 
 VulkanInputAssembler::~VulkanInputAssembler() {

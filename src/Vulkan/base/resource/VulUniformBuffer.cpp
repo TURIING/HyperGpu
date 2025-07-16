@@ -34,7 +34,7 @@ VkBuffer VulUniformBuffer::GetHandle() const {
     return m_pBuffer->GetHandle();
 }
 
-void VulUniformBuffer::UpdateData(const uint8_t* data, uint64_t size) const {
+void VulUniformBuffer::UpdateData(const void* data, uint64_t size) const {
     m_pBuffer->MapData(0, size, data);
 }
 

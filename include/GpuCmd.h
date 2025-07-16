@@ -27,7 +27,8 @@ struct UniformBinding {
 };
 
 struct ImageBinding {
-	Image2D* pImage = nullptr;
+	Image2D** pImage = nullptr;
+	uint32_t imageCount = 0;
 	const char* name = nullptr;
 };
 

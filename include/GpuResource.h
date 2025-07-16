@@ -49,7 +49,7 @@ namespace HyperGpu {
 			uint64_t bufferSize = 0;
 			const void *data = nullptr;				// 当buffer类型为uniform时，该字段为nullptr就行
 		};
-		virtual void UpdateData(const uint8_t* data, uint64_t dataSize) = 0;
+		virtual void UpdateData(const void* data, uint64_t dataSize) = 0;
 	};
 
     enum class AttributeDataType { Float, Int, Vec2, Vec3, Vec4, Mat4 };
@@ -73,6 +73,16 @@ namespace HyperGpu {
         uint32_t indexCount = 0;
     };
 
+	struct InstanceInputAssemblerInfo final: InputAssemblerInfo {
+		uint32_t instanceAttributeCount = 0;
+		const VertexAttribute *pInstanceAttributes = nullptr;
+
+		const void *pInstanceData = nullptr;
+		uint32_t instanceDataSize = 0;
+
+		uint32_t instanceCount = 0;
+	};
+
     class InputAssembler: public GpuObject {};
 
 	class GpuResourceManager : public GpuObject {
@@ -81,6 +91,7 @@ namespace HyperGpu {
 		virtual Buffer*  CreateBuffer(const Buffer::BufferCreateInfo& createInfo) = 0;
 		virtual Sampler* CreateSampler(const Sampler::SamplerCreateInfo& info) = 0;
         virtual InputAssembler* CreateInputAssembler(const InputAssemblerInfo &info) = 0;
+        virtual InputAssembler* CreateInputAssembler(const InstanceInputAssemblerInfo &info) = 0;
 		void DestroyBuffer(Buffer* buffer) { buffer->SubRef(); }
 		void DestroyImage(Image2D* image) { image->SubRef(); }
 		void DestroySampler(Sampler* sampler) { sampler->SubRef(); }

@@ -31,7 +31,6 @@ VulDescriptorSetLayout::VulDescriptorSetLayout(VulLogicDevice* device, const Vul
         .pBindings = bindings.data()
     };
     CALL_VK(vkCreateDescriptorSetLayout(m_pDevice->GetHandle(), &layoutCreateInfo, nullptr, &m_pHandle));
-    LOG_INFO("Descriptor set layout created.");
 }
 
 VulDescriptorSetLayout::~VulDescriptorSetLayout() {

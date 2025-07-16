@@ -18,7 +18,7 @@ class GlBuffer final: public Buffer, public GlObject {
 public:
     GlBuffer(OpenGlDevice* pDevice, const BufferCreateInfo &info);
     ~GlBuffer() override;
-    void UpdateData(const uint8_t* data, uint64_t dataSize) override;
+    void UpdateData(const void* data, uint64_t dataSize) override;
 
 private:
     OpenGlDevice* m_pDevice = nullptr;

@@ -51,15 +51,16 @@ void VulkanCmd::Draw(const DrawInfo& info) {
 	m_pPipeline->SetUniformBuffers(info.pUniformBinding, info.uniformBindingCount);
 
 	auto pInputAssembler = dynamic_cast<VulkanInputAssembler*>(info.pInputAssembler);
-	m_pCmd->BindVertexBuffer(pInputAssembler->GetVertexBuffer());
+	m_pCmd->BindVertexBuffer(pInputAssembler->GetVertexBuffer(), pInputAssembler->GetInstanceBuffer());
 	const auto pIndexBuffer = pInputAssembler->GetIndexBuffer();
+	const auto instanceCount = pInputAssembler->GetInstanceCount();
 
 	if (pIndexBuffer) {
 		m_pCmd->BindIndexBuffer(pIndexBuffer);
-		m_pCmd->DrawIndex(pInputAssembler->GetIndexCount());
+		m_pCmd->DrawIndex(pInputAssembler->GetIndexCount(), instanceCount);
 	}
 	else {
-		m_pCmd->Draw(pInputAssembler->GetVertexCount());
+		m_pCmd->Draw(pInputAssembler->GetVertexCount(), instanceCount);
 	}
 }
 

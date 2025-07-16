@@ -44,7 +44,7 @@ GlBuffer::~GlBuffer() {
     m_pDevice->SubRef();
 }
 
-void GlBuffer::UpdateData(const uint8_t* data, uint64_t dataSize) {
+void GlBuffer::UpdateData(const void* data, uint64_t dataSize) {
 }
 
 USING_GPU_NAMESPACE_END

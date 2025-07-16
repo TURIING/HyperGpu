@@ -77,13 +77,22 @@ void VulCommandBuffer::SetScissor(const std::vector<VkRect2D>& scissors) const {
     vkCmdSetScissor(m_pHandle, 0, scissors.size(), scissors.data());
 }
 
-void VulCommandBuffer::BindVertexBuffer(VulVertexBuffer* vertexBuffer) const {
-    const VkBuffer vertexBuffers[] = { vertexBuffer->GetHandle() };
-    constexpr VkDeviceSize offset[] = { 0 };
-    vkCmdBindVertexBuffers(m_pHandle, 0, 1, vertexBuffers, offset);
+void VulCommandBuffer::BindVertexBuffer(const VulVertexBuffer* vertexBuffer, const VulVertexBuffer* instanceBuffer) const {
+    std::vector<VkBuffer> buffers;
+    std::vector<VkDeviceSize> offsets;
+
+    buffers.push_back(vertexBuffer->GetHandle());
+    offsets.push_back(0);
+
+    if (instanceBuffer) {
+        buffers.push_back(instanceBuffer->GetHandle());
+        offsets.push_back(0);
+    }
+
+    vkCmdBindVertexBuffers(m_pHandle, 0, buffers.size(), buffers.data(), offsets.data());
 }
 
-void VulCommandBuffer::BindIndexBuffer(VulIndexBuffer* indexBuffer) const {
+void VulCommandBuffer::BindIndexBuffer(const VulIndexBuffer* indexBuffer) const {
     vkCmdBindIndexBuffer(m_pHandle, indexBuffer->GetHandle(), 0, VK_INDEX_TYPE_UINT32);
 }
 
@@ -153,12 +162,12 @@ void VulCommandBuffer::CopyImage(VulImage2D *pSrcImage, VulImage2D *pDstImage, c
     );
 }
 
-void VulCommandBuffer::Draw(uint32_t vertexCount) const {
-	vkCmdDraw(m_pHandle, vertexCount, 1, 0, 0);
+void VulCommandBuffer::Draw(uint32_t vertexCount, u32 instanceCount) const {
+	vkCmdDraw(m_pHandle, vertexCount, instanceCount, 0, 0);
 }
 
-void VulCommandBuffer::DrawIndex(uint32_t indexCount) const {
-    vkCmdDrawIndexed(m_pHandle, indexCount, 1, 0, 0, 0);
+void VulCommandBuffer::DrawIndex(uint32_t indexCount, u32 instanceCount) const {
+    vkCmdDrawIndexed(m_pHandle, indexCount, instanceCount, 0, 0, 0);
 }
 
 void VulCommandBuffer::TransitionImageLayout(VulImage2D* pImage, VkImageLayout newLayout, VkImageAspectFlags aspectFlags) const {
@@ -196,6 +205,13 @@ void VulCommandBuffer::TransitionImageLayout(VulImage2D* pImage, VkImageLayout n
 
         sourceStage      = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
         destinationStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
+    }
+    else if (currentLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) {
+        barrier.srcAccessMask = 0;
+        barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+
+        sourceStage      = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+        destinationStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
     }
     else if (currentLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) {
         barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;

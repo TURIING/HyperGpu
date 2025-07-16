@@ -48,7 +48,7 @@ using i32 = int32_t;
 /************************************************* Type *************************************************************/
 struct ImageInfo {
     unsigned char *data = nullptr;
-    HyperGpu::Size size;
+    Size size;
 };
 
 enum class CmdType {

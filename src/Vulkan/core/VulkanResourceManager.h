@@ -22,6 +22,7 @@ public:
 	[[nodiscard]] Buffer* CreateBuffer(const Buffer::BufferCreateInfo& createInfo) override;
 	[[nodiscard]] Sampler* CreateSampler(const Sampler::SamplerCreateInfo& info) override;
 	[[nodiscard]] InputAssembler* CreateInputAssembler(const InputAssemblerInfo& info) override;
+	NODISCARD InputAssembler * CreateInputAssembler(const InstanceInputAssemblerInfo &info) override;
 
 private:
 	VulkanDevice* m_pVulkanDevice = nullptr;

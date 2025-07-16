@@ -9,15 +9,15 @@
 
 #include "../../base/device/VulLogicDevice.h"
 #include "../../base/command/VulCommandBuffer.h"
-#include "../../base/resource/VulBuffer.h"
 #include "../../base/resource/VulImage2D.h"
 #include "../../base/resource/VulSampler.h"
 #include "../VulkanDevice.h"
 #include "VulkanSampler.h"
 #include "../VulkanCmd.h"
+#include "../VulkanCmdManager.h"
 
 USING_GPU_NAMESPACE_BEGIN
-constexpr VkFormat gPixelFormatToVkFormat[] = {
+	constexpr VkFormat gPixelFormatToVkFormat[] = {
 	VK_FORMAT_R8G8B8A8_SRGB,		// R8G8B8A8
 	VK_FORMAT_B8G8R8A8_SRGB,		// B8G8R8A8
 };
@@ -42,6 +42,10 @@ VulkanImage2D::VulkanImage2D(VulkanDevice* device, const Image2DCreateInfo& info
 		.imageView	 = m_pImage->GetImageViewHandle(),
 		.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
 	};
+
+	dynamic_cast<VulkanCmdManager*>(m_pVulkanDevice->GetCmdManager())->WithSingleCmdBuffer([&](VulCommandBuffer* pCmd) {
+		pCmd->TransitionImageLayout(m_pImage, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+	});
 }
 
 VulkanImage2D::~VulkanImage2D() {
@@ -54,9 +58,9 @@ VkImageView VulkanImage2D::GetImageView() const {
 	return m_pImage->GetImageViewHandle();
 }
 
-VkDescriptorImageInfo * VulkanImage2D::GetDescriptorImageInfo() {
+VkDescriptorImageInfo VulkanImage2D::GetDescriptorImageInfo() {
 	m_imageInfo.imageLayout = m_pImage->GetCurrentImageLayout();
-	return &m_imageInfo;
+	return m_imageInfo;
 }
 
 USING_GPU_NAMESPACE_END

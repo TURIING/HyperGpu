@@ -10,10 +10,8 @@
 #include "../base/surface/VulFrameBuffer.h"
 #include "../base/surface/VulSwapChain.h"
 #include "VulkanDevice.h"
-#include "VulkanPipeline.h"
 #include "VulkanSemaphore.h"
 #include "../base/surface/VulSurface.h"
-#include "../base/device/VulPhysicalDevice.h"
 
 USING_GPU_NAMESPACE_BEGIN
 
@@ -21,14 +19,15 @@ VulkanSurface::VulkanSurface(VulkanDevice* device, HyperGpu::PlatformWindowInfo 
 	m_pVulkanDevice->AddRef();
 	m_pSurface = new VulSurface(m_pVulkanDevice->GetInstance(), platformWindowInfo.handle);
 	m_pSwapChain = new VulSwapChain(m_pVulkanDevice->GetLogicDevice(), m_pSurface);
-//	m_pImageAcquiredSemaphore = new VulkanSemaphore(m_pVulkanDevice);
     for(auto i = 0; i < 3; i++) {
         m_vecImageAcquiredSemaphore.push_back(new VulkanSemaphore(m_pVulkanDevice));
     }
 }
 
 VulkanSurface::~VulkanSurface() {
-//	m_pImageAcquiredSemaphore->SubRef();
+	for (auto &semaphore: m_vecImageAcquiredSemaphore) {
+		semaphore->SubRef();
+	}
 	m_pSwapChain->SubRef();
 	m_pVulkanDevice->SubRef();
 }
@@ -43,8 +42,6 @@ Semaphore* VulkanSurface::AcquireNextImage(uint32_t& imageIndex) {
 	} else if(result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
 		LOG_CRITICAL("Failed to acquire swap chain image!");
 	}
-
-	
 
 	return m_vecImageAcquiredSemaphore[m_frameIndex];
 }

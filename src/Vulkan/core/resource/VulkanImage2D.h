@@ -26,7 +26,7 @@ public:
 	NODISCARD VulkanSampler* GetSampler() const { return m_pSampler; }
 	NODISCARD VulImage2D* GetHandle() const { return m_pImage; }
 	NODISCARD VkImageView GetImageView() const;
-	NODISCARD VkDescriptorImageInfo* GetDescriptorImageInfo();
+	NODISCARD VkDescriptorImageInfo GetDescriptorImageInfo();
 	NODISCARD Size GetSize() const override { return m_size; }
 	NODISCARD ImageUsage GetUsage() const override { return m_usage; };
 

@@ -44,9 +44,9 @@ void VulDescriptorSet::SetImage(const std::vector<ImageBindingInfo>& vecImageInf
 			.dstSet = m_pHandle,
 			.dstBinding = m_mapResourceBinding[imageBindingInfo.name],
 			.dstArrayElement = 0,
-			.descriptorCount = 1,
+			.descriptorCount = TO_U32(imageBindingInfo.vecImageInfo.size()),
 			.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-			.pImageInfo = imageBindingInfo.imageInfo,
+			.pImageInfo = imageBindingInfo.vecImageInfo.data(),
 		});
 	}
 	vkUpdateDescriptorSets(m_pLogicDevice->GetHandle(), vecWriteDescriptorSet.size(), vecWriteDescriptorSet.data(), 0, nullptr);

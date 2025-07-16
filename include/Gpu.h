@@ -16,8 +16,8 @@
 class GpuObject {
 public:
 	virtual ~GpuObject() = default;
-	void	 AddRef() { m_refCount.fetch_add(1, std::memory_order_relaxed); }
-	void	 SubRef() {
+	void AddRef() { m_refCount.fetch_add(1, std::memory_order_relaxed); }
+	void SubRef() {
 		assert(m_refCount.load(std::memory_order_relaxed) >= 1);
 		m_refCount.fetch_sub(1, std::memory_order_relaxed);
 		if(m_refCount.load() == 0) {

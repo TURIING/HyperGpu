@@ -13,13 +13,13 @@
 
 struct VulPipelineVertexInputState
 {
-    VkVertexInputBindingDescription bindingDescription;
+    std::vector<VkVertexInputBindingDescription> vecBindingDescription;
     std::vector<VkVertexInputAttributeDescription> attributeDescriptions;
     [[nodiscard]] VkPipelineVertexInputStateCreateInfo GetCreateInfo() const {
         VkPipelineVertexInputStateCreateInfo vertexInputState{};
         vertexInputState.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-        vertexInputState.vertexBindingDescriptionCount = 1;
-        vertexInputState.pVertexBindingDescriptions = &bindingDescription;
+        vertexInputState.vertexBindingDescriptionCount = vecBindingDescription.size();
+        vertexInputState.pVertexBindingDescriptions = vecBindingDescription.data();
         vertexInputState.vertexAttributeDescriptionCount = attributeDescriptions.size();
         vertexInputState.pVertexAttributeDescriptions = attributeDescriptions.data();
         return vertexInputState;

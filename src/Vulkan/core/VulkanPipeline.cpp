@@ -93,8 +93,9 @@ void VulkanPipeline::SetUniformBuffers(UniformBinding* infos, uint32_t count) co
 	std::vector<VulDescriptorSet::UniformBindingInfo> vecBindingInfo;
 	vecBindingInfo.reserve(count);
 	for (auto i = 0; i < count; i++) {
+		auto vulkanBuffer = dynamic_cast<VulkanBuffer*>(infos[i].buffer);
 		vecBindingInfo.push_back({
-			.pBufferInfo = dynamic_cast<VulUniformBuffer*>(infos[i].buffer)->GetDescriptorBufferInfo(),
+			.pBufferInfo = dynamic_cast<VulUniformBuffer*>(vulkanBuffer->GetUniformBuffer())->GetDescriptorBufferInfo(),
 			.name = infos[i].name,
 		});
 	}
@@ -107,10 +108,12 @@ void VulkanPipeline::SetImages(ImageBinding* infos, uint32_t count) const {
 	std::vector<VulDescriptorSet::ImageBindingInfo> vecBindingInfo;
 	vecBindingInfo.reserve(count);
 	for (auto i = 0; i < count; i++) {
-		vecBindingInfo.push_back({
-			.imageInfo = dynamic_cast<VulkanImage2D*>(infos[i].pImage)->GetDescriptorImageInfo(),
-			.name = infos[i].name,
-		});
+		VulDescriptorSet::ImageBindingInfo bindingInfo;
+		bindingInfo.name = infos[i].name;
+		for (auto j = 0; j < infos[i].imageCount; j++) {
+			bindingInfo.vecImageInfo.push_back(dynamic_cast<VulkanImage2D*>(infos[i].pImage[j])->GetDescriptorImageInfo());
+		}
+		vecBindingInfo.push_back(bindingInfo);
 	}
 	m_pDescriptorSet->SetImage(vecBindingInfo);
 };

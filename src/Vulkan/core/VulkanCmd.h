@@ -45,10 +45,9 @@ private:
 	[[nodiscard]] static VkRect2D   transScissorToVkRect2D(const Scissor& scissor);
 
 private:
-	VulkanDevice*     m_pVulkanDevice = nullptr;
-	VulCommandBuffer* m_pCmd          = nullptr;
+	VulkanDevice* m_pVulkanDevice = nullptr;
+	VulCommandBuffer* m_pCmd = nullptr;
     VulkanPipeline* m_pPipeline = nullptr;
-	std::unordered_map<size_t, VulFrameBuffer*> m_vecFrameBuffer;
 };
 
 USING_GPU_NAMESPACE_END
