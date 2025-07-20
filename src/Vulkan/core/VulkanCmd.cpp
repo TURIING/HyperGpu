@@ -121,6 +121,14 @@ void VulkanCmd::CopyBufferToImage(Image2D *pImage, const void *pData, uint64_t s
 	// stageBuffer->SubRef();
 }
 
+void VulkanCmd::BeginDebugUtilsLabel(const char *name, const Color &color) {
+	m_pCmd->BeginDebugUtilsLabel(name, color);
+}
+
+void VulkanCmd::EndDebugUtilsLabel() {
+	m_pCmd->EndDebugUtilsLabel();
+}
+
 void VulkanCmd::BeginRenderPass(const BeginRenderInfo& beginRenderInfo) {
 	m_pPipeline = m_pVulkanDevice->GetResourceCache()->RequestPipeline(beginRenderInfo.pPipeline->renderEnvInfo);
 	const auto pRenderPass = m_pPipeline->GetRenderPass();

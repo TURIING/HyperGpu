@@ -18,6 +18,7 @@ namespace HyperGpu
 	enum class FrontFace { COUNTER_CLOCK_WISE, CLOCK_WISE };
 	enum class AttachmentType { COLOR, DEPTH_STENCIL };
 	enum class Filter { NEAREST, LINEAR };
+	enum class AddressMode { REPEAT, MIRROR, CLAMP_TO_EDGE, CLAMP_TO_BORDER };
 	enum class PixelFormat {
 		R8G8B8A8,
 		B8G8R8A8,

@@ -34,6 +34,8 @@ public:
     void BlitImageToSurface(Image2D* pImage, GpuSurface* surface, ImageBlitRange* pRange, uint32_t rangeCount, Filter filter) override;
     void CopyImage(Image2D *pSrcImage, Image2D *pDstImage, ImageCopyRange *pRange, uint32_t rangeCount) override;
     void CopyBufferToImage(Image2D *pImage, const void *pData, uint64_t size, const Area &area) override;
+    void BeginDebugUtilsLabel(const char *name, const Color &color) override;
+    void EndDebugUtilsLabel() override;
 
 private:
     template<class CmdClass, typename... Params>

@@ -63,9 +63,9 @@ void VulInstance::createInstance(const VulInstanceCreateInfo &info) {
     // createInfo
     VkInstanceCreateInfo createInfo = {
         .sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
-//#if PLATFORM_MACOS
+#if PLATFORM_MACOS || PLATFORM_IOS
         .flags = VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR,
-//#endif
+#endif
         .pApplicationInfo = &appInfo,
         .enabledExtensionCount = static_cast<uint32_t>(info.instanceExtensions.size()),
         .ppEnabledExtensionNames = info.instanceExtensions.data()

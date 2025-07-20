@@ -39,6 +39,8 @@ public:
 	void Draw(const DrawInfo& info) override;
 	void ClearColorImage(Image2D* image, const Color &color) override;
 	void CopyBufferToImage(Image2D *pImage, const void *pData, uint64_t size, const Area &area) override;
+	void BeginDebugUtilsLabel(const char *name, const Color &color) override;
+	void EndDebugUtilsLabel() override;
 
 private:
 	[[nodiscard]] static VkViewport transViewportToVkViewport(const Viewport& viewport);

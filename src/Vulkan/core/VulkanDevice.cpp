@@ -34,8 +34,11 @@ VulkanDevice::VulkanDevice(const DeviceCreateInfo &info) {
 	Singleton<LogManager>::GetInstance()->Init();
 
 	m_pInstance = VulInstance::Builder()
-					  .SetEnableValidationLayer(true)
-					  .AddExtensions("VK_KHR_surface")
+					.SetEnableValidationLayer(ENABLE_VALIDATION_LAYER)
+					.AddExtensions("VK_KHR_surface")
+#ifndef NODEBUG
+					.AddExtensions(VK_EXT_DEBUG_UTILS_EXTENSION_NAME)
+#endif
 #if PLATFORM_WINDOWS
                     .AddExtensions("VK_KHR_win32_surface")
 #elif PLATFORM_MACOS

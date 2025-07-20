@@ -126,6 +126,13 @@ constexpr GLuint gFilterToGlFilter[] = {
     GL_LINEAR,          // LINEAR
 };
 
+constexpr GLenum gAddressModeToGLAddressMode[] = {
+    GL_REPEAT,                  // REPEAT
+    GL_MIRRORED_REPEAT,         // MIRROR
+    GL_CLAMP_TO_EDGE,           // CLAMP_TO_EDGE
+    GL_CLAMP_TO_BORDER,         // CLAMP_TO_BORDER
+};
+
 constexpr GLuint gPixelFormatToGlFormat[] = {
     GL_RGBA,                    // R8G8B8A8
     GL_BGRA,                    // B8G8R8A8

@@ -49,7 +49,8 @@ class VulLogicDevice final : public VulObject<VkDevice>{
 public:
 	 VulLogicDevice(VulInstance* pInstance, VulPhysicalDevice* pPhysicalDevice, VulSurface* surface, const VulLogicDeviceCreateInfo& info);
 	~VulLogicDevice() override;
-	[[nodiscard]] VulPhysicalDevice* GetPhysicalDevice() const { return m_pPhysicalDevice; }
+	NODISCARD VulPhysicalDevice* GetPhysicalDevice() const { return m_pPhysicalDevice; }
+	NODISCARD VulInstance* GetInstance() const { return m_pInstance; }
 	void SetCmdManager(VulkanCmdManager* pCmdManager);
 	void WithSingleCmdBuffer(const std::function<void(VulCommandBuffer* cmd)>& func) const;
 	static VulLogicDeviceBuilder Builder();

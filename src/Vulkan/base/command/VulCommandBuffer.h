@@ -57,6 +57,12 @@ public:
     void TransitionImageLayout(VulImage2D* pImage, VkImageLayout newLayout, VkImageAspectFlags aspectFlags = VK_IMAGE_ASPECT_COLOR_BIT) const;
     void Draw(uint32_t vertexCount, u32 instanceCount = 1) const;
     void DrawIndex(uint32_t indexCount, u32 instanceCount = 1) const;
+    void BeginDebugUtilsLabel(const char *name, const Color &color) const;
+    void EndDebugUtilsLabel() const;
+
+private:
+    void vkBeginDebugUtilsLabelExt(VkCommandBuffer cmd, VkDebugUtilsLabelEXT *label) const;
+    void vkEndDebugUtilsLabelExt(VkCommandBuffer cmd) const;
 
 private:
     VulLogicDevice* m_pLogicDevice = nullptr;

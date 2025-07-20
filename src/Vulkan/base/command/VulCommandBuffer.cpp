@@ -15,10 +15,10 @@
 #include "../resource/VulIndexBuffer.h"
 #include "../resource/VulVertexBuffer.h"
 #include "../resource/VulImage2D.h"
+#include "HyperGpu/src/Vulkan/base/device/VulInstance.h"
 
 USING_GPU_NAMESPACE_BEGIN
-
-VulCommandBuffer::VulCommandBuffer(VulLogicDevice* logicDevice, VulCommandPool* commandPool) : m_pLogicDevice(logicDevice), m_pCommandPool(commandPool) {
+    VulCommandBuffer::VulCommandBuffer(VulLogicDevice* logicDevice, VulCommandPool* commandPool) : m_pLogicDevice(logicDevice), m_pCommandPool(commandPool) {
 	m_pLogicDevice->AddRef();
 	m_pCommandPool->AddRef();
 
@@ -29,7 +29,7 @@ VulCommandBuffer::VulCommandBuffer(VulLogicDevice* logicDevice, VulCommandPool* 
         .commandBufferCount = 1,
     };
     CALL_VK(vkAllocateCommandBuffers(m_pLogicDevice->GetHandle(), &allocInfo, &m_pHandle));
-    LOG_INFO("Command buffer created");
+    LOG_DEBUG("Command buffer created");
 }
 
 VulCommandBuffer::~VulCommandBuffer() {
@@ -170,6 +170,20 @@ void VulCommandBuffer::DrawIndex(uint32_t indexCount, u32 instanceCount) const {
     vkCmdDrawIndexed(m_pHandle, indexCount, instanceCount, 0, 0, 0);
 }
 
+void VulCommandBuffer::BeginDebugUtilsLabel(const char *name, const Color &color) const {
+    VkDebugUtilsLabelEXT label = {
+        .sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_LABEL_EXT,
+        .pNext = nullptr,
+        .pLabelName = name,
+        .color = { color.r, color.g, color.b, color.a }
+    };
+    vkBeginDebugUtilsLabelExt(m_pHandle, &label);
+}
+
+void VulCommandBuffer::EndDebugUtilsLabel() const {
+    vkEndDebugUtilsLabelExt(m_pHandle);
+}
+
 void VulCommandBuffer::TransitionImageLayout(VulImage2D* pImage, VkImageLayout newLayout, VkImageAspectFlags aspectFlags) const {
     const auto currentLayout = pImage->GetCurrentImageLayout();
     if (currentLayout == newLayout) return;
@@ -305,6 +319,25 @@ void VulCommandBuffer::TransitionImageLayout(VulImage2D* pImage, VkImageLayout n
 
     pImage->SetCurrentImageLayout(newLayout);
 }
+
+void VulCommandBuffer::vkBeginDebugUtilsLabelExt(VkCommandBuffer cmd, VkDebugUtilsLabelEXT *label) const {
+    auto func = (PFN_vkCmdBeginDebugUtilsLabelEXT) vkGetInstanceProcAddr(m_pLogicDevice->GetInstance()->GetHandle(), "vkCmdBeginDebugUtilsLabelEXT");
+    if (func != nullptr) {
+        return func(cmd, label);
+    } else {
+        LOG_CRITICAL("Load vulkan func failed.");
+    }
+}
+
+void VulCommandBuffer::vkEndDebugUtilsLabelExt(VkCommandBuffer cmd) const {
+    auto func = (PFN_vkCmdEndDebugUtilsLabelEXT) vkGetInstanceProcAddr(m_pLogicDevice->GetInstance()->GetHandle(), "vkCmdEndDebugUtilsLabelEXT");
+    if (func != nullptr) {
+        return func(cmd);
+    } else {
+        LOG_CRITICAL("Load vulkan func failed.");
+    }
+}
+
 
 VkRenderPassBeginInfo VulRenderPassBeginInfo::GetRenderPassBeginInfo() const {
     return VkRenderPassBeginInfo {
