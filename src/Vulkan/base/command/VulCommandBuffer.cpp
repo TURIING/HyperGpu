@@ -12,8 +12,6 @@
 #include "../device/VulLogicDevice.h"
 #include "../pipeline/VulPipeline.h"
 #include "../pipeline/VulRenderPass.h"
-#include "../resource/VulIndexBuffer.h"
-#include "../resource/VulVertexBuffer.h"
 #include "../resource/VulImage2D.h"
 #include "HyperGpu/src/Vulkan/base/device/VulInstance.h"
 
@@ -77,23 +75,23 @@ void VulCommandBuffer::SetScissor(const std::vector<VkRect2D>& scissors) const {
     vkCmdSetScissor(m_pHandle, 0, scissors.size(), scissors.data());
 }
 
-void VulCommandBuffer::BindVertexBuffer(const VulVertexBuffer* vertexBuffer, const VulVertexBuffer* instanceBuffer) const {
+void VulCommandBuffer::BindVertexBuffer(VkBuffer vertexBuffer, VkBuffer instanceBuffer) const {
     std::vector<VkBuffer> buffers;
     std::vector<VkDeviceSize> offsets;
 
-    buffers.push_back(vertexBuffer->GetHandle());
+    buffers.push_back(vertexBuffer);
     offsets.push_back(0);
 
     if (instanceBuffer) {
-        buffers.push_back(instanceBuffer->GetHandle());
+        buffers.push_back(instanceBuffer);
         offsets.push_back(0);
     }
 
     vkCmdBindVertexBuffers(m_pHandle, 0, buffers.size(), buffers.data(), offsets.data());
 }
 
-void VulCommandBuffer::BindIndexBuffer(const VulIndexBuffer* indexBuffer) const {
-    vkCmdBindIndexBuffer(m_pHandle, indexBuffer->GetHandle(), 0, VK_INDEX_TYPE_UINT32);
+void VulCommandBuffer::BindIndexBuffer(VkBuffer indexBuffer) const {
+    vkCmdBindIndexBuffer(m_pHandle, indexBuffer, 0, VK_INDEX_TYPE_UINT32);
 }
 
 void VulCommandBuffer::BindDescriptorSets(VkPipelineBindPoint bindPoint, VkPipelineLayout layout, VkDescriptorSet descriptorSet) const {

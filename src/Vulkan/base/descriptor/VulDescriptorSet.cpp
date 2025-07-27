@@ -12,7 +12,6 @@
 #include "../device/VulLogicDevice.h"
 #include "VulDescriptorPool.h"
 #include "VulDescriptorSetLayout.h"
-#include "../resource/VulUniformBuffer.h"
 
 USING_GPU_NAMESPACE_BEGIN
 

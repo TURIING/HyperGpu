@@ -8,20 +8,30 @@
 #include "VulkanInputAssembler.h"
 
 #include "../VulkanDevice.h"
-#include "../../base/resource/VulVertexBuffer.h"
-#include "../../base/resource/VulIndexBuffer.h"
+#include "VulkanBuffer.h"
+#include "HyperGpu/src/OpenGL/pipeline/GlShader.h"
 
 USING_GPU_NAMESPACE_BEGIN
-VulkanInputAssembler::VulkanInputAssembler(VulkanDevice* pDevice, const InputAssemblerInfo& info): m_pVulkanDevice(pDevice) {
+    VulkanInputAssembler::VulkanInputAssembler(VulkanDevice* pDevice, const InputAssemblerInfo& info): m_pVulkanDevice(pDevice) {
     LOG_ASSERT(info.vertexCount > 0 && info.vertexSize > 0);
     m_pVulkanDevice->AddRef();
 
-    m_pVertexBuffer = new VulVertexBuffer(m_pVulkanDevice->GetLogicDevice(), info.pVertexData, info.vertexSize);
+    Buffer::BufferCreateInfo vertexBufferInfo = {
+        .bufferType = Buffer::Vertex,
+        .bufferSize = info.vertexSize,
+        .data = info.pVertexData
+    };
+    m_pVertexBuffer = new VulkanBuffer(m_pVulkanDevice, vertexBufferInfo);
     m_vertexCount = info.vertexCount;
 
     if (info.indexCount > 0) {
         m_indexCount = info.indexCount;
-        m_pIndexBuffer = new VulIndexBuffer(m_pVulkanDevice->GetLogicDevice(),  info.pIndexData, info.indexSize);
+        Buffer::BufferCreateInfo indexBufferInfo = {
+            .bufferType = Buffer::Index,
+            .bufferSize = info.indexSize,
+            .data = info.pIndexData
+        };
+        m_pIndexBuffer = new VulkanBuffer(m_pVulkanDevice, indexBufferInfo);
     }
 }
 
@@ -31,15 +41,30 @@ VulkanInputAssembler::VulkanInputAssembler(VulkanDevice *pDevice, const Instance
 
     m_pVulkanDevice->AddRef();
 
-    m_pVertexBuffer = new VulVertexBuffer(m_pVulkanDevice->GetLogicDevice(), info.pVertexData, info.vertexSize);
+    Buffer::BufferCreateInfo vertexBufferInfo = {
+        .bufferType = Buffer::Vertex,
+        .bufferSize = info.vertexSize,
+        .data = info.pVertexData
+    };
+    m_pVertexBuffer = new VulkanBuffer(m_pVulkanDevice, vertexBufferInfo);
     m_vertexCount = info.vertexCount;
 
     if (info.indexCount > 0) {
         m_indexCount = info.indexCount;
-        m_pIndexBuffer = new VulIndexBuffer(m_pVulkanDevice->GetLogicDevice(),  info.pIndexData, info.indexSize);
+        Buffer::BufferCreateInfo indexBufferInfo = {
+            .bufferType = Buffer::Index,
+            .bufferSize = info.indexSize,
+            .data = info.pIndexData
+        };
+        m_pIndexBuffer = new VulkanBuffer(m_pVulkanDevice, indexBufferInfo);
     }
 
-    m_pInstanceBuffer = new VulVertexBuffer(m_pVulkanDevice->GetLogicDevice(), info.pInstanceData, info.instanceDataSize);
+    Buffer::BufferCreateInfo instanceBufferInfo = {
+        .bufferType = Buffer::Vertex,
+        .bufferSize = info.instanceDataSize,
+        .data = info.pInstanceData
+    };
+    m_pInstanceBuffer = new VulkanBuffer(m_pVulkanDevice, instanceBufferInfo);
     m_instanceCount = info.instanceCount;
 }
 

@@ -15,8 +15,6 @@ USING_GPU_NAMESPACE_BEGIN
 
 class VulFence;
 class VulSemaphore;
-class VulIndexBuffer;
-class VulVertexBuffer;
 class VulPipeline;
 class VulFrameBuffer;
 class VulRenderPass;
@@ -45,8 +43,8 @@ public:
     void BindPipeline(VulPipeline* pipeline) const;
     void SetViewport(const std::vector<VkViewport>& viewports) const;
     void SetScissor(const std::vector<VkRect2D>& scissors) const;
-    void BindVertexBuffer(const VulVertexBuffer* vertexBuffer, const VulVertexBuffer* instanceBuffer) const;
-    void BindIndexBuffer(const VulIndexBuffer* indexBuffer) const;
+    void BindVertexBuffer(VkBuffer vertexBuffer, VkBuffer instanceBuffer) const;
+    void BindIndexBuffer(VkBuffer indexBuffer) const;
 	void BindDescriptorSets(VkPipelineBindPoint bindPoint, VkPipelineLayout layout, VkDescriptorSet descriptorSet) const;
     void CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size) const;
     void PipelineBarrier(VkPipelineStageFlags srcStageFlags, VkPipelineStageFlags dstStageFlags, const VkImageMemoryBarrier& barrier) const;

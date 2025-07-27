@@ -12,22 +12,27 @@
 #include "GpuResource.h"
 USING_GPU_NAMESPACE_BEGIN
 
-class VulUniformBuffer;
-class VulIndexBuffer;
-class VulVertexBuffer;
 class VulkanDevice;
+class VulBuffer;
 
 class VulkanBuffer final : public Buffer {
 public:
 	VulkanBuffer(VulkanDevice* device, const BufferCreateInfo &createInfo);
-	[[nodiscard]] VulVertexBuffer* GetVertexBuffer() const { return std::get<VulVertexBuffer*>(m_pBuffer); }
-	[[nodiscard]] VulIndexBuffer* GetIndexBuffer() const { return std::get<VulIndexBuffer*>(m_pBuffer); }
-	[[nodiscard]] VulUniformBuffer* GetUniformBuffer() const { return std::get<VulUniformBuffer*>(m_pBuffer); }
+	~VulkanBuffer() override;
 	void UpdateData(const void* data, uint64_t dataSize) override;
+	NODISCARD VkDescriptorBufferInfo* GetDescriptorBufferInfo();
+	NODISCARD VkBuffer GetHandle() const;
 
 private:
-	std::variant<VulVertexBuffer*, VulIndexBuffer*, VulUniformBuffer*> m_pBuffer;
+	void createVertexBuffer(const void *pData, uint64_t dataSize);
+	void createIndexBuffer(const void *pData, uint64_t dataSize);
+	void createUniformBuffer(const void *pData, uint64_t dataSize);
+
+private:
+	VulkanDevice* m_pVulkanDevice = nullptr;
+	VulBuffer* m_pVulBuffer = nullptr;
 	BufferType m_type;
+    VkDescriptorBufferInfo m_descriptorInfo {};
 };
 
 USING_GPU_NAMESPACE_END

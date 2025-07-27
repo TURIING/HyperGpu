@@ -15,7 +15,11 @@ VulBuffer::VulBuffer(VulLogicDevice* device, const VulBufferCreateInfo& info) : 
 	m_pLogicDevice->AddRef();
 
 	// 创建缓冲
-	VkBufferCreateInfo bufferInfo{.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO, .size = info.size, .usage = info.usage, .sharingMode = VK_SHARING_MODE_EXCLUSIVE
+	VkBufferCreateInfo bufferInfo{
+		.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
+		.size = info.size,
+		.usage = info.usage,
+		.sharingMode = VK_SHARING_MODE_EXCLUSIVE
     };
     CALL_VK(vkCreateBuffer(m_pLogicDevice->GetHandle(), &bufferInfo, nullptr, &m_pHandle));
 

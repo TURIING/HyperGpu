@@ -14,7 +14,6 @@
 #include "../base/pipeline/VulPipelineLayout.h"
 #include "../base/pipeline/VulRenderPass.h"
 #include "../base/pipeline/VulShader.h"
-#include "../base/resource/VulUniformBuffer.h"
 #include "VulkanDevice.h"
 #include "../base/descriptor/VulDescriptorSetLayout.h"
 #include "resource/ResourceCache.h"
@@ -95,7 +94,7 @@ void VulkanPipeline::SetUniformBuffers(UniformBinding* infos, uint32_t count) co
 	for (auto i = 0; i < count; i++) {
 		auto vulkanBuffer = dynamic_cast<VulkanBuffer*>(infos[i].buffer);
 		vecBindingInfo.push_back({
-			.pBufferInfo = dynamic_cast<VulUniformBuffer*>(vulkanBuffer->GetUniformBuffer())->GetDescriptorBufferInfo(),
+			.pBufferInfo = vulkanBuffer->GetDescriptorBufferInfo(),
 			.name = infos[i].name,
 		});
 	}
