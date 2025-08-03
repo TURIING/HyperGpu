@@ -79,6 +79,11 @@ constexpr VkFormat gPixelFormatToVkFormat[] = {
     VK_FORMAT_B8G8R8A8_SRGB,                    // B8G8R8A8
 };
 
+constexpr u32 gPixelFormatToSizeByte[] = {
+    4,              // R8G8B8A8
+    4,              // B8G8R8A8
+};
+
 constexpr VkImageAspectFlags gImageUsageToVkImageAspectFlag[] = {
     VK_IMAGE_ASPECT_COLOR_BIT,          // ImageUsage::Color
     VK_IMAGE_ASPECT_DEPTH_BIT,          // ImageUsage::Depth
@@ -174,6 +179,18 @@ constexpr GLenum gBlendOpToGlBlendOp[] = {
     GL_FUNC_REVERSE_SUBTRACT,
     GL_MIN,
     GL_MAX,
+};
+
+constexpr GLuint gBufferTypeToGlUsage[] = {
+    GL_STATIC_DRAW,           // Vertex
+    GL_STATIC_DRAW,           // Index
+    GL_DYNAMIC_DRAW,          // Uniform
+};
+
+constexpr GLuint gBufferTypeToGlTarget[] = {
+    GL_ARRAY_BUFFER,            // Vertex
+    GL_ELEMENT_ARRAY_BUFFER,    // Index
+    GL_UNIFORM_BUFFER,          // Uniform
 };
 
 #endif //BASEDEFINE_H

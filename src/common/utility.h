@@ -50,8 +50,7 @@ static void checkGlError(const char* file, uint32_t line, GLenum err, const char
 #define ENUM_TO_STR(r)   \
 	case r: return #r
 
-static const char *
-vk_result_string(VkResult code){
+static const char* vk_result_string(VkResult code){
     switch (code) {
         ENUM_TO_STR(VK_SUCCESS);
         ENUM_TO_STR(VK_NOT_READY);

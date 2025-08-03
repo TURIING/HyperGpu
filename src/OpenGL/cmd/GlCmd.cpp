@@ -88,6 +88,9 @@ void GlCmd::CopyImage(Image2D *pSrcImage, Image2D *pDstImage, ImageCopyRange *pR
 void GlCmd::CopyBufferToImage(Image2D *pImage, const void *pData, uint64_t size, const Area &area) {
 }
 
+void GlCmd::CopyImageToBuffer(Image2D *pImage, Buffer* pBuffer, const Area &area) {
+}
+
 void GlCmd::BeginDebugUtilsLabel(const char *name, const Color &color) {
 }
 

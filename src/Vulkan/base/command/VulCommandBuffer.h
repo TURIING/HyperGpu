@@ -49,6 +49,7 @@ public:
     void CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size) const;
     void PipelineBarrier(VkPipelineStageFlags srcStageFlags, VkPipelineStageFlags dstStageFlags, const VkImageMemoryBarrier& barrier) const;
     void CopyBufferToImage(VkBuffer srcBuffer, VkImage dstImage, VkImageLayout imageLayout, const VkBufferImageCopy &regions) const;
+    void CopyImageToBuffer(VkBuffer dstBuffer, VkImage srcImage, VkImageLayout imageLayout, const VkBufferImageCopy &regions) const;
     void ClearColorForImage(VkImage image, const VkClearColorValue& color) const;
     void BlitImage(VulImage2D* pSrcImage, VulImage2D* pDstImage, const std::vector<VkImageBlit> &vecImageBlit, VkFilter filter) const;
     void CopyImage(VulImage2D* pSrcImage, VulImage2D* pDstImage, const std::vector<VkImageCopy> &regions) const;

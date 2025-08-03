@@ -124,6 +124,10 @@ void VulCommandBuffer::CopyBufferToImage(VkBuffer srcBuffer, VkImage dstImage, V
 	vkCmdCopyBufferToImage(m_pHandle, srcBuffer, dstImage, imageLayout, 1, &regions);
 }
 
+void VulCommandBuffer::CopyImageToBuffer(VkBuffer dstBuffer, VkImage srcImage, VkImageLayout imageLayout, const VkBufferImageCopy &regions) const {
+    vkCmdCopyImageToBuffer(m_pHandle, srcImage, imageLayout, dstBuffer, 1, &regions);
+}
+
 void VulCommandBuffer::ClearColorForImage(VkImage image, const VkClearColorValue& color) const {
     const VkImageSubresourceRange range{
         .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,

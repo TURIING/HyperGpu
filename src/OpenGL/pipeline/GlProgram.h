@@ -10,9 +10,11 @@
 
 USING_GPU_NAMESPACE_BEGIN
 class OpenGlDevice;
+class GlImage2D;
+class GlSampler;
 
 class GlProgram final: public GpuObject, public GlObject {
-    struct UniformBinding {
+    struct UniformBlockBinding {
         std::string name;
         u32 index = 0;
         u32 binding = 0;
@@ -24,22 +26,28 @@ class GlProgram final: public GpuObject, public GlObject {
         u32 binding = 0;
         u32 location = 0;
         GLenum type;
-        bool isArray = false;
+        bool isArray = false;           // 标记是否是数组类型，如sampler2D tex[10]
+
+        GlImage2D* pImage = nullptr;
+        GlSampler* pSampler = nullptr;
+        std::vector<GlImage2D*> vecImage;
     };
 public:
     GlProgram(OpenGlDevice* pDevice, const ShaderInfo &shaderInfo);
     ~GlProgram() override;
-    void Bind() const;
-    // void SetUniformBuffer(const )
+    void Bind();
+    void SetTexture(const ImageBinding &binding);
+    void SetUniformBuffer(const UniformBinding &binding);
 
 private:
     void reflectShader();
     void reflectBlockUniforms();
     void reflectTexture();
+    void activateTexture();
 
 private:
     OpenGlDevice* m_pDevice = nullptr;
-    std::unordered_map<std::string, UniformBinding> m_uniforms;
+    std::unordered_map<std::string, UniformBlockBinding> m_uniforms;
     std::unordered_map<std::string, TextureBinding> m_textures;
 };
 

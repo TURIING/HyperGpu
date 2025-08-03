@@ -22,7 +22,7 @@ USING_GPU_NAMESPACE_BEGIN
 	VK_FORMAT_B8G8R8A8_SRGB,		// B8G8R8A8
 };
 
-VulkanImage2D::VulkanImage2D(VulkanDevice* device, const Image2DCreateInfo& info) : m_pVulkanDevice(device), m_size(info.size), m_usage(info.usage) {
+VulkanImage2D::VulkanImage2D(VulkanDevice* device, const Image2DCreateInfo& info) : m_pVulkanDevice(device), m_size(info.size), m_usage(info.usage), m_pixelFormat(info.format) {
 	m_pVulkanDevice->AddRef();
 
 	const VulImage2DCreateInfo vulImage2DCreateInfo{

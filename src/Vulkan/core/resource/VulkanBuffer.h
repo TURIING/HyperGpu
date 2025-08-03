@@ -19,14 +19,18 @@ class VulkanBuffer final : public Buffer {
 public:
 	VulkanBuffer(VulkanDevice* device, const BufferCreateInfo &createInfo);
 	~VulkanBuffer() override;
-	void UpdateData(const void* data, uint64_t dataSize) override;
+	void WriteData(const void* data, uint64_t dataSize) override;
 	NODISCARD VkDescriptorBufferInfo* GetDescriptorBufferInfo();
 	NODISCARD VkBuffer GetHandle() const;
+	void Map(uint64_t offset, uint64_t size, void **pData) override;
+	void UnMap() override;
 
 private:
 	void createVertexBuffer(const void *pData, uint64_t dataSize);
 	void createIndexBuffer(const void *pData, uint64_t dataSize);
 	void createUniformBuffer(const void *pData, uint64_t dataSize);
+	void createTransferSrcBuffer(const void *pData, uint64_t dataSize);
+	void createTransferDstBuffer(const void *pData, uint64_t dataSize);
 
 private:
 	VulkanDevice* m_pVulkanDevice = nullptr;

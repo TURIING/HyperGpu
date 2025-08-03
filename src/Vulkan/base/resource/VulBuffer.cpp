@@ -45,11 +45,18 @@ VulBuffer::~VulBuffer() {
 	m_pLogicDevice->SubRef();
 }
 
-void VulBuffer::MapData(uint64_t offset, uint64_t size, const void* data) const {
+void VulBuffer::WriteData(uint64_t offset, uint64_t size, const void* data) const {
     void *tempPtr = nullptr;
     vkMapMemory(m_pLogicDevice->GetHandle(), m_pDeviceMemory, offset, size, 0, &tempPtr);
     memcpy(tempPtr, data, size);
     vkUnmapMemory(m_pLogicDevice->GetHandle(), m_pDeviceMemory);
+}
+
+void VulBuffer::ReadData(uint64_t offset, uint64_t size, void *pData) const {
+	void *tempPtr = nullptr;
+	vkMapMemory(m_pLogicDevice->GetHandle(), m_pDeviceMemory, offset, size, 0, &tempPtr);
+	memcpy(pData, tempPtr, size);
+	vkUnmapMemory(m_pLogicDevice->GetHandle(), m_pDeviceMemory);
 }
 
 void VulBuffer::CopyBuffer(VulBuffer* dstBuffer, VkDeviceSize size) const {
@@ -64,6 +71,14 @@ void VulBuffer::CopyFrom(VulBuffer* srcBuffer, VkDeviceSize size) const {
 		size = srcBuffer->GetSize();
 	}
 	m_pLogicDevice->WithSingleCmdBuffer([&](VulCommandBuffer* cmd) { cmd->CopyBuffer(srcBuffer->GetHandle(), m_pHandle, size); });
+}
+
+void VulBuffer::Map(uint64_t offset, uint64_t size, void **data) const {
+	vkMapMemory(m_pLogicDevice->GetHandle(), m_pDeviceMemory, offset, size, 0, data);
+}
+
+void VulBuffer::Unmap() const {
+	vkUnmapMemory(m_pLogicDevice->GetHandle(), m_pDeviceMemory);
 }
 
 VulBuffer* VulBufferBuilder::Build() const {

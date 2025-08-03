@@ -5,6 +5,8 @@
 #include "GlProgram.h"
 #include "../core/OpenGlDevice.h"
 #include "GlShader.h"
+#include "../resource/GlImage2D.h"
+#include "../resource/GlSampler.h"
 
 constexpr int NAME_BUFFER_SIZE = 256;
 const std::unordered_map<GLenum, GLenum> gSamplerTypeToTextureType = {
@@ -46,8 +48,43 @@ GlProgram::~GlProgram() {
     m_pDevice->SubRef();
 }
 
-void GlProgram::Bind() const {
+void GlProgram::Bind() {
     CALL_GL(glUseProgram(m_handle));
+    activateTexture();
+}
+
+void GlProgram::SetTexture(const ImageBinding &binding) {
+    LOG_ASSERT(binding.pImage && binding.name && binding.imageCount > 0);
+
+    if (!m_textures.contains(binding.name)) {
+        LOG_WARNING("shader reflection information does not contain the texture named {}.", binding.name);
+        return;
+    }
+
+    if (binding.imageCount == 1) {
+        auto &pBinding = m_textures[binding.name];
+        LOG_ASSERT_INFO(!pBinding.isArray, "The texture type should not be an array.");
+
+        auto pImage = dynamic_cast<GlImage2D*>(binding.pImage[0]);
+        pBinding.pImage = pImage;
+        pBinding.pSampler = pImage->GetSampler();
+    }
+    else if (binding.imageCount > 1) {
+        auto &pBinding = m_textures[binding.name];
+        LOG_ASSERT_INFO(pBinding.isArray, "The texture type should be an array.");
+
+        for (auto i = 0; i < binding.imageCount; i++) {
+            auto pImage = dynamic_cast<GlImage2D*>(binding.pImage[i]);
+            pBinding.vecImage.push_back(pImage);
+        }
+        pBinding.pSampler = pBinding.vecImage[0]->GetSampler();
+    }
+}
+
+void GlProgram::SetUniformBuffer(const UniformBinding &binding) {
+    LOG_ASSERT(binding.name && binding.buffer);
+
+
 }
 
 void GlProgram::reflectShader() {
@@ -127,6 +164,28 @@ void GlProgram::reflectTexture() {
                 break;
             }
             default: LOG_ASSERT_INFO(false, "Unknown uniform type.");
+        }
+    }
+}
+
+void GlProgram::activateTexture() {
+    int32_t unit = 0;
+    for (auto [name, binding] : m_textures) {
+        if (binding.isArray) {
+            std::vector<GLint> vecUnit;
+            for (auto i = 0; i < binding.vecImage.size(); i++) {
+                CALL_GL(glActiveTexture(GL_TEXTURE0 + unit + i));
+                CALL_GL(glBindTexture(GL_TEXTURE_2D, binding.vecImage[i]->GetHandle()));
+                CALL_GL(glBindSampler(unit + i, binding.pSampler->GetHandle()));
+                vecUnit.push_back(unit + i);
+            }
+            CALL_GL(glUniform1iv(TO_I32(binding.location), TO_I32(vecUnit.size()), vecUnit.data()));
+        }
+        else {
+            CALL_GL(glActiveTexture(GL_TEXTURE0 + unit));
+            CALL_GL(glBindTexture(GL_TEXTURE_2D, binding.pImage->GetHandle()));
+            CALL_GL(glBindSampler(unit, binding.pSampler->GetHandle()));
+            CALL_GL(glUniform1i(TO_I32(binding.location), unit));
         }
     }
 }

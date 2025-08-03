@@ -14,6 +14,7 @@
 USING_GPU_NAMESPACE_BEGIN
 
 class OpenGlDevice;
+class GlSampler;
 
 class GlImage2D final: public Image2D, public GlObject {
 public:
@@ -21,14 +22,18 @@ public:
     ~GlImage2D() override;
     NODISCARD ImageUsage GetUsage() const override { return m_usage; };
     NODISCARD Size GetSize() const override { return m_size; };
+    NODISCARD GlSampler* GetSampler() const { return m_pSampler; }
+    NODISCARD PixelFormat GetPixelFormat() const override { return m_pixelFormat; }
 
 private:
     void init(const Image2DCreateInfo &info);
 
 private:
     OpenGlDevice* m_pDevice = nullptr;
+    GlSampler* m_pSampler = nullptr;
     ImageUsage m_usage;
     Size m_size;
+    PixelFormat m_pixelFormat;
 };
 
 USING_GPU_NAMESPACE_END

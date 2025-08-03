@@ -27,6 +27,12 @@ VulkanBuffer::VulkanBuffer(VulkanDevice* device, const BufferCreateInfo &createI
 	case BufferType::Uniform:
 		createUniformBuffer(data, size);
 		break;
+	case BufferType::TransferSrc:
+		createTransferSrcBuffer(data, size);
+		break;
+	case BufferType::TransferDst:
+		createTransferDstBuffer(data, size);
+		break;
 	default:
 		LOG_ASSERT(false);
 	}
@@ -37,9 +43,9 @@ VulkanBuffer::~VulkanBuffer() {
 	m_pVulkanDevice->SubRef();
 }
 
-void VulkanBuffer::UpdateData(const void* data, uint64_t dataSize) {
+void VulkanBuffer::WriteData(const void* data, uint64_t dataSize) {
 	if(m_type == BufferType::Uniform) {
-		m_pVulBuffer->MapData(0, dataSize, data);
+		m_pVulBuffer->WriteData(0, dataSize, data);
 	} else {
 		// todo: update data for vertex/index buffer
 		LOG_ASSERT(false);
@@ -55,6 +61,14 @@ VkBuffer VulkanBuffer::GetHandle() const {
 	return m_pVulBuffer->GetHandle();
 }
 
+void VulkanBuffer::Map(uint64_t offset, uint64_t size, void **pData) {
+	m_pVulBuffer->Map(offset, size, pData);
+}
+
+void VulkanBuffer::UnMap() {
+	m_pVulBuffer->Unmap();
+}
+
 void VulkanBuffer::createVertexBuffer(const void *pData, uint64_t dataSize) {
 	const auto logicDevice = m_pVulkanDevice->GetLogicDevice();
 
@@ -64,7 +78,7 @@ void VulkanBuffer::createVertexBuffer(const void *pData, uint64_t dataSize) {
 								 .SetUsage(VK_BUFFER_USAGE_TRANSFER_SRC_BIT)
 								 .SetProperties(VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT)
 								 .Build();
-	stageBuffer->MapData(0, dataSize, pData);
+	stageBuffer->WriteData(0, dataSize, pData);
 
 	m_pVulBuffer = VulBuffer::Builder()
 					.SetLogicDevice(logicDevice)
@@ -86,7 +100,7 @@ void VulkanBuffer::createIndexBuffer(const void *pData, uint64_t dataSize) {
 								 .SetUsage(VK_BUFFER_USAGE_TRANSFER_SRC_BIT)
 								 .SetProperties(VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT)
 								 .Build();
-	stageBuffer->MapData(0, dataSize, pData);
+	stageBuffer->WriteData(0, dataSize, pData);
 
 	m_pVulBuffer = VulBuffer::Builder()
 					.SetLogicDevice(logicDevice)
@@ -110,7 +124,7 @@ void VulkanBuffer::createUniformBuffer(const void *pData, uint64_t dataSize) {
 				.Build();
 
 	if (pData) {
-		m_pVulBuffer->MapData(0, dataSize, pData);
+		m_pVulBuffer->WriteData(0, dataSize, pData);
 	}
 
 	m_descriptorInfo = {
@@ -118,6 +132,36 @@ void VulkanBuffer::createUniformBuffer(const void *pData, uint64_t dataSize) {
 		.offset = 0,
 		.range = dataSize
 	};
+}
+
+void VulkanBuffer::createTransferSrcBuffer(const void *pData, uint64_t dataSize) {
+	const auto logicDevice = m_pVulkanDevice->GetLogicDevice();
+
+	m_pVulBuffer = VulBuffer::Builder()
+				.SetLogicDevice(logicDevice)
+				.SetSize(dataSize)
+				.SetUsage(VK_BUFFER_USAGE_TRANSFER_SRC_BIT)
+				.SetProperties(VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT)
+				.Build();
+
+	if (pData) {
+		m_pVulBuffer->WriteData(0, dataSize, pData);
+	}
+}
+
+void VulkanBuffer::createTransferDstBuffer(const void *pData, uint64_t dataSize) {
+	const auto logicDevice = m_pVulkanDevice->GetLogicDevice();
+
+	m_pVulBuffer = VulBuffer::Builder()
+				.SetLogicDevice(logicDevice)
+				.SetSize(dataSize)
+				.SetUsage(VK_BUFFER_USAGE_TRANSFER_DST_BIT)
+				.SetProperties(VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT)
+				.Build();
+
+	if (pData) {
+		m_pVulBuffer->WriteData(0, dataSize, pData);
+	}
 }
 
 USING_GPU_NAMESPACE_END

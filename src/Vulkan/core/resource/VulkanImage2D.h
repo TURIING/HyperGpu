@@ -29,6 +29,7 @@ public:
 	NODISCARD VkDescriptorImageInfo GetDescriptorImageInfo();
 	NODISCARD Size GetSize() const override { return m_size; }
 	NODISCARD ImageUsage GetUsage() const override { return m_usage; };
+	NODISCARD PixelFormat GetPixelFormat() const override { return m_pixelFormat; }
 
 private:
 	VulImage2D*			  m_pImage		  = nullptr;
@@ -37,6 +38,7 @@ private:
 	VkDescriptorImageInfo m_imageInfo{};
 	Size				  m_size;
 	ImageUsage			  m_usage;
+	PixelFormat			  m_pixelFormat;
 };
 USING_GPU_NAMESPACE_END
 #endif // VULKANIMAGE2D_H

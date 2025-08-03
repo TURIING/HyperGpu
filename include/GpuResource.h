@@ -38,17 +38,20 @@ namespace HyperGpu {
 
 		virtual ImageUsage GetUsage() const = 0;
 		virtual Size GetSize() const = 0;
+		virtual PixelFormat GetPixelFormat() const = 0;
 	};
 
 	class Buffer : public GpuObject {
 	public:
-		enum BufferType { Vertex, Index, Uniform };
+		enum BufferType { Vertex, Index, Uniform, TransferSrc, TransferDst };
 		struct BufferCreateInfo {
 			BufferType bufferType = BufferType::Uniform;
 			uint64_t bufferSize = 0;
 			const void *data = nullptr;				// 当buffer类型为uniform时，该字段为nullptr就行
 		};
-		virtual void UpdateData(const void* data, uint64_t dataSize) = 0;
+		virtual void WriteData(const void* data, uint64_t dataSize) = 0;
+		virtual void Map(uint64_t offset, uint64_t size, void **pData) = 0;
+		virtual void UnMap() = 0;
 	};
 
     enum class AttributeDataType { Float, Int, Vec2, Vec3, Vec4, Mat4 };

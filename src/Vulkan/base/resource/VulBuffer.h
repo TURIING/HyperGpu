@@ -54,14 +54,14 @@ class VulBuffer final: public VulObject<VkBuffer>{
 public:
 	 VulBuffer(VulLogicDevice* device, const VulBufferCreateInfo& info);
 	~VulBuffer() override;
-
-	[[nodiscard]] static VulBufferBuilder Builder() { return VulBufferBuilder{}; }
-
-	[[nodiscard]] uint64_t GetSize() const { return m_size; }
-
-	void MapData(uint64_t offset, uint64_t size, const void* data) const;
+	NODISCARD static VulBufferBuilder Builder() { return VulBufferBuilder{}; }
+	NODISCARD uint64_t GetSize() const { return m_size; }
+	void WriteData(uint64_t offset, uint64_t size, const void* data) const;
+	void ReadData(uint64_t offset, uint64_t size, void* pData) const;
 	void CopyBuffer(VulBuffer* dstBuffer, VkDeviceSize size = 0) const;
 	void CopyFrom(VulBuffer* srcBuffer, VkDeviceSize size = 0) const;
+	void Map(uint64_t offset, uint64_t size, void** data) const;
+	void Unmap() const;
 
 private:
 	VulLogicDevice* m_pLogicDevice	= nullptr;

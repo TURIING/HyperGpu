@@ -65,6 +65,7 @@ public:
 	virtual void BlitImageToSurface(Image2D* pImage, GpuSurface* surface, ImageBlitRange *pRange, uint32_t rangeCount, Filter filter) = 0;
 	virtual void CopyImage(Image2D* pSrcImage, Image2D* pDstImage, ImageCopyRange* pRange, uint32_t rangeCount) = 0;
 	virtual void CopyBufferToImage(Image2D* pImage, const void *pData, uint64_t size, const Area& area) = 0;
+	virtual void CopyImageToBuffer(Image2D* pImage, Buffer* pBuffer, const Area &area) = 0;
 	virtual void BeginDebugUtilsLabel(const char *name, const Color &color = { 0.0, 0.0, 0.0, 1.0}) = 0;
 	virtual void EndDebugUtilsLabel() = 0;
 };

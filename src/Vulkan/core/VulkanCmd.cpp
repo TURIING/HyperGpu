@@ -17,6 +17,7 @@
 #include "VulkanSurface.h"
 #include "../base/resource/VulImage2D.h"
 #include "../base/resource/VulBuffer.h"
+#include "HyperGpu/src/Vulkan/base/device/VulLogicDevice.h"
 #include "resource/ResourceCache.h"
 #include "resource/VulkanImage2D.h"
 #include "resource/VulkanInputAssembler.h"
@@ -87,7 +88,7 @@ void VulkanCmd::CopyBufferToImage(Image2D *pImage, const void *pData, uint64_t s
 								 .SetProperties(VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT)
 								 .SetLogicDevice(m_pVulkanDevice->GetLogicDevice())
 								 .Build();
-	stageBuffer->MapData(0, size, pData);
+	stageBuffer->WriteData(0, size, pData);
 
 	// 转换布局
 	m_pCmd->TransitionImageLayout(pVulkanImage->GetHandle(),  VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
@@ -104,25 +105,60 @@ void VulkanCmd::CopyBufferToImage(Image2D *pImage, const void *pData, uint64_t s
 			.baseArrayLayer = 0,
 			.layerCount		= 1,
 		},
-	.imageOffset =
+		.imageOffset =
 		{
 			.x = area.offset.x,
 			.y = area.offset.y,
 			.z = 0,
 		},
-	.imageExtent =
+		.imageExtent =
 		{
 			.width	= area.size.width,
 			.height = area.size.height,
 			.depth	= 1,
 		},
-};
+	};
 	m_pCmd->CopyBufferToImage(stageBuffer->GetHandle(), pVulkanImage->GetHandle()->GetHandle(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, region);
 
 	// 再次转换布局
 	m_pCmd->TransitionImageLayout(pVulkanImage->GetHandle(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
 	// stageBuffer->SubRef();
+}
+
+void VulkanCmd::CopyImageToBuffer(Image2D *pImage, Buffer* pBuffer, const Area &area) {
+	VkBufferImageCopy region = {
+		.bufferOffset = 0,
+		.bufferRowLength = area.size.width,
+		.bufferImageHeight = area.size.height,
+		.imageSubresource = {
+			.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
+			.mipLevel = 0,
+			.baseArrayLayer = 0,
+			.layerCount = 1
+		},
+		.imageOffset = {
+			.x = area.offset.x,
+			.y = area.offset.y,
+			.z = 0
+		},
+		.imageExtent = {
+			.width = area.size.width,
+			.height = area.size.height,
+			.depth = 1
+		}
+	};
+
+	const auto pVulkanImage  = dynamic_cast<VulkanImage2D*>(pImage);
+	const auto pVulkanBuffer = dynamic_cast<VulkanBuffer*>(pBuffer);
+	m_pCmd->TransitionImageLayout(pVulkanImage->GetHandle(),  VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+	m_pCmd->CopyImageToBuffer(
+		pVulkanBuffer->GetHandle(),
+		pVulkanImage->GetHandle()->GetHandle(),
+		VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+		region
+	);
+	m_pCmd->TransitionImageLayout(pVulkanImage->GetHandle(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 }
 
 void VulkanCmd::BeginDebugUtilsLabel(const char *name, const Color &color) {
