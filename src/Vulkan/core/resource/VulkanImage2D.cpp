@@ -31,6 +31,7 @@ VulkanImage2D::VulkanImage2D(VulkanDevice* device, const Image2DCreateInfo& info
 		.usage				 = VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
 		.aspectFlags		 = gImageUsageToVkImageAspectFlag[static_cast<int>(info.usage)],
 		.memoryPropertyFlags = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+		.objName = info.objName,
 	};
 	m_pImage = new VulImage2D(m_pVulkanDevice->GetLogicDevice(), vulImage2DCreateInfo);
 

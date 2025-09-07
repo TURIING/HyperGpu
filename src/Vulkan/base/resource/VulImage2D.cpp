@@ -50,6 +50,10 @@ VulImage2D::VulImage2D(VulLogicDevice* device, const VulImage2DCreateInfo& info)
         CALL_VK(vkAllocateMemory(m_pLogicDevice->GetHandle(), &memoryAllocateInfo, nullptr, &m_pDeviceMemory));
 
         vkBindImageMemory(m_pLogicDevice->GetHandle(), m_pHandle, m_pDeviceMemory, 0);
+
+        if (info.objName) {
+            m_pLogicDevice->SetDebugUtilsObjectName(VK_OBJECT_TYPE_IMAGE, (uint64_t)m_pHandle, info.objName);
+        }
     }
 
     // 创建图像视图

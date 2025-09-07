@@ -17,11 +17,16 @@ class VulkanDevice;
 class VulRenderPass;
 class VulFrameBuffer;
 class VulkanPipeline;
+class VulDescriptorSet;
 
 template<typename T>
 using ResourceCacheMap = std::unordered_map<std::size_t, std::unique_ptr<T>>;
 
 class ResourceCache final: public GpuObject {
+    struct DescriptorSetInfo {
+        VulDescriptorSet* pSet = nullptr;
+        bool dirty = false;
+    };
 public:
     struct FrameBufferCacheInfo {
         VkImageView* pAttachments = nullptr;
@@ -42,12 +47,16 @@ public:
     NODISCARD VulFrameBuffer* RequestFrameBuffer(const FrameBufferCacheInfo &info);
     NODISCARD VulRenderPass* RequestRenderPass(const RenderPassCacheInfo &info);
     NODISCARD VulkanPipeline* RequestPipeline(const RenderEnvInfo &info);
+    NODISCARD VulDescriptorSet* RequestDescriptorSet(VulkanPipeline* pipeline);
+    void ResetAllDescriptorSet(VulkanPipeline* pipeline);
+    void DeleteAllDescriptorSet(VulkanPipeline* pipeline);
 
 private:
     VulkanDevice* m_pVulkanDevice = nullptr;
     ResourceCacheMap<VulFrameBuffer*> m_mapFrameBuffers;
     ResourceCacheMap<VulRenderPass*> m_mapRenderPasses;
     ResourceCacheMap<VulkanPipeline*> m_mapPipelines;
+    std::unordered_map<VulkanPipeline*, std::vector<DescriptorSetInfo>> m_mapDescriptorSet;
 };
 
 USING_GPU_NAMESPACE_END

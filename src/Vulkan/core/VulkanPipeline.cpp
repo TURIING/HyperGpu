@@ -16,16 +16,15 @@
 #include "../base/pipeline/VulShader.h"
 #include "VulkanDevice.h"
 #include "../base/descriptor/VulDescriptorSetLayout.h"
+#include "HyperGpu/src/Vulkan/base/device/VulLogicDevice.h"
 #include "resource/ResourceCache.h"
-#include "resource/VulkanBuffer.h"
-#include "resource/VulkanImage2D.h"
 
 USING_GPU_NAMESPACE_BEGIN
 
 VulkanPipeline::VulkanPipeline(VulkanDevice* pDevice, const RenderEnvInfo& renderEnvInfo) : m_pVulkanDevice(pDevice) {
 	this->renderEnvInfo = renderEnvInfo;
 	m_pVulkanDevice->AddRef();
-	VulShader shader(pDevice->GetLogicDevice(), renderEnvInfo.shaderInfo);
+	m_pShader = new VulShader(pDevice->GetLogicDevice(), renderEnvInfo.shaderInfo);
 
 	VulPipelineInputAssemblyState pipelineInputAssembly{renderEnvInfo.rasterInfo.primitiveType};
 	VulPipelineRasterizationState pipelineRasterizationState(renderEnvInfo.rasterInfo);
@@ -48,15 +47,15 @@ VulkanPipeline::VulkanPipeline(VulkanDevice* pDevice, const RenderEnvInfo& rende
 	m_pRenderPass = m_pVulkanDevice->GetResourceCache()->RequestRenderPass({ attachmentInfos.data(), TO_U32(attachmentInfos.size()) });
 	m_pRenderPass->AddRef();
 
-	m_pPipelineLayout = shader.GetPipelineLayout();
+	m_pPipelineLayout = m_pShader->GetPipelineLayout();
 	m_pPipelineLayout->AddRef();
 
-	m_pDescriptorSetLayout = shader.GetDescriptorSetLayout();
+	m_pDescriptorSetLayout = m_pShader->GetDescriptorSetLayout();
 	m_pDescriptorSetLayout->AddRef();
 
-	auto vertexInputState = shader.GetPipelineVertexInputState();
+	auto vertexInputState = m_pShader->GetPipelineVertexInputState();
 	VulPipelineState pipelineState{
-		.shaderStages		= shader.GetShaderStages(),
+		.shaderStages		= m_pShader->GetShaderStages(),
 		.pipeLineLayout		= m_pPipelineLayout->GetHandle(),
 		.renderPass			= m_pRenderPass->GetHandle(),
 		.vertexInputState	= vertexInputState.GetCreateInfo(),
@@ -69,52 +68,17 @@ VulkanPipeline::VulkanPipeline(VulkanDevice* pDevice, const RenderEnvInfo& rende
 		.dynamicState		= pipelineDynamicState.GetCreateInfo(),
 		.subPassIndex		= 0,
 	};
-	m_pPipeline = new VulPipeline(m_pVulkanDevice->GetLogicDevice(), pipelineState);
-
-	VulDescriptorPoolCreateInfo descriptorPoolInfo{.poolSizes = {{VulDescriptorType::Sampler, 100}, {VulDescriptorType::UniformBuffer, 100}}};
-	m_pDescriptorPool = new VulDescriptorPool(m_pVulkanDevice->GetLogicDevice(), descriptorPoolInfo);
-	m_pDescriptorSet  = new VulDescriptorSet(m_pVulkanDevice->GetLogicDevice(), m_pDescriptorPool, m_pDescriptorSetLayout, shader.GetResourceBinding());
+	m_pPipeline = new VulPipeline(m_pVulkanDevice->GetLogicDevice(), pipelineState, renderEnvInfo.objName);
 }
 
 VulkanPipeline::~VulkanPipeline() {
+	m_pShader->SubRef();
 	m_pPipelineLayout->SubRef();
 	m_pDescriptorSetLayout->SubRef();
-	m_pDescriptorSet->SubRef();
-	m_pDescriptorPool->SubRef();
+	m_pVulkanDevice->GetResourceCache()->DeleteAllDescriptorSet(this);
 	m_pRenderPass->SubRef();
 	m_pPipeline->SubRef();
 	m_pVulkanDevice->SubRef();
 }
-
-void VulkanPipeline::SetUniformBuffers(UniformBinding* infos, uint32_t count) const {
-	if (count <= 0) return;
-
-	std::vector<VulDescriptorSet::UniformBindingInfo> vecBindingInfo;
-	vecBindingInfo.reserve(count);
-	for (auto i = 0; i < count; i++) {
-		auto vulkanBuffer = dynamic_cast<VulkanBuffer*>(infos[i].buffer);
-		vecBindingInfo.push_back({
-			.pBufferInfo = vulkanBuffer->GetDescriptorBufferInfo(),
-			.name = infos[i].name,
-		});
-	}
-	m_pDescriptorSet->SetUniformBuffer(vecBindingInfo);
-}
-
-void VulkanPipeline::SetImages(ImageBinding* infos, uint32_t count) const {
-	if (count <= 0) return;
-
-	std::vector<VulDescriptorSet::ImageBindingInfo> vecBindingInfo;
-	vecBindingInfo.reserve(count);
-	for (auto i = 0; i < count; i++) {
-		VulDescriptorSet::ImageBindingInfo bindingInfo;
-		bindingInfo.name = infos[i].name;
-		for (auto j = 0; j < infos[i].imageCount; j++) {
-			bindingInfo.vecImageInfo.push_back(dynamic_cast<VulkanImage2D*>(infos[i].pImage[j])->GetDescriptorImageInfo());
-		}
-		vecBindingInfo.push_back(bindingInfo);
-	}
-	m_pDescriptorSet->SetImage(vecBindingInfo);
-};
 
 USING_GPU_NAMESPACE_END

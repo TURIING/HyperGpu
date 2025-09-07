@@ -79,6 +79,28 @@ void VulLogicDevice::WithSingleCmdBuffer(const std::function<void(VulCommandBuff
 	m_pCmdManager->WithSingleCmdBuffer(func);
 }
 
+void VulLogicDevice::SetDebugUtilsObjectName(VkObjectType type, uint64_t handle, const char *name) const {
+	VkDebugUtilsObjectNameInfoEXT nameInfo{
+		.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT,
+		.pNext = nullptr,
+		.objectType = type,
+		.objectHandle = handle,
+		.pObjectName = name,
+	};
+	this->vkSetDebugUtilsObjectNameExt(&nameInfo);
+}
+
+void VulLogicDevice::vkSetDebugUtilsObjectNameExt(const VkDebugUtilsObjectNameInfoEXT* pNameInfo) const {
+	auto func = (PFN_vkSetDebugUtilsObjectNameEXT) vkGetInstanceProcAddr(m_pInstance->GetHandle(), "vkSetDebugUtilsObjectNameEXT");
+	if (func != nullptr) {
+		if (func(m_pHandle, pNameInfo) != VK_SUCCESS) {
+			LOG_CRITICAL("Set debug utils name failed");
+		}
+	} else {
+		LOG_CRITICAL("Load vulkan func failed.");
+	}
+}
+
 VulLogicDeviceBuilder VulLogicDevice::Builder() {
     return VulLogicDeviceBuilder{ };
 }

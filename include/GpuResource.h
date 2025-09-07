@@ -34,6 +34,7 @@ namespace HyperGpu {
 			PixelFormat format   = PixelFormat::R8G8B8A8;
 			ImageUsage  usage    = ImageUsage::Color;
 			Sampler*    pSampler = nullptr;
+			const char* objName = nullptr;
 		};
 
 		virtual ImageUsage GetUsage() const = 0;

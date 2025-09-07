@@ -53,7 +53,11 @@ public:
 	NODISCARD VulInstance* GetInstance() const { return m_pInstance; }
 	void SetCmdManager(VulkanCmdManager* pCmdManager);
 	void WithSingleCmdBuffer(const std::function<void(VulCommandBuffer* cmd)>& func) const;
+	void SetDebugUtilsObjectName(VkObjectType type, uint64_t handle, const char* name) const;
 	static VulLogicDeviceBuilder Builder();
+
+private:
+	void vkSetDebugUtilsObjectNameExt(const VkDebugUtilsObjectNameInfoEXT* pNameInfo) const;
 
 private:
 	VulInstance*	   m_pInstance		 = nullptr;

@@ -50,6 +50,7 @@ struct AttachmentInfo {
 };
 
 struct RenderEnvInfo {
+	const char* objName = nullptr;
 	ShaderInfo shaderInfo;
 	RasterizationInfo rasterInfo;
 	BlendInfo blendInfo;

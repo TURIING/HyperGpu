@@ -44,18 +44,22 @@ void VulkanCmd::Begin() {
 
 void VulkanCmd::End() {
 	m_pCmd->EndRecord();
+	for (auto pipeline: m_vecHistoryPipeline) {
+		m_pVulkanDevice->GetResourceCache()->ResetAllDescriptorSet(pipeline);
+	}
+	m_vecHistoryPipeline.clear();
 }
 
 void VulkanCmd::Draw(const DrawInfo& info) {
 	LOG_ASSERT_INFO(m_pPipeline, "Pipeline is null, possibly BeginRenderPass be not called.")
-	m_pPipeline->SetImages(info.pImageBinding, info.imageBindingCount);
-	m_pPipeline->SetUniformBuffers(info.pUniformBinding, info.uniformBindingCount);
+	SetImages(info.pImageBinding, info.imageBindingCount);
+	SetUniformBuffers(info.pUniformBinding, info.uniformBindingCount);
 
 	auto pInputAssembler = dynamic_cast<VulkanInputAssembler*>(info.pInputAssembler);
 
 	const auto pVertexBuffer = pInputAssembler->GetVertexBuffer();
 	const auto pInstanceBuffer = pInputAssembler->GetInstanceBuffer();
-	m_pCmd->BindVertexBuffer(pVertexBuffer->GetHandle(), pInstanceBuffer->GetHandle());
+	m_pCmd->BindVertexBuffer(pVertexBuffer->GetHandle(), pInstanceBuffer ? pInstanceBuffer->GetHandle() : nullptr);
 
 	const auto pIndexBuffer = pInputAssembler->GetIndexBuffer();
 	const auto instanceCount = pInputAssembler->GetInstanceCount();
@@ -237,11 +241,20 @@ void VulkanCmd::BeginRenderPass(const BeginRenderInfo& beginRenderInfo) {
 
 	m_pCmd->BeginRenderPass(renderPassBeginInfo);
 	m_pCmd->BindPipeline(m_pPipeline->GetHandle());
-	m_pCmd->BindDescriptorSets(VK_PIPELINE_BIND_POINT_GRAPHICS, m_pPipeline->GetPipelineLayout()->GetHandle(),m_pPipeline->GetDescriptorSet()->GetHandle());
+
+	m_pDescriptorSet = m_pVulkanDevice->GetResourceCache()->RequestDescriptorSet(m_pPipeline);
+	m_pCmd->BindDescriptorSets(
+		VK_PIPELINE_BIND_POINT_GRAPHICS,
+		m_pPipeline->GetPipelineLayout()->GetHandle(),
+		m_pDescriptorSet->GetHandle()
+	);
 }
 
 void VulkanCmd::EndRenderPass() {
 	m_pCmd->EndRenderPass();
+	m_vecHistoryPipeline.push_back(m_pPipeline);
+	m_pPipeline = nullptr;
+	m_pDescriptorSet = nullptr;
 }
 
 void VulkanCmd::SetViewport(const Viewport& viewport) {
@@ -324,7 +337,7 @@ void VulkanCmd::CopyImage(Image2D *pSrcImage, Image2D *pDstImage, ImageCopyRange
 	m_pCmd->TransitionImageLayout(pVulDstImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 	m_pCmd->CopyImage(pVulSrcImage, pVulDstImage, vecImageCopy);
 	m_pCmd->TransitionImageLayout(pVulSrcImage, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-	m_pCmd->TransitionImageLayout(pVulDstImage, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
+	m_pCmd->TransitionImageLayout(pVulDstImage, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 }
 
 VkViewport VulkanCmd::transViewportToVkViewport(const Viewport& viewport) {
@@ -349,5 +362,38 @@ VkRect2D VulkanCmd::transScissorToVkRect2D(const Scissor& scissor) {
 		.height = scissor.height,
 	}};
 }
+
+void VulkanCmd::SetUniformBuffers(UniformBinding* infos, uint32_t count) const {
+	if (count <= 0) return;
+
+	std::vector<VulDescriptorSet::UniformBindingInfo> vecBindingInfo;
+	vecBindingInfo.reserve(count);
+	for (auto i = 0; i < count; i++) {
+		auto vulkanBuffer = dynamic_cast<VulkanBuffer*>(infos[i].buffer);
+		vecBindingInfo.push_back({
+			.pBufferInfo = vulkanBuffer->GetDescriptorBufferInfo(),
+			.name = infos[i].name,
+		});
+	}
+	m_pDescriptorSet->SetUniformBuffer(vecBindingInfo);
+}
+
+void VulkanCmd::SetImages(ImageBinding* infos, uint32_t count) const {
+	if (count <= 0) return;
+
+	std::vector<VulDescriptorSet::ImageBindingInfo> vecBindingInfo;
+	vecBindingInfo.reserve(count);
+	for (auto i = 0; i < count; i++) {
+		VulDescriptorSet::ImageBindingInfo bindingInfo;
+		bindingInfo.name = infos[i].name;
+		for (auto j = 0; j < infos[i].imageCount; j++) {
+			const auto pImage = dynamic_cast<VulkanImage2D*>(infos[i].pImage[j]);
+			const auto info = pImage->GetDescriptorImageInfo();
+			bindingInfo.vecImageInfo.push_back(info);
+		}
+		vecBindingInfo.push_back(bindingInfo);
+	}
+	m_pDescriptorSet->SetImage(vecBindingInfo);
+};
 
 USING_GPU_NAMESPACE_END

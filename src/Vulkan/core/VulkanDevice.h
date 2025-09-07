@@ -18,21 +18,23 @@ class VulLogicDevice;
 class VulSurface;
 class VulInstance;
 class VulPhysicalDevice;
+class VulDescriptorPool;
 
 class VulkanDevice final : public GpuDevice {
 public:
-	explicit						  VulkanDevice(const DeviceCreateInfo& info);
-	~								  VulkanDevice() override;
-	[[nodiscard]] PipelineManager*    GetPipelineManager() override { return m_pPipelineManager; }
-	[[nodiscard]] VulPhysicalDevice*  GetPhysicalDevice() const { return m_pPhysicalDevice; }
-	[[nodiscard]] VulLogicDevice*     GetLogicDevice() const { return m_pLogicDevice; }
-	[[nodiscard]] VulInstance*        GetInstance() const { return m_pInstance; }
-	[[nodiscard]] GpuCmdManager*      GetCmdManager() override { return m_pCmdManager; };
-	[[nodiscard]] GpuResourceManager* GetResourceManager() override { return m_pResourceManager; };
-	[[nodiscard]] GpuSyncManager*     GetSyncManager() override { return m_pSyncManager; }
-	[[nodiscard]] GpuSurface*         CreateSurface(const PlatformWindowInfo &platformWindowInfo) override;
-	[[nodiscard]] Queue*			  CreateQueue(QueueType queueType) override;
-	[[nodiscard]] ResourceCache*	  GetResourceCache() const { return m_pResourceCache; }
+	explicit VulkanDevice(const DeviceCreateInfo& info);
+	~VulkanDevice() override;
+	NODISCARD PipelineManager*    GetPipelineManager() override { return m_pPipelineManager; }
+	NODISCARD VulPhysicalDevice*  GetPhysicalDevice() const { return m_pPhysicalDevice; }
+	NODISCARD VulLogicDevice*     GetLogicDevice() const { return m_pLogicDevice; }
+	NODISCARD VulInstance*        GetInstance() const { return m_pInstance; }
+	NODISCARD GpuCmdManager*      GetCmdManager() override { return m_pCmdManager; };
+	NODISCARD GpuResourceManager* GetResourceManager() override { return m_pResourceManager; };
+	NODISCARD GpuSyncManager*     GetSyncManager() override { return m_pSyncManager; }
+	NODISCARD GpuSurface*         CreateSurface(const PlatformWindowInfo &platformWindowInfo) override;
+	NODISCARD Queue*			  CreateQueue(QueueType queueType) override;
+	NODISCARD ResourceCache*	  GetResourceCache() const { return m_pResourceCache; }
+	NODISCARD VulDescriptorPool* GetDescriptorPool() const { return m_pDescriptorPool; }
 
 private:
 	VulInstance*		m_pInstance		   = nullptr;
@@ -43,6 +45,7 @@ private:
 	GpuResourceManager* m_pResourceManager = nullptr;
 	GpuSyncManager*		m_pSyncManager	   = nullptr;
 	ResourceCache*		m_pResourceCache   = nullptr;
+	VulDescriptorPool*  m_pDescriptorPool  = nullptr;
 };
 
 USING_GPU_NAMESPACE_END

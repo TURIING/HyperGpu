@@ -18,7 +18,7 @@ class VulLogicDevice;
 
 class VulPipeline final : public VulObject<VkPipeline> {
 public:
-    VulPipeline(VulLogicDevice* device, const VulPipelineState &state);
+    VulPipeline(VulLogicDevice* device, const VulPipelineState &state, const char *objName);
     ~VulPipeline() override;
 
 private:

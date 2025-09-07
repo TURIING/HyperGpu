@@ -11,6 +11,7 @@
 #include "../base/device/VulInstance.h"
 #include "../base/device/VulLogicDevice.h"
 #include "../base/device/VulPhysicalDevice.h"
+#include "../base/descriptor/VulDescriptorPool.h"
 #include "VulkanCmd.h"
 #include "VulkanCmdManager.h"
 #include "VulkanPipeline.h"
@@ -81,16 +82,25 @@ VulkanDevice::VulkanDevice(const DeviceCreateInfo &info) {
 	m_pPipelineManager = new VulkanPipelineManager(this);
 	m_pResourceManager = new VulkanResourceManager(this);
 	m_pSyncManager	   = new VulkanSyncManager(this);
+
+	VulDescriptorPoolCreateInfo descriptorPoolInfo{
+		.poolSizes = {
+			{VulDescriptorType::Sampler, 100},
+			{VulDescriptorType::UniformBuffer, 100}
+		}
+	};
+	m_pDescriptorPool = new VulDescriptorPool(m_pLogicDevice, descriptorPoolInfo);
 }
 
 VulkanDevice::~VulkanDevice() {
-	m_pInstance->SubRef();
-	m_pPhysicalDevice->SubRef();
-	m_pLogicDevice->SubRef();
 	m_pCmdManager->SubRef();
 	m_pPipelineManager->SubRef();
+	m_pDescriptorPool->SubRef();
 	m_pResourceManager->SubRef();
 	m_pSyncManager->SubRef();
+	m_pLogicDevice->SubRef();
+	m_pPhysicalDevice->SubRef();
+	m_pInstance->SubRef();
 };
 
 GpuSurface* VulkanDevice::CreateSurface(const PlatformWindowInfo &platformWindowInfo) {

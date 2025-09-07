@@ -20,10 +20,10 @@ struct VulDescriptorSetLayoutBindInfo;
 class VulDescriptorSetLayout;
 class VulLogicDevice;
 
-class VulShader final {
+class VulShader final: public GpuObject {
 public:
     VulShader(VulLogicDevice* logicDevice, const ShaderInfo &shaderInfo);
-    ~VulShader();
+    ~VulShader() override;
     [[nodiscard]] std::vector<VkPipelineShaderStageCreateInfo> GetShaderStages() const { return m_shaderStages; }
     [[nodiscard]] VulPipelineVertexInputState GetPipelineVertexInputState() { return m_pipelineVertexInputState; }
     [[nodiscard]] VulDescriptorSetLayout* GetDescriptorSetLayout() const { return m_pDescriptorSetLayout; }

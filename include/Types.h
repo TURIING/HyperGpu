@@ -80,6 +80,16 @@ namespace HyperGpu
 	struct Size {
 		uint32_t width  = 0;
 		uint32_t height = 0;
+
+		Size operator/(uint32_t v) const {
+			return { width / v, height / v };
+		}
+
+		Size& operator/=(uint32_t v) {
+			width  /= v;
+			height /= v;
+			return *this;
+		}
 	};
 
 	struct Color {

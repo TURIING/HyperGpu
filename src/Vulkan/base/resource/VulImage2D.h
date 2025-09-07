@@ -25,6 +25,7 @@ struct VulImage2DCreateInfo {
     VkMemoryPropertyFlags memoryPropertyFlags;
     uint32_t mipLevels = 1;
     VkImage handle = nullptr;
+    const char* objName = nullptr;
 };
 
 class VulImage2D final: public VulObject<VkImage>{

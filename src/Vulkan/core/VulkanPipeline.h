@@ -22,17 +22,17 @@ class VulPipeline;
 class VulRenderPass;
 class VulPipeLineLayout;
 class VulkanDevice;
+class VulShader;
 
 class VulkanPipeline final : public Pipeline {
 public:
 	VulkanPipeline(VulkanDevice* pDevice, const RenderEnvInfo& renderEnvInfo);
-	~ VulkanPipeline() override;
-	[[nodiscard]] VulPipeline*       GetHandle() const { return m_pPipeline; }
-	[[nodiscard]] VulRenderPass*     GetRenderPass() const { return m_pRenderPass; }
-	[[nodiscard]] VulDescriptorSet*  GetDescriptorSet() const { return m_pDescriptorSet; }
-	[[nodiscard]] VulPipeLineLayout* GetPipelineLayout() const { return m_pPipelineLayout; }
-	void SetUniformBuffers(UniformBinding* infos, uint32_t count) const;
-	void SetImages(ImageBinding* infos, uint32_t count) const;
+	~VulkanPipeline() override;
+	NODISCARD VulPipeline*       GetHandle() const { return m_pPipeline; }
+	NODISCARD VulRenderPass*     GetRenderPass() const { return m_pRenderPass; }
+	NODISCARD VulPipeLineLayout* GetPipelineLayout() const { return m_pPipelineLayout; }
+	NODISCARD VulDescriptorSetLayout* GetDescriptorSetLayout() const { return m_pDescriptorSetLayout; }
+	NODISCARD VulShader* GetShader() const { return m_pShader; }
 
 private:
 	VulkanDevice*           m_pVulkanDevice        = nullptr;
@@ -40,8 +40,8 @@ private:
 	VulRenderPass*          m_pRenderPass          = nullptr;
 	VulPipeline*            m_pPipeline            = nullptr;
 	VulDescriptorPool*      m_pDescriptorPool      = nullptr;
-	VulDescriptorSet*       m_pDescriptorSet       = nullptr;
 	VulDescriptorSetLayout* m_pDescriptorSetLayout = nullptr;
+	VulShader*              m_pShader		       = nullptr;
 };
 
 USING_GPU_NAMESPACE_END

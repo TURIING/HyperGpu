@@ -10,7 +10,7 @@
 
 USING_GPU_NAMESPACE_BEGIN
 
-VulPipeline::VulPipeline(VulLogicDevice* device, const VulPipelineState& state): m_pDevice(device) {
+VulPipeline::VulPipeline(VulLogicDevice* device, const VulPipelineState& state, const char *objName): m_pDevice(device) {
 	m_pDevice->AddRef();
     VkGraphicsPipelineCreateInfo pipelineCreateInfo {
         .sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,
@@ -30,7 +30,12 @@ VulPipeline::VulPipeline(VulLogicDevice* device, const VulPipelineState& state):
         .basePipelineHandle = VK_NULL_HANDLE,
     };
     CALL_VK(vkCreateGraphicsPipelines(m_pDevice->GetHandle(), nullptr, 1, &pipelineCreateInfo, nullptr, &m_pHandle));
-    LOG_INFO("Pipeline created");
+
+    if (objName) {
+        m_pDevice->SetDebugUtilsObjectName(VK_OBJECT_TYPE_PIPELINE, (uint64_t)m_pHandle, objName);
+    }
+
+    LOG_DEBUG("Pipeline created");
 }
 
 VulPipeline::~VulPipeline() {

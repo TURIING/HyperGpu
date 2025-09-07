@@ -8,7 +8,6 @@
 #ifndef VULKANCMD_H
 #define VULKANCMD_H
 #include <GpuCmd.h>
-#include <memory>
 
 USING_GPU_NAMESPACE_BEGIN
 
@@ -20,12 +19,13 @@ class VulCommandBuffer;
 class VulCommandPool;
 class VulkanDevice;
 class VulkanPipeline;
+class VulDescriptorSet;
 
 class VulkanCmd final : public GpuCmd {
 public:
 	VulkanCmd(VulkanDevice* device, VulCommandPool* pool);
 	~VulkanCmd() override;
-	[[nodiscard]] VulCommandBuffer* GetHandle() const { return m_pCmd; }
+	NODISCARD VulCommandBuffer* GetHandle() const { return m_pCmd; }
 
 	void Reset() override;
 	void Begin() override;
@@ -44,13 +44,17 @@ public:
 	void EndDebugUtilsLabel() override;
 
 private:
-	[[nodiscard]] static VkViewport transViewportToVkViewport(const Viewport& viewport);
-	[[nodiscard]] static VkRect2D   transScissorToVkRect2D(const Scissor& scissor);
+	NODISCARD static VkViewport transViewportToVkViewport(const Viewport& viewport);
+	NODISCARD static VkRect2D   transScissorToVkRect2D(const Scissor& scissor);
+	void SetUniformBuffers(UniformBinding* infos, uint32_t count) const;
+	void SetImages(ImageBinding* infos, uint32_t count) const;
 
 private:
 	VulkanDevice* m_pVulkanDevice = nullptr;
 	VulCommandBuffer* m_pCmd = nullptr;
+	VulDescriptorSet* m_pDescriptorSet = nullptr;
     VulkanPipeline* m_pPipeline = nullptr;
+	std::vector<VulkanPipeline*> m_vecHistoryPipeline;
 };
 
 USING_GPU_NAMESPACE_END

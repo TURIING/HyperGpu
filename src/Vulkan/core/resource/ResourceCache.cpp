@@ -9,10 +9,12 @@
 
 #include <typeindex>
 
-#include "HyperGpu/src/Vulkan/base/pipeline/VulRenderPass.h"
-#include "HyperGpu/src/Vulkan/base/surface/VulFrameBuffer.h"
-#include "HyperGpu/src/Vulkan/core/VulkanDevice.h"
+#include "../../base/pipeline/VulRenderPass.h"
+#include "../../base/surface/VulFrameBuffer.h"
+#include "../../core/VulkanDevice.h"
 #include "../VulkanPipeline.h"
+#include "../../base/descriptor/VulDescriptorSet.h"
+#include "../../base/pipeline/VulShader.h"
 
 template <>
 struct std::hash<Size> {
@@ -176,6 +178,45 @@ VulkanPipeline* ResourceCache::RequestPipeline(const RenderEnvInfo &info) {
     m_mapPipelines[hash] = std::make_unique<VulkanPipeline*>(new VulkanPipeline(m_pVulkanDevice, info));
 
     return *m_mapPipelines[hash];
+}
+
+VulDescriptorSet* ResourceCache::RequestDescriptorSet(VulkanPipeline *pipeline) {
+    if (const auto it = m_mapDescriptorSet.find(pipeline); it != m_mapDescriptorSet.end()) {
+        for (auto &setInfo: it->second) {
+            if (!setInfo.dirty) {
+                setInfo.dirty = true;
+                return setInfo.pSet;
+            }
+        }
+    }
+
+    auto pSet = new VulDescriptorSet(
+        m_pVulkanDevice->GetLogicDevice(),
+        m_pVulkanDevice->GetDescriptorPool(),
+        pipeline->GetDescriptorSetLayout(),
+        pipeline->GetShader()->GetResourceBinding()
+    );
+    m_mapDescriptorSet[pipeline].push_back({ pSet, true });
+    return pSet;
+}
+
+void ResourceCache::ResetAllDescriptorSet(VulkanPipeline *pipeline) {
+    LOG_ASSERT(pipeline);
+    if (auto it = m_mapDescriptorSet.find(pipeline); it != m_mapDescriptorSet.end()) {
+        for (auto &info: it->second) {
+            info.dirty = false;
+        }
+    }
+}
+
+void ResourceCache::DeleteAllDescriptorSet(VulkanPipeline *pipeline) {
+    LOG_ASSERT(pipeline);
+    if (auto it = m_mapDescriptorSet.find(pipeline); it != m_mapDescriptorSet.end()) {
+        for (auto &info: it->second) {
+            info.pSet->SubRef();
+        }
+        m_mapDescriptorSet.erase(it);
+    }
 }
 
 USING_GPU_NAMESPACE_END
