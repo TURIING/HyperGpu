@@ -29,12 +29,11 @@ namespace HyperGpu {
 	public:
 		enum class ImageUsage { Color, Depth_Stencil };
 
-		struct Image2DCreateInfo {
+		struct Image2DCreateInfo: CommonInfo {
 			Size        size;
 			PixelFormat format   = PixelFormat::R8G8B8A8;
 			ImageUsage  usage    = ImageUsage::Color;
 			Sampler*    pSampler = nullptr;
-			const char* objName = nullptr;
 		};
 
 		virtual ImageUsage GetUsage() const = 0;

@@ -21,7 +21,10 @@
 USING_GPU_NAMESPACE_BEGIN
 
 VulkanQueue::VulkanQueue(VulkanDevice* pVulkanDevice, QueueType queueType): m_pVulkanDevice(pVulkanDevice) {
-    m_pVulQueue = new VulQueue(m_pVulkanDevice->GetLogicDevice(), m_pVulkanDevice->GetPhysicalDevice()->GetQueueFamily(queueType));
+    m_pVulQueue = new VulQueue(
+        m_pVulkanDevice->GetLogicDevice(),
+        m_pVulkanDevice->GetPhysicalDevice()->GetQueueFamily(queueType)
+    );
 }
 
 VulkanQueue::~VulkanQueue() {

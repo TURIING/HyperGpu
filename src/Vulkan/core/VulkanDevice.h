@@ -34,7 +34,7 @@ public:
 	NODISCARD GpuSurface*         CreateSurface(const PlatformWindowInfo &platformWindowInfo) override;
 	NODISCARD Queue*			  CreateQueue(QueueType queueType) override;
 	NODISCARD ResourceCache*	  GetResourceCache() const { return m_pResourceCache; }
-	NODISCARD VulDescriptorPool* GetDescriptorPool() const { return m_pDescriptorPool; }
+	NODISCARD VulDescriptorPool*  GetDescriptorPool() const { return m_pDescriptorPool; }
 
 private:
 	VulInstance*		m_pInstance		   = nullptr;

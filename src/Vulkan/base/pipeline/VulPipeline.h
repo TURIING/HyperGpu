@@ -18,7 +18,13 @@ class VulLogicDevice;
 
 class VulPipeline final : public VulObject<VkPipeline> {
 public:
-    VulPipeline(VulLogicDevice* device, const VulPipelineState &state, const char *objName);
+    enum PipelineType { Graphic, Compute };
+    struct VulPipelineCreateInfo: CommonInfo {
+        VulGraphicPipelineState* graphicPipelineState = nullptr;
+        VulComputePipelineState* computePipelineState = nullptr;
+        PipelineType type = Graphic;
+    };
+    VulPipeline(VulLogicDevice* device, const VulPipelineCreateInfo& info);
     ~VulPipeline() override;
 
 private:

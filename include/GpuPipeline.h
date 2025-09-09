@@ -13,13 +13,15 @@
 
 namespace HyperGpu {
 struct ShaderInfo {
-	const void* pSpvVertexCode	   = nullptr;
-	size_t	spvVertexCodeSize = 0;
-	const void* pSpvFragCode	   = nullptr;
-	size_t	spvFragCodeSize   = 0;
+	const void* pSpvVertexCode = nullptr;
+	size_t spvVertexCodeSize = 0;
+	const void* pSpvFragCode = nullptr;
+	size_t spvFragCodeSize = 0;
 
 	const void *pGlVertexCode = nullptr;
 	const void *pGlFragCode = nullptr;
+
+
 };
 
 struct RasterizationInfo {
@@ -49,22 +51,28 @@ struct AttachmentInfo {
 	AttachmentStoreOp storeOp;
 };
 
-struct RenderEnvInfo {
-	const char* objName = nullptr;
+struct EnvInfo: CommonInfo {
 	ShaderInfo shaderInfo;
+};
+
+struct RenderEnvInfo: EnvInfo {
 	RasterizationInfo rasterInfo;
 	BlendInfo blendInfo;
 	std::vector<AttachmentInfo> attachments;
 };
 
-class Pipeline : public GpuObject {
+struct ComputeEnvInfo: EnvInfo {};
+
+class Pipeline: public GpuObject {
 public:
 	RenderEnvInfo renderEnvInfo;
+	ComputeEnvInfo computeEnvInfo;
 };
 
 class PipelineManager : public GpuObject {
 public:
-	[[nodiscard]] virtual Pipeline* CreateRenderPipeline(const RenderEnvInfo& renderEnvInfo) = 0;
+	[[nodiscard]] virtual Pipeline* CreateGraphicPipeline(const RenderEnvInfo& renderEnvInfo) = 0;
+	[[nodiscard]] virtual Pipeline* CreateComputePipeline(const ComputeEnvInfo& computeEnvInfo) = 0;
 	static void DestroyPipeline(Pipeline* pipeline) { pipeline->SubRef(); }
 };
 }

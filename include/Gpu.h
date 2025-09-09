@@ -9,7 +9,6 @@
 #define GPU_H
 
 #include <cassert>
-#include <string>
 #include <functional>
 #include  <atomic>
 

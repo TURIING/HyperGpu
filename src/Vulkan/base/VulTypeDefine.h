@@ -27,11 +27,11 @@ struct VulPipelineVertexInputState
 };
 
 
-struct VulPipelineState
+struct VulGraphicPipelineState
 {
-    std::vector<VkPipelineShaderStageCreateInfo> shaderStages;
-    VkPipelineLayout pipeLineLayout{};
-    VkRenderPass renderPass{};
+	VkPipelineLayout pipeLineLayout{};
+	VkRenderPass renderPass{};
+	std::vector<VkPipelineShaderStageCreateInfo> shaderStages;
     VkPipelineVertexInputStateCreateInfo vertexInputState{};
     VkPipelineInputAssemblyStateCreateInfo inputAssemblyState{};
     VkPipelineViewportStateCreateInfo viewportState{};
@@ -41,6 +41,11 @@ struct VulPipelineState
     VkPipelineColorBlendStateCreateInfo colorBlendState{};
     VkPipelineDynamicStateCreateInfo dynamicState{};
     uint32_t subPassIndex{ 0 };
+};
+
+struct VulComputePipelineState {
+	VkPipelineLayout pipeLineLayout{};
+	VkPipelineShaderStageCreateInfo shaderStage{};
 };
 
 struct VulPipelineInputAssemblyState

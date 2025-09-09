@@ -14,7 +14,8 @@ class OpenGlPipelineManager final: public PipelineManager {
 public:
     explicit OpenGlPipelineManager(OpenGlDevice* pDevice);
     ~OpenGlPipelineManager() override;
-    NODISCARD Pipeline* CreateRenderPipeline(const RenderEnvInfo &renderEnvInfo) override;
+    NODISCARD Pipeline* CreateGraphicPipeline(const RenderEnvInfo &renderEnvInfo) override;
+    NODISCARD Pipeline * CreateComputePipeline(const ComputeEnvInfo& computeEnvInfo) override;
 
 private:
     OpenGlDevice* m_pDevice = nullptr;

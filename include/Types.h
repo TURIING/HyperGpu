@@ -77,6 +77,10 @@ namespace HyperGpu
 		int patch;
 	};
 
+	struct CommonInfo {
+		const char* objName = nullptr;
+	};
+
 	struct Size {
 		uint32_t width  = 0;
 		uint32_t height = 0;

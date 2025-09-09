@@ -12,7 +12,7 @@
 #include "../../base/pipeline/VulRenderPass.h"
 #include "../../base/surface/VulFrameBuffer.h"
 #include "../../core/VulkanDevice.h"
-#include "../VulkanPipeline.h"
+#include "../pipeline/VulkanPipeline.h"
 #include "../../base/descriptor/VulDescriptorSet.h"
 #include "../../base/pipeline/VulShader.h"
 

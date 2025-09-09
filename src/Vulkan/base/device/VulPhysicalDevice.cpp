@@ -80,7 +80,7 @@ uint32_t VulPhysicalDevice::FindMemoryType(uint32_t typeFilter, VkMemoryProperty
     LOG_CRITICAL("Failed to find suitable memory type.");
 }
 
-u32 VulPhysicalDevice::GetQueueFamily(HyperGpu::QueueType queueType) const {
+u32 VulPhysicalDevice::GetQueueFamily(QueueType queueType) const {
     std::optional<u32> index;
     switch (queueType) {
     case QueueType::Graphics:   index = sGetQueueFamilyIndex(m_queueFamilyProperties, VK_QUEUE_GRAPHICS_BIT, VK_QUEUE_COMPUTE_BIT, VK_QUEUE_TRANSFER_BIT);  break;

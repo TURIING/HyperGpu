@@ -1,30 +1,22 @@
-/********************************************************************************
-* @author: TURIING
-* @email: turiing@163.com
-* @date: 2025/3/1 23:00
-* @version: 1.0
-* @description: 
-********************************************************************************/
-#include "VulkanPipeline.h"
+//
+// Created by turiing on 2025/9/8.
+//
 
-#include "../base/device/VulPhysicalDevice.h"
-#include "../base/descriptor/VulDescriptorPool.h"
-#include "../base/descriptor/VulDescriptorSet.h"
-#include "../base/pipeline/VulPipeline.h"
-#include "../base/pipeline/VulPipelineLayout.h"
-#include "../base/pipeline/VulRenderPass.h"
-#include "../base/pipeline/VulShader.h"
-#include "VulkanDevice.h"
-#include "../base/descriptor/VulDescriptorSetLayout.h"
-#include "HyperGpu/src/Vulkan/base/device/VulLogicDevice.h"
-#include "resource/ResourceCache.h"
+#include "VulkanGraphicPipeline.h"
+
+#include "../../base/device/VulPhysicalDevice.h"
+#include "../../base/pipeline/VulPipeline.h"
+#include "../../base/pipeline/VulPipelineLayout.h"
+#include "../../base/pipeline/VulRenderPass.h"
+#include "../../base/pipeline/VulShader.h"
+#include "../VulkanDevice.h"
+#include "../resource/ResourceCache.h"
 
 USING_GPU_NAMESPACE_BEGIN
 
-VulkanPipeline::VulkanPipeline(VulkanDevice* pDevice, const RenderEnvInfo& renderEnvInfo) : m_pVulkanDevice(pDevice) {
+VulkanGraphicPipeline::VulkanGraphicPipeline(VulkanDevice* pDevice, const RenderEnvInfo& renderEnvInfo): VulkanPipeline(pDevice, renderEnvInfo) {
 	this->renderEnvInfo = renderEnvInfo;
 	m_pVulkanDevice->AddRef();
-	m_pShader = new VulShader(pDevice->GetLogicDevice(), renderEnvInfo.shaderInfo);
 
 	VulPipelineInputAssemblyState pipelineInputAssembly{renderEnvInfo.rasterInfo.primitiveType};
 	VulPipelineRasterizationState pipelineRasterizationState(renderEnvInfo.rasterInfo);
@@ -47,14 +39,8 @@ VulkanPipeline::VulkanPipeline(VulkanDevice* pDevice, const RenderEnvInfo& rende
 	m_pRenderPass = m_pVulkanDevice->GetResourceCache()->RequestRenderPass({ attachmentInfos.data(), TO_U32(attachmentInfos.size()) });
 	m_pRenderPass->AddRef();
 
-	m_pPipelineLayout = m_pShader->GetPipelineLayout();
-	m_pPipelineLayout->AddRef();
-
-	m_pDescriptorSetLayout = m_pShader->GetDescriptorSetLayout();
-	m_pDescriptorSetLayout->AddRef();
-
 	auto vertexInputState = m_pShader->GetPipelineVertexInputState();
-	VulPipelineState pipelineState{
+	VulGraphicPipelineState pipelineState{
 		.shaderStages		= m_pShader->GetShaderStages(),
 		.pipeLineLayout		= m_pPipelineLayout->GetHandle(),
 		.renderPass			= m_pRenderPass->GetHandle(),
@@ -68,17 +54,17 @@ VulkanPipeline::VulkanPipeline(VulkanDevice* pDevice, const RenderEnvInfo& rende
 		.dynamicState		= pipelineDynamicState.GetCreateInfo(),
 		.subPassIndex		= 0,
 	};
-	m_pPipeline = new VulPipeline(m_pVulkanDevice->GetLogicDevice(), pipelineState, renderEnvInfo.objName);
+
+	VulPipeline::VulPipelineCreateInfo pipelineCreateInfo;
+	pipelineCreateInfo.graphicPipelineState = &pipelineState,
+	pipelineCreateInfo.type = VulPipeline::Graphic,
+	pipelineCreateInfo.objName = renderEnvInfo.objName;
+
+	m_pPipeline = new VulPipeline(m_pVulkanDevice->GetLogicDevice(), pipelineCreateInfo);
 }
 
-VulkanPipeline::~VulkanPipeline() {
-	m_pShader->SubRef();
-	m_pPipelineLayout->SubRef();
-	m_pDescriptorSetLayout->SubRef();
-	m_pVulkanDevice->GetResourceCache()->DeleteAllDescriptorSet(this);
+VulkanGraphicPipeline::~VulkanGraphicPipeline() {
 	m_pRenderPass->SubRef();
-	m_pPipeline->SubRef();
-	m_pVulkanDevice->SubRef();
 }
 
 USING_GPU_NAMESPACE_END

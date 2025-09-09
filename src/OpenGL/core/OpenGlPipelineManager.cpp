@@ -15,7 +15,11 @@ OpenGlPipelineManager::~OpenGlPipelineManager() {
     m_pDevice->SubRef();
 }
 
-Pipeline * OpenGlPipelineManager::CreateRenderPipeline(const RenderEnvInfo &renderEnvInfo) {
+Pipeline * OpenGlPipelineManager::CreateGraphicPipeline(const RenderEnvInfo &renderEnvInfo) {
     return new GlPipeline(m_pDevice, renderEnvInfo);
+}
+
+Pipeline * OpenGlPipelineManager::CreateComputePipeline(const ComputeEnvInfo& computeEnvInfo) {
+    return nullptr;
 }
 

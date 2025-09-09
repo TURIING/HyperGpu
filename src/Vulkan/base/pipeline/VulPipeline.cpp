@@ -6,36 +6,51 @@
 * @description: 
 ********************************************************************************/
 #include "VulPipeline.h"
+#include "VulPipeline.h"
 #include "../device/VulLogicDevice.h"
 
 USING_GPU_NAMESPACE_BEGIN
 
-VulPipeline::VulPipeline(VulLogicDevice* device, const VulPipelineState& state, const char *objName): m_pDevice(device) {
+VulPipeline::VulPipeline(VulLogicDevice* device, const VulPipelineCreateInfo& info): m_pDevice(device) {
 	m_pDevice->AddRef();
-    VkGraphicsPipelineCreateInfo pipelineCreateInfo {
-        .sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,
-        .stageCount = static_cast<uint32_t>(state.shaderStages.size()),
-        .pStages = state.shaderStages.data(),
-        .pVertexInputState = &state.vertexInputState,
-        .pInputAssemblyState = &state.inputAssemblyState,
-        .pViewportState = &state.viewportState,
-        .pRasterizationState = &state.rasterizationState,
-        .pMultisampleState = &state.multiSampleState,
-        .pDepthStencilState = &state.depthStencilState,
-        .pColorBlendState = &state.colorBlendState,
-        .pDynamicState = &state.dynamicState,
-        .layout = state.pipeLineLayout,
-        .renderPass = state.renderPass,
-        .subpass = state.subPassIndex,
-        .basePipelineHandle = VK_NULL_HANDLE,
-    };
-    CALL_VK(vkCreateGraphicsPipelines(m_pDevice->GetHandle(), nullptr, 1, &pipelineCreateInfo, nullptr, &m_pHandle));
 
-    if (objName) {
-        m_pDevice->SetDebugUtilsObjectName(VK_OBJECT_TYPE_PIPELINE, (uint64_t)m_pHandle, objName);
+    if (info.type == PipelineType::Graphic) {
+        auto state = *info.graphicPipelineState;
+        VkGraphicsPipelineCreateInfo pipelineCreateInfo {
+            .sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,
+            .stageCount = static_cast<uint32_t>(state.shaderStages.size()),
+            .pStages = state.shaderStages.data(),
+            .pVertexInputState = &state.vertexInputState,
+            .pInputAssemblyState = &state.inputAssemblyState,
+            .pViewportState = &state.viewportState,
+            .pRasterizationState = &state.rasterizationState,
+            .pMultisampleState = &state.multiSampleState,
+            .pDepthStencilState = &state.depthStencilState,
+            .pColorBlendState = &state.colorBlendState,
+            .pDynamicState = &state.dynamicState,
+            .layout = state.pipeLineLayout,
+            .renderPass = state.renderPass,
+            .subpass = state.subPassIndex,
+            .basePipelineHandle = VK_NULL_HANDLE,
+        };
+        CALL_VK(vkCreateGraphicsPipelines(m_pDevice->GetHandle(), nullptr, 1, &pipelineCreateInfo, nullptr, &m_pHandle));
+        LOG_DEBUG("Graphic Pipeline created");
+    }
+    else {
+        auto state = *info.computePipelineState;
+        VkComputePipelineCreateInfo createInfo {
+            .sType = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO,
+            .pNext = nullptr,
+            .stage = state.shaderStage,
+            .layout = state.pipeLineLayout,
+        };
+        CALL_VK(vkCreateComputePipelines(m_pDevice->GetHandle(), VK_NULL_HANDLE, 1, &createInfo, nullptr, &m_pHandle));
+        LOG_DEBUG("Compute Pipeline created");
     }
 
-    LOG_DEBUG("Pipeline created");
+    if (info.objName) {
+        m_pDevice->SetDebugUtilsObjectName(VK_OBJECT_TYPE_PIPELINE, reinterpret_cast<uint64_t>(m_pHandle), info.objName);
+    }
 }
 
 VulPipeline::~VulPipeline() {
