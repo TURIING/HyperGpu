@@ -19,7 +19,7 @@ class VulDescriptorSetLayout;
 
 struct VulDescriptorSetLayoutBindInfo {
     uint32_t bindIndex = 0;
-    VulDescriptorType descriptorType = VulDescriptorType::Sampler;
+    VkDescriptorType descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
     VkShaderStageFlags stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
     uint32_t descriptorCount = 0;
 };

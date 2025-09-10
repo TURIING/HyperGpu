@@ -16,7 +16,6 @@ USING_GPU_NAMESPACE_BEGIN
 
 VulkanGraphicPipeline::VulkanGraphicPipeline(VulkanDevice* pDevice, const RenderEnvInfo& renderEnvInfo): VulkanPipeline(pDevice, renderEnvInfo) {
 	this->renderEnvInfo = renderEnvInfo;
-	m_pVulkanDevice->AddRef();
 
 	VulPipelineInputAssemblyState pipelineInputAssembly{renderEnvInfo.rasterInfo.primitiveType};
 	VulPipelineRasterizationState pipelineRasterizationState(renderEnvInfo.rasterInfo);

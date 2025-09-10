@@ -19,39 +19,64 @@ USING_GPU_NAMESPACE_BEGIN
 VulShader::VulShader(VulLogicDevice* logicDevice, const ShaderInfo &shaderInfo): m_pLogicDevice(logicDevice) {
 	m_pLogicDevice->AddRef();
 
-    m_pVertexShaderModule = new VulShaderModule(logicDevice, shaderInfo.pSpvVertexCode, shaderInfo.spvVertexCodeSize);
-    m_pFragShaderModule = new VulShaderModule(logicDevice, shaderInfo.pSpvFragCode, shaderInfo.spvFragCodeSize);
+    std::vector<VulDescriptorSetLayoutBindInfo> descriptorSetLayoutBindInfos;
 
-    SpvReflectShaderModule spvReflectVertexShaderModule;
-    auto result = spvReflectCreateShaderModule(shaderInfo.spvVertexCodeSize, shaderInfo.pSpvVertexCode, &spvReflectVertexShaderModule);
-    LOG_ASSERT(result == SPV_REFLECT_RESULT_SUCCESS);
+    if (shaderInfo.pSpvVertexCode) {
+        m_pVertexShaderModule = new VulShaderModule(logicDevice, shaderInfo.pSpvVertexCode, shaderInfo.spvVertexCodeSize);
 
-    SpvReflectShaderModule spvReflectFragShaderModule;
-    result = spvReflectCreateShaderModule(shaderInfo.spvFragCodeSize, shaderInfo.pSpvFragCode, &spvReflectFragShaderModule);
-    LOG_ASSERT(result == SPV_REFLECT_RESULT_SUCCESS);
+        SpvReflectShaderModule spvReflectVertexShaderModule;
+        auto result = spvReflectCreateShaderModule(shaderInfo.spvVertexCodeSize, shaderInfo.pSpvVertexCode, &spvReflectVertexShaderModule);
+        LOG_ASSERT(result == SPV_REFLECT_RESULT_SUCCESS);
 
-    // 生成着色器描述
-    m_shaderStages.emplace_back(makeShaderStage(spvReflectVertexShaderModule, m_pVertexShaderModule->GetHandle()));
-    m_shaderStages.emplace_back(makeShaderStage(spvReflectFragShaderModule, m_pFragShaderModule->GetHandle()));
+        m_shaderStages.emplace_back(makeShaderStage(spvReflectVertexShaderModule, m_pVertexShaderModule->GetHandle()));
 
-    // 生成顶点描述
-    this->computeInputState(spvReflectVertexShaderModule);
+        // 生成顶点描述
+        this->computeInputState(spvReflectVertexShaderModule);
+
+        computeDescriptorSetLayout(spvReflectVertexShaderModule, descriptorSetLayoutBindInfos);
+
+        this->computePushConstant(spvReflectVertexShaderModule, VK_SHADER_STAGE_VERTEX_BIT);
+
+        spvReflectDestroyShaderModule(&spvReflectVertexShaderModule);
+    }
+
+    if (shaderInfo.pSpvFragCode) {
+        m_pFragShaderModule = new VulShaderModule(logicDevice, shaderInfo.pSpvFragCode, shaderInfo.spvFragCodeSize);
+
+        SpvReflectShaderModule spvReflectFragShaderModule;
+        auto result = spvReflectCreateShaderModule(shaderInfo.spvFragCodeSize, shaderInfo.pSpvFragCode, &spvReflectFragShaderModule);
+        LOG_ASSERT(result == SPV_REFLECT_RESULT_SUCCESS);
+
+        m_shaderStages.emplace_back(makeShaderStage(spvReflectFragShaderModule, m_pFragShaderModule->GetHandle()));
+
+        computeDescriptorSetLayout(spvReflectFragShaderModule, descriptorSetLayoutBindInfos);
+
+        this->computePushConstant(spvReflectFragShaderModule, VK_SHADER_STAGE_FRAGMENT_BIT);
+
+        spvReflectDestroyShaderModule(&spvReflectFragShaderModule);
+    }
+
+    if (shaderInfo.pSpvCompCode) {
+        m_pCompShaderModule = new VulShaderModule(logicDevice, shaderInfo.pSpvCompCode, shaderInfo.spvCompCodeSize);
+
+        SpvReflectShaderModule spvReflectCompShaderModule;
+        auto result = spvReflectCreateShaderModule(shaderInfo.spvCompCodeSize, shaderInfo.pSpvCompCode, &spvReflectCompShaderModule);
+        LOG_ASSERT(result == SPV_REFLECT_RESULT_SUCCESS);
+
+        m_shaderStages.emplace_back(makeShaderStage(spvReflectCompShaderModule, m_pCompShaderModule->GetHandle()));
+
+        computeDescriptorSetLayout(spvReflectCompShaderModule, descriptorSetLayoutBindInfos);
+
+        this->computePushConstant(spvReflectCompShaderModule, VK_SHADER_STAGE_FRAGMENT_BIT);
+
+        spvReflectDestroyShaderModule(&spvReflectCompShaderModule);
+    }
 
     // 生成描述符布局
-    std::vector<VulDescriptorSetLayoutBindInfo> descriptorSetLayoutBindInfos;
-    computeDescriptorSetLayout(spvReflectVertexShaderModule, descriptorSetLayoutBindInfos);
-    computeDescriptorSetLayout(spvReflectFragShaderModule, descriptorSetLayoutBindInfos);
     m_pDescriptorSetLayout = VulDescriptorSetLayout::Builder()
                                 .SetLogicDevice(m_pLogicDevice)
                                 .AddDescriptorBindings(descriptorSetLayoutBindInfos)
                                 .Build();
-
-    // 生成PushConstants描述
-    this->computePushConstant(spvReflectVertexShaderModule, VK_SHADER_STAGE_VERTEX_BIT);
-    this->computePushConstant(spvReflectFragShaderModule, VK_SHADER_STAGE_FRAGMENT_BIT);
-
-    spvReflectDestroyShaderModule(&spvReflectVertexShaderModule);
-    spvReflectDestroyShaderModule(&spvReflectFragShaderModule);
 }
 
 VulShader::~VulShader() {
@@ -151,7 +176,7 @@ void VulShader::computeDescriptorSetLayout(const SpvReflectShaderModule& module,
             VulDescriptorSetLayoutBindInfo bindInfo;
             bindInfo.bindIndex = reflectBinding.binding;
             bindInfo.descriptorCount = reflectBinding.count;
-            bindInfo.descriptorType = static_cast<VulDescriptorType>(reflectBinding.descriptor_type);
+            bindInfo.descriptorType = static_cast<VkDescriptorType>(reflectBinding.descriptor_type);
             bindInfo.stageFlags = static_cast<VkShaderStageFlagBits>(module.shader_stage);
             bindInfos.push_back(bindInfo);
 
@@ -201,9 +226,9 @@ VkShaderStageFlagBits VulShader::transformSpvStageToVk(int spvStage) {
     case SPV_REFLECT_SHADER_STAGE_VERTEX_BIT:           return VK_SHADER_STAGE_VERTEX_BIT;
     case SPV_REFLECT_SHADER_STAGE_FRAGMENT_BIT:         return VK_SHADER_STAGE_FRAGMENT_BIT;
     case SPV_REFLECT_SHADER_STAGE_GEOMETRY_BIT:         return VK_SHADER_STAGE_GEOMETRY_BIT;
+    case SPV_REFLECT_SHADER_STAGE_COMPUTE_BIT:          return VK_SHADER_STAGE_COMPUTE_BIT;
     default:                                            LOG_ASSERT(false);
     }
-    return VK_SHADER_STAGE_VERTEX_BIT;
 }
 
 uint32_t VulShader::transformVkFormatToSize(const VkFormat format) {

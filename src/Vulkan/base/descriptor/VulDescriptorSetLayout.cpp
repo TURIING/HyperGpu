@@ -17,7 +17,7 @@ VulDescriptorSetLayout::VulDescriptorSetLayout(VulLogicDevice* device, const Vul
     for(const auto & [bindIndex, descriptorType, shaderStage, descriptorCount] : createInfo.descriptorSetLayoutBindings) {
         VkDescriptorSetLayoutBinding binding {
             .binding = static_cast<uint32_t>(bindIndex),
-            .descriptorType = gDescriptorTypeMap[descriptorType],
+            .descriptorType = descriptorType,
             .descriptorCount = descriptorCount,
             .stageFlags = shaderStage,
             .pImmutableSamplers = nullptr,

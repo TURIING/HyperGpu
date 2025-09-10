@@ -27,6 +27,7 @@ public:
     void BeginRenderPass(const BeginRenderInfo& info) override;
     void EndRenderPass() override;
     void Draw(const DrawInfo& info) override;
+    void Dispatch(const DispatchInfo &info) override;
     void ClearColorImage(Image2D* image, const Color &color) override;
     void SetViewport(const Viewport& viewport) override;
     void SetScissor(const Scissor& scissor) override;

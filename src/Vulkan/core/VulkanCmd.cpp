@@ -13,11 +13,11 @@
 #include "../base/pipeline/VulPipelineLayout.h"
 #include "resource/VulkanBuffer.h"
 #include "VulkanDevice.h"
-#include "pipeline/VulkanPipeline.h"
+#include "pipeline/VulkanGraphicPipeline.h"
+#include "pipeline/VulkanComputePipeline.h"
 #include "VulkanSurface.h"
 #include "../base/resource/VulImage2D.h"
 #include "../base/resource/VulBuffer.h"
-#include "HyperGpu/src/Vulkan/base/device/VulLogicDevice.h"
 #include "resource/ResourceCache.h"
 #include "resource/VulkanImage2D.h"
 #include "resource/VulkanInputAssembler.h"
@@ -51,7 +51,6 @@ void VulkanCmd::End() {
 }
 
 void VulkanCmd::Draw(const DrawInfo& info) {
-	LOG_ASSERT_INFO(m_pPipeline, "Pipeline is null, possibly BeginRenderPass be not called.")
 	SetImages(info.pImageBinding, info.imageBindingCount);
 	SetUniformBuffers(info.pUniformBinding, info.uniformBindingCount);
 
@@ -71,6 +70,13 @@ void VulkanCmd::Draw(const DrawInfo& info) {
 	else {
 		m_pCmd->Draw(pInputAssembler->GetVertexCount(), instanceCount);
 	}
+}
+
+void VulkanCmd::Dispatch(const DispatchInfo &info) {
+	SetImages(info.pImageBinding, info.imageBindingCount);
+	SetUniformBuffers(info.pUniformBinding, info.uniformBindingCount);
+
+	m_pCmd->Dispatch(info.groupCountX, info.groupCountY, info.groupCountZ);
 }
 
 void VulkanCmd::ClearColorImage(Image2D* image, const Color &color) {
@@ -175,7 +181,8 @@ void VulkanCmd::EndDebugUtilsLabel() {
 
 void VulkanCmd::BeginRenderPass(const BeginRenderInfo& beginRenderInfo) {
 	m_pPipeline = m_pVulkanDevice->GetResourceCache()->RequestPipeline(beginRenderInfo.pPipeline->renderEnvInfo);
-	const auto pRenderPass = m_pPipeline->GetRenderPass();
+	auto pGraphicPipeline = dynamic_cast<VulkanGraphicPipeline*>(m_pPipeline);
+	const auto pRenderPass = pGraphicPipeline->GetRenderPass();
 
 	VulRenderPassBeginInfo renderPassBeginInfo;
 	for (const auto& value : beginRenderInfo.clearValue) {

@@ -12,7 +12,8 @@
 #include "../../base/pipeline/VulRenderPass.h"
 #include "../../base/surface/VulFrameBuffer.h"
 #include "../../core/VulkanDevice.h"
-#include "../pipeline/VulkanPipeline.h"
+#include "../pipeline/VulkanGraphicPipeline.h"
+#include "../pipeline/VulkanComputePipeline.h"
 #include "../../base/descriptor/VulDescriptorSet.h"
 #include "../../base/pipeline/VulShader.h"
 
@@ -175,7 +176,20 @@ VulkanPipeline* ResourceCache::RequestPipeline(const RenderEnvInfo &info) {
         return *it->second;
     }
 
-    m_mapPipelines[hash] = std::make_unique<VulkanPipeline*>(new VulkanPipeline(m_pVulkanDevice, info));
+    m_mapPipelines[hash] = std::make_unique<VulkanPipeline*>(new VulkanGraphicPipeline(m_pVulkanDevice, info));
+
+    return *m_mapPipelines[hash];
+}
+
+VulkanPipeline* ResourceCache::RequestPipeline(const ComputeEnvInfo &info) {
+    size_t hash = 0;
+    hashParam(hash, info.shaderInfo);
+
+    if (const auto it = m_mapPipelines.find(hash); it != m_mapPipelines.end()) {
+        return *it->second;
+    }
+
+    m_mapPipelines[hash] = std::make_unique<VulkanPipeline*>(new VulkanComputePipeline(m_pVulkanDevice, info));
 
     return *m_mapPipelines[hash];
 }

@@ -20,7 +20,7 @@ VulDescriptorPool::VulDescriptorPool(VulLogicDevice* device, const VulDescriptor
 
     for(auto i = 0; i < info.poolSizes.size(); ++i) {
         poolSizes[i] = {
-            .type = gDescriptorTypeMap[info.poolSizes[i].type],
+            .type = info.poolSizes[i].type,
             .descriptorCount = info.poolSizes[i].count,
         };
     }

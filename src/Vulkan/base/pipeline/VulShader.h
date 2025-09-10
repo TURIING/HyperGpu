@@ -24,17 +24,17 @@ class VulShader final: public GpuObject {
 public:
     VulShader(VulLogicDevice* logicDevice, const ShaderInfo &shaderInfo);
     ~VulShader() override;
-    [[nodiscard]] std::vector<VkPipelineShaderStageCreateInfo> GetShaderStages() const { return m_shaderStages; }
-    [[nodiscard]] VulPipelineVertexInputState GetPipelineVertexInputState() { return m_pipelineVertexInputState; }
-    [[nodiscard]] VulDescriptorSetLayout* GetDescriptorSetLayout() const { return m_pDescriptorSetLayout; }
-    [[nodiscard]] std::vector<VkPushConstantRange> GetPushConstantRanges() const { return m_pushConstantRanges; }
-    [[nodiscard]] VulPipeLineLayout* GetPipelineLayout() const;
-    [[nodiscard]] std::unordered_map<std::string, uint8_t> GetResourceBinding() const { return m_mapResourceBinding; }
+    NODISCARD std::vector<VkPipelineShaderStageCreateInfo> GetShaderStages() const { return m_shaderStages; }
+    NODISCARD VulPipelineVertexInputState GetPipelineVertexInputState() { return m_pipelineVertexInputState; }
+    NODISCARD VulDescriptorSetLayout* GetDescriptorSetLayout() const { return m_pDescriptorSetLayout; }
+    NODISCARD std::vector<VkPushConstantRange> GetPushConstantRanges() const { return m_pushConstantRanges; }
+    NODISCARD VulPipeLineLayout* GetPipelineLayout() const;
+    NODISCARD std::unordered_map<std::string, uint8_t> GetResourceBinding() const { return m_mapResourceBinding; }
 
 private:
-    [[nodiscard]] static VkPipelineShaderStageCreateInfo makeShaderStage(const SpvReflectShaderModule &module, VkShaderModule shaderModule);
-    [[nodiscard]] static VkShaderStageFlagBits transformSpvStageToVk(int spvStage);
-    [[nodiscard]] static uint32_t transformVkFormatToSize(VkFormat format);
+    NODISCARD static VkPipelineShaderStageCreateInfo makeShaderStage(const SpvReflectShaderModule &module, VkShaderModule shaderModule);
+    NODISCARD static VkShaderStageFlagBits transformSpvStageToVk(int spvStage);
+    NODISCARD static uint32_t transformVkFormatToSize(VkFormat format);
     void computeInputState(const SpvReflectShaderModule &module);
     void computeDescriptorSetLayout(const SpvReflectShaderModule &module, std::vector<VulDescriptorSetLayoutBindInfo> &bindInfos);
     void computePushConstant(const SpvReflectShaderModule &module, VkShaderStageFlags stage);
@@ -46,6 +46,7 @@ private:
     VulDescriptorSetLayout* m_pDescriptorSetLayout = nullptr;
     VulShaderModule* m_pVertexShaderModule = nullptr;
     VulShaderModule* m_pFragShaderModule = nullptr;
+    VulShaderModule* m_pCompShaderModule = nullptr;
     std::vector<VkPushConstantRange> m_pushConstantRanges;
     std::unordered_map<std::string, uint8_t> m_mapResourceBinding;
 };

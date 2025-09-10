@@ -26,7 +26,6 @@ struct VulPipelineVertexInputState
     }
 };
 
-
 struct VulGraphicPipelineState
 {
 	VkPipelineLayout pipeLineLayout{};
@@ -193,16 +192,6 @@ struct VulPipelineDepthStencilState {
 		};
 		return depthStencilState;
 	}
-};
-
-enum class VulDescriptorType {
-	Sampler = 1,
-    UniformBuffer = 6,
-};
-
-static std::unordered_map<VulDescriptorType, VkDescriptorType> gDescriptorTypeMap = {
-    { VulDescriptorType::Sampler, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER },
-    { VulDescriptorType::UniformBuffer, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER },
 };
 
 #endif //VULTYPEDEFINE_H

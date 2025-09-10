@@ -168,6 +168,10 @@ void VulCommandBuffer::Draw(uint32_t vertexCount, u32 instanceCount) const {
 	vkCmdDraw(m_pHandle, vertexCount, instanceCount, 0, 0);
 }
 
+void VulCommandBuffer::Dispatch(uint32_t groupCountX, u32 groupCountY, u32 groupCountZ) const {
+    vkCmdDispatch(m_pHandle, groupCountX, groupCountY, groupCountZ);
+}
+
 void VulCommandBuffer::DrawIndex(uint32_t indexCount, u32 instanceCount) const {
     vkCmdDrawIndexed(m_pHandle, indexCount, instanceCount, 0, 0, 0);
 }

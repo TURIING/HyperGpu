@@ -18,7 +18,7 @@ class VulLogicDevice;
 class VulDescriptorPool;
 
 struct VulDescriptorPoolSizeInfo {
-    VulDescriptorType type;
+    VkDescriptorType type;
     uint32_t count;
 };
 

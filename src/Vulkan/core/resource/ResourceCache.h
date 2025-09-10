@@ -9,10 +9,10 @@
 #define RESOURCECACHE_H
 
 #include "../../../common/common.h"
+#include "HyperGpu/src/Vulkan/base/pipeline/VulPipeline.h"
 
 USING_GPU_NAMESPACE_BEGIN
-
-struct VulAttachmentInfo;
+    struct VulAttachmentInfo;
 class VulkanDevice;
 class VulRenderPass;
 class VulFrameBuffer;
@@ -47,6 +47,7 @@ public:
     NODISCARD VulFrameBuffer* RequestFrameBuffer(const FrameBufferCacheInfo &info);
     NODISCARD VulRenderPass* RequestRenderPass(const RenderPassCacheInfo &info);
     NODISCARD VulkanPipeline* RequestPipeline(const RenderEnvInfo &info);
+    NODISCARD VulkanPipeline* RequestPipeline(const ComputeEnvInfo &info);
     NODISCARD VulDescriptorSet* RequestDescriptorSet(VulkanPipeline* pipeline);
     void ResetAllDescriptorSet(VulkanPipeline* pipeline);
     void DeleteAllDescriptorSet(VulkanPipeline* pipeline);

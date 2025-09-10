@@ -17,11 +17,12 @@ struct ShaderInfo {
 	size_t spvVertexCodeSize = 0;
 	const void* pSpvFragCode = nullptr;
 	size_t spvFragCodeSize = 0;
+	const void* pSpvCompCode = nullptr;
+	size_t spvCompCodeSize = 0;
 
 	const void *pGlVertexCode = nullptr;
 	const void *pGlFragCode = nullptr;
-
-
+	const void *pGlCompCode = nullptr;
 };
 
 struct RasterizationInfo {

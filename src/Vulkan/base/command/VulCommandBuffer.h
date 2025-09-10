@@ -55,6 +55,7 @@ public:
     void CopyImage(VulImage2D* pSrcImage, VulImage2D* pDstImage, const std::vector<VkImageCopy> &regions) const;
     void TransitionImageLayout(VulImage2D* pImage, VkImageLayout newLayout, VkImageAspectFlags aspectFlags = VK_IMAGE_ASPECT_COLOR_BIT) const;
     void Draw(uint32_t vertexCount, u32 instanceCount = 1) const;
+    void Dispatch(uint32_t groupCountX, u32 groupCountY, u32 groupCountZ) const;
     void DrawIndex(uint32_t indexCount, u32 instanceCount = 1) const;
     void BeginDebugUtilsLabel(const char *name, const Color &color) const;
     void EndDebugUtilsLabel() const;

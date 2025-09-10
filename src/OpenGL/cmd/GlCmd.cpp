@@ -56,6 +56,9 @@ void GlCmd::Draw(const DrawInfo& info) {
     m_vecCmds.push_back(cmd);
 }
 
+void GlCmd::Dispatch(const DispatchInfo &info) {
+}
+
 void GlCmd::ClearColorImage(Image2D* image, const Color &color) {
     const auto cmd = allocCmd<CmdClearColorImage>(image, color);
     m_vecCmds.push_back(cmd);

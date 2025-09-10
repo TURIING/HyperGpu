@@ -84,8 +84,10 @@ VulkanDevice::VulkanDevice(const DeviceCreateInfo &info) {
 
 	VulDescriptorPoolCreateInfo descriptorPoolInfo{
 		.poolSizes = {
-			{VulDescriptorType::Sampler, 100},
-			{VulDescriptorType::UniformBuffer, 100}
+			{VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 100},
+			{VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 100},
+			{VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 50},
+			{VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 50},
 		}
 	};
 	m_pDescriptorPool = new VulDescriptorPool(m_pLogicDevice, descriptorPoolInfo);

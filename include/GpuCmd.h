@@ -40,6 +40,17 @@ struct DrawInfo {
 	uint32_t imageBindingCount = 0;
 };
 
+struct DispatchInfo {
+	UniformBinding* pUniformBinding = nullptr;
+	uint32_t uniformBindingCount = 0;
+	ImageBinding* pImageBinding = nullptr;
+	uint32_t imageBindingCount = 0;
+
+	uint32_t groupCountX = 1;
+	uint32_t groupCountY = 1;
+	uint32_t groupCountZ = 1;
+};
+
 struct BeginRenderInfo {
 	Pipeline* pPipeline = nullptr;
 	std::vector<ClearValue> clearValue;
@@ -59,6 +70,7 @@ public:
 	virtual void BeginRenderPass(const BeginRenderInfo& info) = 0;
 	virtual void EndRenderPass() = 0;
 	virtual void Draw(const DrawInfo& info) = 0;
+	virtual void Dispatch(const DispatchInfo& info) = 0;
 	virtual void ClearColorImage(Image2D* image, const Color &color) = 0;
 	virtual void SetViewport(const Viewport& viewport) = 0;
 	virtual void SetScissor(const Scissor& scissor) = 0;
