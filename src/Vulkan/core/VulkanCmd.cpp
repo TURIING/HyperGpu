@@ -73,10 +73,21 @@ void VulkanCmd::Draw(const DrawInfo& info) {
 }
 
 void VulkanCmd::Dispatch(const DispatchInfo &info) {
+	auto pipeline = dynamic_cast<VulkanComputePipeline*>(info.pPipeline);
+	m_pDescriptorSet = m_pVulkanDevice->GetResourceCache()->RequestDescriptorSet(pipeline);
+
+	m_pCmd->BindPipeline(pipeline->GetHandle(), VK_PIPELINE_BIND_POINT_COMPUTE);
+	m_pCmd->BindDescriptorSets(
+		VK_PIPELINE_BIND_POINT_COMPUTE,
+		pipeline->GetPipelineLayout()->GetHandle(),
+		m_pDescriptorSet->GetHandle()
+	);
 	SetImages(info.pImageBinding, info.imageBindingCount);
 	SetUniformBuffers(info.pUniformBinding, info.uniformBindingCount);
 
 	m_pCmd->Dispatch(info.groupCountX, info.groupCountY, info.groupCountZ);
+
+	m_vecHistoryPipeline.push_back(pipeline);
 }
 
 void VulkanCmd::ClearColorImage(Image2D* image, const Color &color) {
@@ -110,7 +121,7 @@ void VulkanCmd::CopyBufferToImage(Image2D *pImage, const void *pData, uint64_t s
 		.bufferImageHeight = 0,
 		.imageSubresource =
 			{
-			.aspectMask		= gImageUsageToVkImageAspectFlag[static_cast<int>(pVulkanImage->GetUsage())],
+			.aspectMask		= gImageAspectToVkImageAspectFlag[static_cast<int>(pVulkanImage->GetAspectFlags())],
 			.mipLevel		= 0,
 			.baseArrayLayer = 0,
 			.layerCount		= 1,
@@ -131,7 +142,12 @@ void VulkanCmd::CopyBufferToImage(Image2D *pImage, const void *pData, uint64_t s
 	m_pCmd->CopyBufferToImage(stageBuffer->GetHandle(), pVulkanImage->GetHandle()->GetHandle(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, region);
 
 	// 再次转换布局
-	m_pCmd->TransitionImageLayout(pVulkanImage->GetHandle(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+	if (has_flag(pImage->GetUsage(), ImageUsageFlags::SAMPLED)) {
+		m_pCmd->TransitionImageLayout(pVulkanImage->GetHandle(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+	}
+	// else if (has_flag(pImage->GetUsage(), ImageUsageFlags::STORAGE)) {
+	// 	m_pCmd->TransitionImageLayout(pVulkanImage->GetHandle(), VK_IMAGE_LAYOUT_GENERAL);
+	// }
 
 	// stageBuffer->SubRef();
 }
@@ -168,7 +184,13 @@ void VulkanCmd::CopyImageToBuffer(Image2D *pImage, Buffer* pBuffer, const Area &
 		VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
 		region
 	);
-	m_pCmd->TransitionImageLayout(pVulkanImage->GetHandle(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+
+	if (has_flag(pImage->GetUsage(), ImageUsageFlags::SAMPLED)) {
+		m_pCmd->TransitionImageLayout(pVulkanImage->GetHandle(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+	}
+	// else if (has_flag(pImage->GetUsage(), ImageUsageFlags::STORAGE)) {
+	// 	m_pCmd->TransitionImageLayout(pVulkanImage->GetHandle(), VK_IMAGE_LAYOUT_GENERAL);
+	// }
 }
 
 void VulkanCmd::BeginDebugUtilsLabel(const char *name, const Color &color) {
@@ -247,7 +269,7 @@ void VulkanCmd::BeginRenderPass(const BeginRenderInfo& beginRenderInfo) {
 	}
 
 	m_pCmd->BeginRenderPass(renderPassBeginInfo);
-	m_pCmd->BindPipeline(m_pPipeline->GetHandle());
+	m_pCmd->BindPipeline(m_pPipeline->GetHandle(), VK_PIPELINE_BIND_POINT_GRAPHICS);
 
 	m_pDescriptorSet = m_pVulkanDevice->GetResourceCache()->RequestDescriptorSet(m_pPipeline);
 	m_pCmd->BindDescriptorSets(
@@ -343,8 +365,20 @@ void VulkanCmd::CopyImage(Image2D *pSrcImage, Image2D *pDstImage, ImageCopyRange
 	m_pCmd->TransitionImageLayout(pVulSrcImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
 	m_pCmd->TransitionImageLayout(pVulDstImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 	m_pCmd->CopyImage(pVulSrcImage, pVulDstImage, vecImageCopy);
-	m_pCmd->TransitionImageLayout(pVulSrcImage, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-	m_pCmd->TransitionImageLayout(pVulDstImage, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+
+	if (has_flag(pSrcImage->GetUsage(), ImageUsageFlags::SAMPLED)) {
+		m_pCmd->TransitionImageLayout(pVulSrcImage, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+	}
+	else if (has_flag(pSrcImage->GetUsage(), ImageUsageFlags::STORAGE)) {
+		m_pCmd->TransitionImageLayout(pVulSrcImage, VK_IMAGE_LAYOUT_GENERAL);
+	}
+
+	if (has_flag(pDstImage->GetUsage(), ImageUsageFlags::SAMPLED)) {
+		m_pCmd->TransitionImageLayout(pVulDstImage, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+	}
+	else if (has_flag(pDstImage->GetUsage(), ImageUsageFlags::STORAGE)) {
+		m_pCmd->TransitionImageLayout(pVulDstImage, VK_IMAGE_LAYOUT_GENERAL);
+	}
 }
 
 VkViewport VulkanCmd::transViewportToVkViewport(const Viewport& viewport) {
@@ -395,8 +429,13 @@ void VulkanCmd::SetImages(ImageBinding* infos, uint32_t count) const {
 		bindingInfo.name = infos[i].name;
 		for (auto j = 0; j < infos[i].imageCount; j++) {
 			const auto pImage = dynamic_cast<VulkanImage2D*>(infos[i].pImage[j]);
-			const auto info = pImage->GetDescriptorImageInfo();
-			bindingInfo.vecImageInfo.push_back(info);
+
+			bindingInfo.imageUsage = pImage->GetUsage();
+			if (has_flag(bindingInfo.imageUsage, ImageUsageFlags::STORAGE)) {
+				m_pCmd->TransitionImageLayout(pImage->GetHandle(), VK_IMAGE_LAYOUT_GENERAL);
+			}
+
+			bindingInfo.vecImageInfo.push_back(pImage->GetDescriptorImageInfo());
 		}
 		vecBindingInfo.push_back(bindingInfo);
 	}

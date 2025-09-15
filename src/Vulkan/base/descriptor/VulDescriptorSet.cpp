@@ -38,13 +38,24 @@ void VulDescriptorSet::SetImage(const std::vector<ImageBindingInfo>& vecImageInf
 	std::vector<VkWriteDescriptorSet> vecWriteDescriptorSet;
 	vecWriteDescriptorSet.reserve(vecImageInfo.size());
 	for (auto& imageBindingInfo : vecImageInfo) {
+		VkDescriptorType type;
+		if (has_flag(imageBindingInfo.imageUsage, ImageUsageFlags::STORAGE)) {
+			type = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+		}
+		else if (has_flag(imageBindingInfo.imageUsage, ImageUsageFlags::SAMPLED)) {
+			type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		}
+		else {
+			LOG_ASSERT(!"Unexpected condition branches");
+		}
+
 		vecWriteDescriptorSet.push_back({
 			.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
 			.dstSet = m_pHandle,
 			.dstBinding = m_mapResourceBinding[imageBindingInfo.name],
 			.dstArrayElement = 0,
 			.descriptorCount = TO_U32(imageBindingInfo.vecImageInfo.size()),
-			.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+			.descriptorType = type,
 			.pImageInfo = imageBindingInfo.vecImageInfo.data(),
 		});
 	}

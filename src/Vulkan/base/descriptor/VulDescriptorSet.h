@@ -23,6 +23,7 @@ class VulDescriptorSet final : public VulObject<VkDescriptorSet> {
 public:
 	struct ImageBindingInfo {
 		std::vector<VkDescriptorImageInfo> vecImageInfo;
+		ImageUsageFlags imageUsage;
         std::string name;
 	};
 

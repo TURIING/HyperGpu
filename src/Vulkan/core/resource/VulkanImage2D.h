@@ -28,7 +28,8 @@ public:
 	NODISCARD VkImageView GetImageView() const;
 	NODISCARD VkDescriptorImageInfo GetDescriptorImageInfo();
 	NODISCARD Size GetSize() const override { return m_size; }
-	NODISCARD ImageUsage GetUsage() const override { return m_usage; };
+	NODISCARD ImageAspectFlags GetAspectFlags() const override { return m_aspect; }
+	ImageUsageFlags GetUsage() const override { return m_usage; }
 	NODISCARD PixelFormat GetPixelFormat() const override { return m_pixelFormat; }
 
 private:
@@ -37,7 +38,8 @@ private:
 	VulkanSampler*		  m_pSampler	  = nullptr;
 	VkDescriptorImageInfo m_imageInfo{};
 	Size				  m_size;
-	ImageUsage			  m_usage;
+	ImageAspectFlags	  m_aspect;
+	ImageUsageFlags		  m_usage;
 	PixelFormat			  m_pixelFormat;
 };
 USING_GPU_NAMESPACE_END

@@ -75,8 +75,8 @@ constexpr int THREAD_NUM = 5;
 
 /**************************************************** Type Convert ***************************************************/
 constexpr VkFormat gPixelFormatToVkFormat[] = {
-    VK_FORMAT_R8G8B8A8_SRGB,                    // R8G8B8A8
-    VK_FORMAT_B8G8R8A8_SRGB,                    // B8G8R8A8
+    VK_FORMAT_R8G8B8A8_UNORM,                    // R8G8B8A8
+    VK_FORMAT_B8G8R8A8_UNORM,                    // B8G8R8A8
 };
 
 constexpr u32 gPixelFormatToSizeByte[] = {
@@ -84,7 +84,7 @@ constexpr u32 gPixelFormatToSizeByte[] = {
     4,              // B8G8R8A8
 };
 
-constexpr VkImageAspectFlags gImageUsageToVkImageAspectFlag[] = {
+constexpr VkImageAspectFlags gImageAspectToVkImageAspectFlag[] = {
     VK_IMAGE_ASPECT_COLOR_BIT,          // ImageUsage::Color
     VK_IMAGE_ASPECT_DEPTH_BIT,          // ImageUsage::Depth
     VK_IMAGE_ASPECT_STENCIL_BIT,        // ImageUsage::Stencil

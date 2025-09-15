@@ -41,6 +41,7 @@ struct DrawInfo {
 };
 
 struct DispatchInfo {
+	Pipeline* pPipeline = nullptr;
 	UniformBinding* pUniformBinding = nullptr;
 	uint32_t uniformBindingCount = 0;
 	ImageBinding* pImageBinding = nullptr;

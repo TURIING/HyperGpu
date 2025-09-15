@@ -26,7 +26,7 @@ Pipeline* VulkanPipelineManager::CreateGraphicPipeline(const RenderEnvInfo& rend
 }
 
 Pipeline * VulkanPipelineManager::CreateComputePipeline(const ComputeEnvInfo& computeEnvInfo) {
-	return nullptr;
+	return m_pDevice->GetResourceCache()->RequestPipeline(computeEnvInfo);
 }
 
 USING_GPU_NAMESPACE_END

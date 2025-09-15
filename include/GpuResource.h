@@ -27,16 +27,16 @@ namespace HyperGpu {
 
 	class Image2D : public GpuObject {
 	public:
-		enum class ImageUsage { Color, Depth_Stencil };
-
 		struct Image2DCreateInfo: CommonInfo {
-			Size        size;
-			PixelFormat format   = PixelFormat::R8G8B8A8;
-			ImageUsage  usage    = ImageUsage::Color;
-			Sampler*    pSampler = nullptr;
+			Size size;
+			PixelFormat format = PixelFormat::R8G8B8A8;
+			ImageAspectFlags aspect = ImageAspectFlags::Color;
+			ImageUsageFlags usage = ImageUsageFlags::SAMPLED;
+			Sampler* pSampler = nullptr;
 		};
 
-		virtual ImageUsage GetUsage() const = 0;
+		virtual ImageAspectFlags GetAspectFlags() const = 0;
+		virtual ImageUsageFlags GetUsage() const = 0;
 		virtual Size GetSize() const = 0;
 		virtual PixelFormat GetPixelFormat() const = 0;
 	};

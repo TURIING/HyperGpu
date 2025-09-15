@@ -1,7 +1,6 @@
 # HyperGpu
 ## ToDo
 - [ ] 纹理数组
-- [ ] 计算着色器
 - [ ] 多重采样
 - [ ] Mipmap
 - [ ] SSBO
@@ -12,7 +11,8 @@
 * 多窗口渲染
 * 混合（混合方程）
 * 实例化
-* `Debug Util Label`
+* 计算着色器
+* `Debug Util Label`、`Debug Util Name`
 
 
 

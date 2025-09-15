@@ -15,7 +15,7 @@
 
 USING_GPU_NAMESPACE_BEGIN
 
-constexpr GLenum gImageUsageToGlAttachmentType[] = {
+constexpr GLenum gImageAspectToGlAttachmentType[] = {
     GL_COLOR_ATTACHMENT0,           // Color
     GL_DEPTH_ATTACHMENT,            // Depth
     GL_STENCIL_ATTACHMENT,          // Stencil
@@ -51,7 +51,7 @@ public:
 
             for (int i = 0; i < imageCount; i++) {
                 auto pImage = dynamic_cast<GlImage2D*>(beginInfo.renderAttachment.image[i]);
-                const auto attachment = gImageUsageToGlAttachmentType[static_cast<int>(pImage->GetUsage())];
+                const auto attachment = gImageAspectToGlAttachmentType[static_cast<int>(pImage->GetAspectFlags())];
                 vecAttachments.push_back(attachment);
 
                 CALL_GL(glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, GL_TEXTURE_2D, pImage->GetHandle(), 0));
@@ -66,14 +66,14 @@ public:
                 const auto &renderArea = beginInfo.renderArea;
                 CALL_GL(glScissor(renderArea.offset.x, imageHeight - renderArea.offset.y, renderArea.size.width, renderArea.size.height));
                 CALL_GL(glEnable(GL_SCISSOR_TEST));
-                switch (pImage->GetUsage()) {
-                    case Image2D::ImageUsage::Color: {
+                switch (pImage->GetAspectFlags()) {
+                    case ImageAspectFlags::Color: {
                         LOG_ASSERT(beginInfo.clearValue[i].type == AttachmentType::COLOR);
                         const auto color = beginInfo.clearValue[i].color;
                         CALL_GL(glClearColor(color.r, color.g, color.b, color.a));
                         CALL_GL(glClear(GL_COLOR_BUFFER_BIT));
                     }
-                    case Image2D::ImageUsage::Depth_Stencil: {
+                    case ImageAspectFlags::Depth_Stencil: {
                         LOG_ASSERT(beginInfo.clearValue[i].type == AttachmentType::DEPTH_STENCIL);
                         const auto depth = beginInfo.clearValue[i].depthStencil.depth;
                         const auto stencil = beginInfo.clearValue[i].depthStencil.stencil;

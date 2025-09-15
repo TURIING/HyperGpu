@@ -18,18 +18,19 @@
 
 USING_GPU_NAMESPACE_BEGIN
 	constexpr VkFormat gPixelFormatToVkFormat[] = {
-	VK_FORMAT_R8G8B8A8_SRGB,		// R8G8B8A8
-	VK_FORMAT_B8G8R8A8_SRGB,		// B8G8R8A8
+	VK_FORMAT_R8G8B8A8_UNORM,		// R8G8B8A8
+	VK_FORMAT_B8G8R8A8_UNORM,		// B8G8R8A8
 };
 
-VulkanImage2D::VulkanImage2D(VulkanDevice* device, const Image2DCreateInfo& info) : m_pVulkanDevice(device), m_size(info.size), m_usage(info.usage), m_pixelFormat(info.format) {
+VulkanImage2D::VulkanImage2D(VulkanDevice* device, const Image2DCreateInfo& info)
+: m_pVulkanDevice(device), m_size(info.size), m_aspect(info.aspect), m_usage(info.usage), m_pixelFormat(info.format) {
 	m_pVulkanDevice->AddRef();
 
 	const VulImage2DCreateInfo vulImage2DCreateInfo{
 		.size				 = info.size,
 		.format				 = gPixelFormatToVkFormat[static_cast<int>(info.format)],
-		.usage				 = VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
-		.aspectFlags		 = gImageUsageToVkImageAspectFlag[static_cast<int>(info.usage)],
+		.usage				 = static_cast<VkImageUsageFlags>(info.usage),
+		.aspectFlags		 = gImageAspectToVkImageAspectFlag[static_cast<int>(info.aspect)],
 		.memoryPropertyFlags = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
 		.objName = info.objName,
 	};
@@ -44,9 +45,9 @@ VulkanImage2D::VulkanImage2D(VulkanDevice* device, const Image2DCreateInfo& info
 		.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
 	};
 
-	dynamic_cast<VulkanCmdManager*>(m_pVulkanDevice->GetCmdManager())->WithSingleCmdBuffer([&](VulCommandBuffer* pCmd) {
-		pCmd->TransitionImageLayout(m_pImage, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-	});
+	// dynamic_cast<VulkanCmdManager*>(m_pVulkanDevice->GetCmdManager())->WithSingleCmdBuffer([&](VulCommandBuffer* pCmd) {
+	// 	pCmd->TransitionImageLayout(m_pImage, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+	// });
 }
 
 VulkanImage2D::~VulkanImage2D() {

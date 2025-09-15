@@ -19,7 +19,7 @@ public:
 	explicit VulkanPipelineManager(VulkanDevice* device);
 	~VulkanPipelineManager() override;
 	NODISCARD Pipeline* CreateGraphicPipeline(const RenderEnvInfo& renderEnvInfo) override;
-	NODISCARD Pipeline * CreateComputePipeline(const ComputeEnvInfo& computeEnvInfo) override;
+	NODISCARD Pipeline* CreateComputePipeline(const ComputeEnvInfo& computeEnvInfo) override;
 
 private:
 	VulkanDevice* m_pDevice = nullptr;

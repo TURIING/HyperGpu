@@ -31,10 +31,10 @@ struct VulImage2DCreateInfo {
 class VulImage2D final: public VulObject<VkImage>{
 public:
     VulImage2D(VulLogicDevice* device, const VulImage2DCreateInfo& info);
-    [[nodiscard]] VkImageView   GetImageViewHandle() const { return m_pImageView; }
-    [[nodiscard]] VkImageLayout GetCurrentImageLayout() const { return m_currentLayout; }
+    NODISCARD VkImageView   GetImageViewHandle() const { return m_pImageView; }
+    NODISCARD VkImageLayout GetCurrentImageLayout() const { return m_currentLayout; }
     void SetCurrentImageLayout(VkImageLayout layout) { m_currentLayout = layout; }
-    [[nodiscard]] uint32_t GetMipLevels() const { return m_mipLevels; }
+    NODISCARD uint32_t GetMipLevels() const { return m_mipLevels; }
     ~VulImage2D() override;
 
 private:

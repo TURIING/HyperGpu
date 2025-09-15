@@ -10,6 +10,25 @@
 
 #include <cstdint>
 
+#define ENUM_FLAG_OPERATORS(T)                                                                                                                                              \
+inline T operator~ (T a) { return static_cast<T>( ~static_cast<std::underlying_type<T>::type>(a) ); }                                                                       \
+inline T operator| (T a, T b) { return static_cast<T>( static_cast<std::underlying_type<T>::type>(a) | static_cast<std::underlying_type<T>::type>(b) ); }                   \
+inline T operator& (T a, T b) { return static_cast<T>( static_cast<std::underlying_type<T>::type>(a) & static_cast<std::underlying_type<T>::type>(b) ); }                   \
+inline T operator^ (T a, T b) { return static_cast<T>( static_cast<std::underlying_type<T>::type>(a) ^ static_cast<std::underlying_type<T>::type>(b) ); }                   \
+inline T& operator|= (T& a, T b) { return reinterpret_cast<T&>( reinterpret_cast<std::underlying_type<T>::type&>(a) |= static_cast<std::underlying_type<T>::type>(b) ); }   \
+inline T& operator&= (T& a, T b) { return reinterpret_cast<T&>( reinterpret_cast<std::underlying_type<T>::type&>(a) &= static_cast<std::underlying_type<T>::type>(b) ); }   \
+inline T& operator^= (T& a, T b) { return reinterpret_cast<T&>( reinterpret_cast<std::underlying_type<T>::type&>(a) ^= static_cast<std::underlying_type<T>::type>(b) ); }
+
+template<typename Enum>
+constexpr auto to_underlying(Enum e) noexcept {
+	return static_cast<std::underlying_type_t<Enum>>(e);
+}
+
+template<typename Enum>
+constexpr bool has_flag(Enum value, Enum flag) noexcept {
+	return (to_underlying(value) & to_underlying(flag)) != 0;
+}
+
 namespace HyperGpu
 {
 	enum class PrimitiveType { POINT, LINE, LINE_STRIP, TRIANGLE, TRIANGLE_STRIP };
@@ -23,6 +42,16 @@ namespace HyperGpu
 		R8G8B8A8,
 		B8G8R8A8,
 	};
+	enum class ImageAspectFlags { Color, Depth_Stencil };
+	enum class ImageUsageFlags {
+		TRANS_SRC = 1,
+		TRANS_DST = 2,
+		SAMPLED = 4,
+		STORAGE = 8,
+		COLOR_ATTACHMENT = 16,
+		DEPTH_STENCIL_ATTACHMENT = 32,
+	};
+	ENUM_FLAG_OPERATORS(ImageUsageFlags);
 	enum class WaitState { Success, Failed, Timeout };
 	enum class BlendFactor {
 		ZERO,

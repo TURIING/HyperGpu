@@ -11,7 +11,7 @@
 
 USING_GPU_NAMESPACE_BEGIN
 
-GlImage2D::GlImage2D(OpenGlDevice* pDevice, const Image2DCreateInfo& info): m_pDevice(pDevice), m_usage(info.usage), m_size(info.size), m_pixelFormat(info.format) {
+GlImage2D::GlImage2D(OpenGlDevice* pDevice, const Image2DCreateInfo& info): m_pDevice(pDevice), m_aspect(info.aspect), m_usage(info.usage), m_size(info.size), m_pixelFormat(info.format) {
     m_pDevice->AddRef();
     LOG_ASSERT(info.pSampler);
     m_pSampler = dynamic_cast<GlSampler *>(info.pSampler);

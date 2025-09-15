@@ -20,8 +20,9 @@ class GlImage2D final: public Image2D, public GlObject {
 public:
     GlImage2D(OpenGlDevice* pDevice, const Image2DCreateInfo &info);
     ~GlImage2D() override;
-    NODISCARD ImageUsage GetUsage() const override { return m_usage; };
-    NODISCARD Size GetSize() const override { return m_size; };
+    NODISCARD ImageAspectFlags GetAspectFlags() const override { return m_aspect; };
+    NODISCARD Size GetSize() const override { return m_size; }
+    ImageUsageFlags GetUsage() const override { return m_usage; }
     NODISCARD GlSampler* GetSampler() const { return m_pSampler; }
     NODISCARD PixelFormat GetPixelFormat() const override { return m_pixelFormat; }
 
@@ -31,7 +32,8 @@ private:
 private:
     OpenGlDevice* m_pDevice = nullptr;
     GlSampler* m_pSampler = nullptr;
-    ImageUsage m_usage;
+    ImageAspectFlags m_aspect;
+    ImageUsageFlags m_usage;
     Size m_size;
     PixelFormat m_pixelFormat;
 };

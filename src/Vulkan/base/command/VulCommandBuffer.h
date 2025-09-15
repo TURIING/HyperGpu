@@ -40,7 +40,7 @@ public:
     void EndRecord() const;
     void BeginRenderPass(const VulRenderPassBeginInfo& renderPassBeginInfo) const;
     void EndRenderPass() const;
-    void BindPipeline(VulPipeline* pipeline) const;
+    void BindPipeline(VulPipeline* pipeline, VkPipelineBindPoint bindPoint) const;
     void SetViewport(const std::vector<VkViewport>& viewports) const;
     void SetScissor(const std::vector<VkRect2D>& scissors) const;
     void BindVertexBuffer(VkBuffer vertexBuffer, VkBuffer instanceBuffer) const;
