@@ -11,7 +11,7 @@
 #include <cassert>
 #include <string>
 #include <functional>
-#include  <atomic>
+#include <atomic>
 
 class GpuObject {
 public:

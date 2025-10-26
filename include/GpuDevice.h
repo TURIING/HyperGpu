@@ -9,7 +9,6 @@
 #define COREDEFINE_H
 
 #include <GpuResource.h>
-
 #include "GpuCmd.h"
 #include "GpuPipeline.h"
 #include "GpuSurface.h"
