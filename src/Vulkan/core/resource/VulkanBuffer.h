@@ -31,6 +31,7 @@ private:
 	void createUniformBuffer(const void *pData, uint64_t dataSize);
 	void createTransferSrcBuffer(const void *pData, uint64_t dataSize);
 	void createTransferDstBuffer(const void *pData, uint64_t dataSize);
+	void createShaderStorageBuffer(const void *pData, uint64_t dataSize);
 
 private:
 	VulkanDevice* m_pVulkanDevice = nullptr;

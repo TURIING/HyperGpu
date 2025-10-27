@@ -7,8 +7,9 @@
  ********************************************************************************/
 #include "VulkanBuffer.h"
 
-#include "../VulkanDevice.h"
 #include "../../base/resource/VulBuffer.h"
+#include "../VulkanDevice.h"
+#include "GpuResource.h"
 
 USING_GPU_NAMESPACE_BEGIN
 
@@ -32,6 +33,9 @@ VulkanBuffer::VulkanBuffer(VulkanDevice* device, const BufferCreateInfo &createI
 		break;
 	case BufferType::TransferDst:
 		createTransferDstBuffer(data, size);
+		break;
+	case BufferType::ShaderStorage:
+		createShaderStorageBuffer(data, size);
 		break;
 	default:
 		LOG_ASSERT(false);
@@ -149,13 +153,28 @@ void VulkanBuffer::createTransferSrcBuffer(const void *pData, uint64_t dataSize)
 	}
 }
 
-void VulkanBuffer::createTransferDstBuffer(const void *pData, uint64_t dataSize) {
+void VulkanBuffer::createTransferDstBuffer(const void* pData, uint64_t dataSize) {
+	const auto logicDevice = m_pVulkanDevice->GetLogicDevice();
+
+	m_pVulBuffer = VulBuffer::Builder()
+					   .SetLogicDevice(logicDevice)
+					   .SetSize(dataSize)
+					   .SetUsage(VK_BUFFER_USAGE_TRANSFER_DST_BIT)
+					   .SetProperties(VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT)
+					   .Build();
+
+	if(pData) {
+		m_pVulBuffer->WriteData(0, dataSize, pData);
+	}
+}
+
+void VulkanBuffer::createShaderStorageBuffer(const void* pData, uint64_t dataSize) {
 	const auto logicDevice = m_pVulkanDevice->GetLogicDevice();
 
 	m_pVulBuffer = VulBuffer::Builder()
 				.SetLogicDevice(logicDevice)
 				.SetSize(dataSize)
-				.SetUsage(VK_BUFFER_USAGE_TRANSFER_DST_BIT)
+				.SetUsage(VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT)
 				.SetProperties(VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT)
 				.Build();
 

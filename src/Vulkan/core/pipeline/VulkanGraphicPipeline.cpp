@@ -40,9 +40,9 @@ VulkanGraphicPipeline::VulkanGraphicPipeline(VulkanDevice* pDevice, const Render
 
 	auto vertexInputState = m_pShader->GetPipelineVertexInputState();
 	VulGraphicPipelineState pipelineState{
-		.shaderStages		= m_pShader->GetShaderStages(),
 		.pipeLineLayout		= m_pPipelineLayout->GetHandle(),
 		.renderPass			= m_pRenderPass->GetHandle(),
+		.shaderStages		= m_pShader->GetShaderStages(),
 		.vertexInputState	= vertexInputState.GetCreateInfo(),
 		.inputAssemblyState = pipelineInputAssembly.GetCreateInfo(),
 		.viewportState		= VulPipelineViewportState::GetCreateInfo(),

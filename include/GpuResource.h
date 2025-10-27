@@ -43,7 +43,7 @@ namespace HyperGpu {
 
 	class Buffer : public GpuObject {
 	public:
-		enum BufferType { Vertex, Index, Uniform, TransferSrc, TransferDst };
+		enum BufferType { Vertex, Index, Uniform, TransferSrc, TransferDst, ShaderStorage };
 		struct BufferCreateInfo {
 			BufferType bufferType = BufferType::Uniform;
 			uint64_t bufferSize = 0;

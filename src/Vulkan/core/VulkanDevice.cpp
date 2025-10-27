@@ -56,9 +56,9 @@ VulkanDevice::VulkanDevice(const DeviceCreateInfo &info) {
 	m_pPhysicalDevice = VulPhysicalDevice::Builder()
 							.SetVulInstance(m_pInstance)
 							.AddExtension(VK_KHR_SWAPCHAIN_EXTENSION_NAME)
-//#if PLATFORM_MACOS
+#if PLATFORM_MACOS | PLATFORM_IOS
 							.AddExtension("VK_KHR_portability_subset")
-//#endif
+#endif
 							.Build();
 
 	constexpr VkPhysicalDeviceFeatures deviceFeatures{
@@ -69,9 +69,9 @@ VulkanDevice::VulkanDevice(const DeviceCreateInfo &info) {
                         .SetPhysicalDevice(m_pPhysicalDevice)
 						.SetQueueInfos(info.pQueueInfo, info.queueInfoCount)
                         .AddExtension(VK_KHR_SWAPCHAIN_EXTENSION_NAME)
-//#if PLATFORM_MACOS
+#if PLATFORM_MACOS | PLATFORM_IOS
                         .AddExtension("VK_KHR_portability_subset")
-//#endif
+#endif
                         .SetDeviceFeatures(deviceFeatures)
                         .Build();
 
