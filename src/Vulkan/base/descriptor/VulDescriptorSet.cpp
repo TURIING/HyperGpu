@@ -73,7 +73,7 @@ void VulDescriptorSet::SetUniformBuffer(const std::vector<UniformBindingInfo> &v
 			.dstBinding = m_mapResourceBinding[bufferBindingInfo.name],
 			.dstArrayElement = 0,
 			.descriptorCount = 1,
-			.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+			.descriptorType = bufferBindingInfo.type,
 			.pBufferInfo = bufferBindingInfo.pBufferInfo,
 		});
 	}

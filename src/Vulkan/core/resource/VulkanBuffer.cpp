@@ -57,7 +57,7 @@ void VulkanBuffer::WriteData(const void* data, uint64_t dataSize) {
 }
 
 VkDescriptorBufferInfo * VulkanBuffer::GetDescriptorBufferInfo() {
-	LOG_ASSERT_INFO(m_type == BufferType::Uniform, "UnSupported buffer type");
+	LOG_ASSERT_INFO(m_type == BufferType::Uniform || m_type == BufferType::ShaderStorage, "UnSupported buffer type");
 	return &m_descriptorInfo;
 }
 
@@ -181,6 +181,12 @@ void VulkanBuffer::createShaderStorageBuffer(const void* pData, uint64_t dataSiz
 	if (pData) {
 		m_pVulBuffer->WriteData(0, dataSize, pData);
 	}
+
+	m_descriptorInfo = {
+		.buffer = m_pVulBuffer->GetHandle(),
+		.offset = 0,
+		.range = dataSize
+	};
 }
 
 USING_GPU_NAMESPACE_END

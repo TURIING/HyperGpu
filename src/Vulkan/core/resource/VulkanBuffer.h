@@ -24,6 +24,7 @@ public:
 	NODISCARD VkBuffer GetHandle() const;
 	void Map(uint64_t offset, uint64_t size, void **pData) override;
 	void UnMap() override;
+	BufferType GetType() const { return m_type; }
 
 private:
 	void createVertexBuffer(const void *pData, uint64_t dataSize);

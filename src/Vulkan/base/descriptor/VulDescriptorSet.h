@@ -30,6 +30,7 @@ public:
 	struct UniformBindingInfo {
 		VkDescriptorBufferInfo* pBufferInfo = nullptr;
 		std::string name;
+		VkDescriptorType type;
 	};
 
 public:

@@ -411,9 +411,11 @@ void VulkanCmd::SetUniformBuffers(UniformBinding* infos, uint32_t count) const {
 	vecBindingInfo.reserve(count);
 	for (auto i = 0; i < count; i++) {
 		auto vulkanBuffer = dynamic_cast<VulkanBuffer*>(infos[i].buffer);
+		auto type = vulkanBuffer->GetType() == Buffer::ShaderStorage ? VK_DESCRIPTOR_TYPE_STORAGE_BUFFER : VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 		vecBindingInfo.push_back({
 			.pBufferInfo = vulkanBuffer->GetDescriptorBufferInfo(),
 			.name = infos[i].name,
+			.type = type,
 		});
 	}
 	m_pDescriptorSet->SetUniformBuffer(vecBindingInfo);

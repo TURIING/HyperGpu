@@ -14,7 +14,7 @@
 namespace HyperGpu {
 class Fence : public GpuObject {
 public:
-	virtual WaitState Wait(uint32_t timeout = 10000000) = 0;
+	virtual WaitState Wait(uint32_t timeout = UINT64_MAX) = 0;
 	virtual void Reset() = 0;
 };
 
