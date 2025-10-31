@@ -19,7 +19,7 @@ class VulkanBuffer final : public Buffer {
 public:
 	VulkanBuffer(VulkanDevice* device, const BufferCreateInfo &createInfo);
 	~VulkanBuffer() override;
-	void WriteData(const void* data, uint64_t dataSize) override;
+	void WriteData(const void* data, uint64_t dataSize, uint64_t offset) override;
 	NODISCARD VkDescriptorBufferInfo* GetDescriptorBufferInfo();
 	NODISCARD VkBuffer GetHandle() const;
 	void Map(uint64_t offset, uint64_t size, void **pData) override;

@@ -11,17 +11,15 @@ USING_GPU_NAMESPACE_BEGIN
 class OpenGlDevice;
 class GlProgram;
 
-class GlPipeline final: public Pipeline {
+class GlPipeline: public Pipeline {
 public:
-    GlPipeline(OpenGlDevice* pDevice, const RenderEnvInfo &renderEnvInfo);
+    GlPipeline(OpenGlDevice* pDevice, const EnvInfo &envInfo);
     ~GlPipeline() override;
     void Bind() const;
-    NODISCARD PrimitiveType GetPrimitiveType() const { return m_primitiveType; }
 
 private:
     OpenGlDevice* m_pDevice = nullptr;
     GlProgram* m_pProgram = nullptr;
-    PrimitiveType m_primitiveType;
 };
 
 USING_GPU_NAMESPACE_END

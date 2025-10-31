@@ -12,6 +12,7 @@ USING_GPU_NAMESPACE_BEGIN
 class OpenGlDevice;
 class GlImage2D;
 class GlSampler;
+class GlBuffer;
 
 class GlProgram final: public GpuObject, public GlObject {
     struct UniformBlockBinding {
@@ -19,6 +20,7 @@ class GlProgram final: public GpuObject, public GlObject {
         u32 index = 0;
         u32 binding = 0;
         u32 dataSize = 0;
+        GlBuffer* pBuffer = nullptr;
     };
     struct TextureBinding {
         std::string name;
@@ -44,6 +46,7 @@ private:
     void reflectBlockUniforms();
     void reflectTexture();
     void activateTexture();
+    void activateUniformBlock();
 
 private:
     OpenGlDevice* m_pDevice = nullptr;

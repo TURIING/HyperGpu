@@ -7,10 +7,11 @@
 #include "../core/OpenGlDevice.h"
 #include "GlProgram.h"
 
-GlPipeline::GlPipeline(OpenGlDevice *pDevice, const RenderEnvInfo &renderEnvInfo): m_pDevice(pDevice) {
+USING_GPU_NAMESPACE_BEGIN
+
+GlPipeline::GlPipeline(OpenGlDevice *pDevice, const EnvInfo &envInfo): m_pDevice(pDevice) {
     m_pDevice->AddRef();
-    m_pProgram = new GlProgram(m_pDevice, renderEnvInfo.shaderInfo);
-    m_primitiveType = renderEnvInfo.rasterInfo.primitiveType;
+    m_pProgram = new GlProgram(m_pDevice, envInfo.shaderInfo);
 }
 
 GlPipeline::~GlPipeline() {
@@ -21,3 +22,5 @@ GlPipeline::~GlPipeline() {
 void GlPipeline::Bind() const {
     m_pProgram->Bind();
 }
+
+USING_GPU_NAMESPACE_END

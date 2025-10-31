@@ -40,6 +40,114 @@ constexpr GLenum gAttributeTypeToComponentType[] = {
 USING_GPU_NAMESPACE_BEGIN
 GlInputAssembler::GlInputAssembler(OpenGlDevice* pDevice, const InputAssemblerInfo& info): m_pDevice(pDevice) {
     m_pDevice->AddRef();
+    initVertexAndIndexBuffer(info);
+
+    m_pDevice->RunWithContext([&](GlContext*) {
+        CALL_GL(glGenVertexArrays(1, &m_vao));
+        CALL_GL(glBindVertexArray(m_vao));
+
+        // vertex
+        CALL_GL(glBindBuffer(GL_ARRAY_BUFFER, m_pVertexBuffer->GetHandle()));
+        int stridePassed = 0;
+        for (auto &attr: m_vertexAttributes) {
+            stridePassed += gAttributeTypeToSize[static_cast<int>(attr.dataType)];
+
+            CALL_GL(glVertexAttribPointer(
+                attr.location,
+                gAttributeTypeToComponentCount[static_cast<int>(attr.dataType)],
+                gAttributeTypeToComponentType[static_cast<int>(attr.dataType)],
+                GL_FALSE,
+                m_vertexStride,
+                (void*)stridePassed
+            ));
+            CALL_GL(glEnableVertexAttribArray(attr.location));
+        }
+
+        // index
+        if (m_pIndexBuffer) {
+            CALL_GL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_pIndexBuffer->GetHandle()));
+        }
+    });
+}
+
+GlInputAssembler::GlInputAssembler(OpenGlDevice *pDevice, const InstanceInputAssemblerInfo &info): m_pDevice(pDevice) {
+    m_pDevice->AddRef();
+    initVertexAndIndexBuffer(info);
+    m_instanceCount = info.instanceCount;
+
+    if (info.instanceCount > 0) {
+        Buffer::BufferCreateInfo bufferCreateInfo {
+            .bufferType = Buffer::Vertex,
+            .bufferSize = info.instanceDataSize,
+            .data = info.pInstanceData,
+        };
+        m_pInstanceBuffer = new GlBuffer(m_pDevice, bufferCreateInfo);
+    }
+
+    m_instanceVertexAttributes.reserve(info.instanceAttributeCount);
+    for (int i = 0; i < info.instanceAttributeCount; i++) {
+        m_instanceVertexAttributes.push_back(info.pInstanceAttributes[i]);
+        m_instanceVertexStride += gAttributeTypeToSize[static_cast<int>(info.pInstanceAttributes[i].dataType)];
+    }
+
+    m_pDevice->RunWithContext([&](GlContext*) {
+        CALL_GL(glGenVertexArrays(1, &m_vao));
+        CALL_GL(glBindVertexArray(m_vao));
+
+        // vertex
+        CALL_GL(glBindBuffer(GL_ARRAY_BUFFER, m_pVertexBuffer->GetHandle()));
+        int stridePassed = 0;
+        for (auto &attr: m_vertexAttributes) {
+            stridePassed += gAttributeTypeToSize[static_cast<int>(attr.dataType)];
+
+            CALL_GL(glVertexAttribPointer(
+                attr.location,
+                gAttributeTypeToComponentCount[static_cast<int>(attr.dataType)],
+                gAttributeTypeToComponentType[static_cast<int>(attr.dataType)],
+                GL_FALSE,
+                m_vertexStride,
+                (void*)stridePassed
+            ));
+            CALL_GL(glEnableVertexAttribArray(attr.location));
+        }
+
+        // instance
+        CALL_GL(glBindBuffer(GL_ARRAY_BUFFER, m_pInstanceBuffer->GetHandle()));
+        stridePassed = 0;
+        for (auto &attr: m_instanceVertexAttributes) {
+            stridePassed += gAttributeTypeToSize[static_cast<int>(attr.dataType)];
+
+            CALL_GL(glVertexAttribPointer(
+                attr.location,
+                gAttributeTypeToComponentCount[static_cast<int>(attr.dataType)],
+                gAttributeTypeToComponentType[static_cast<int>(attr.dataType)],
+                GL_FALSE,
+                m_instanceVertexStride,
+                (void*)stridePassed
+            ));
+            CALL_GL(glVertexAttribDivisor(attr.location, 1));
+        }
+
+        // index
+        if (m_pIndexBuffer) {
+            CALL_GL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_pIndexBuffer->GetHandle()));
+        }
+        CALL_GL(glBindVertexArray(0));
+        CALL_GL(glBindBuffer(GL_ARRAY_BUFFER, 0));
+        CALL_GL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
+    });
+}
+
+GlInputAssembler::~GlInputAssembler() {
+    m_pVertexBuffer->SubRef();
+    m_pIndexBuffer->SubRef();
+    m_pDevice->RunWithContext([&](GlContext*) {
+        CALL_GL(glDeleteVertexArrays(1, &m_vao));
+    }, false);
+    m_pDevice->SubRef();
+}
+
+void GlInputAssembler::initVertexAndIndexBuffer(const InputAssemblerInfo &info) {
     m_vertexCount = info.vertexCount;
     m_indexCount = info.indexCount;
 
@@ -66,52 +174,14 @@ GlInputAssembler::GlInputAssembler(OpenGlDevice* pDevice, const InputAssemblerIn
         m_vertexAttributes.push_back(info.pAttributes[i]);
         m_vertexStride += gAttributeTypeToSize[static_cast<int>(info.pAttributes[i].dataType)];
     }
-
-    m_pDevice->RunWithContext([&](GlContext*) {
-        CALL_GL(glGenVertexArrays(1, &m_vao));
-    });
-}
-
-GlInputAssembler::~GlInputAssembler() {
-    m_pVertexBuffer->SubRef();
-    m_pIndexBuffer->SubRef();
-    m_pDevice->RunWithContext([&](GlContext*) {
-        CALL_GL(glDeleteVertexArrays(1, &m_vao));
-    }, false);
-    m_pDevice->SubRef();
 }
 
 void GlInputAssembler::Bind() const {
     CALL_GL(glBindVertexArray(m_vao));
-
-    // vertex
-    CALL_GL(glBindBuffer(GL_ARRAY_BUFFER, m_pVertexBuffer->GetHandle()));
-    CALL_GL(glBindVertexArray(m_vao));
-    int stridePassed = 0;
-    for (auto &attr: m_vertexAttributes) {
-        stridePassed += gAttributeTypeToSize[static_cast<int>(attr.dataType)];
-
-        CALL_GL(glVertexAttribPointer(
-            attr.location,
-            gAttributeTypeToComponentCount[static_cast<int>(attr.dataType)],
-            gAttributeTypeToComponentType[static_cast<int>(attr.dataType)],
-            GL_FALSE,
-            m_vertexStride,
-            (void*)stridePassed
-        ));
-        CALL_GL(glEnableVertexAttribArray(attr.location));
-    }
-
-    // index
-    if (m_pIndexBuffer) {
-        CALL_GL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_pIndexBuffer->GetHandle()));
-    }
 }
 
 void GlInputAssembler::UnBind() {
     CALL_GL(glBindVertexArray(0));
-    CALL_GL(glBindBuffer(GL_ARRAY_BUFFER, 0));
-    CALL_GL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
 }
 
 USING_GPU_NAMESPACE_END

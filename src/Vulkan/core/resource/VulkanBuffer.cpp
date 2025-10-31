@@ -47,9 +47,9 @@ VulkanBuffer::~VulkanBuffer() {
 	m_pVulkanDevice->SubRef();
 }
 
-void VulkanBuffer::WriteData(const void* data, uint64_t dataSize) {
+void VulkanBuffer::WriteData(const void* data, uint64_t dataSize, uint64_t offset) {
 	if(m_type == BufferType::Uniform) {
-		m_pVulBuffer->WriteData(0, dataSize, data);
+		m_pVulBuffer->WriteData(offset, dataSize, data);
 	} else {
 		// todo: update data for vertex/index buffer
 		LOG_ASSERT(false);

@@ -9,6 +9,9 @@
 
 #include "OpenGlDevice.h"
 #include "../resource/GlImage2D.h"
+#include "../resource/GlBuffer.h"
+#include "../resource/GlSampler.h"
+#include "../resource/GlInputAssembler.h"
 
 OpenGlResourceManager::OpenGlResourceManager(OpenGlDevice* pDevice): m_pDevice(pDevice) {
     m_pDevice->AddRef();
@@ -23,17 +26,17 @@ Image2D* OpenGlResourceManager::CreateImage2D(const Image2D::Image2DCreateInfo& 
 }
 
 Buffer* OpenGlResourceManager::CreateBuffer(const Buffer::BufferCreateInfo& createInfo) {
-    return nullptr;
+    return new GlBuffer(m_pDevice, createInfo);
 }
 
 Sampler* OpenGlResourceManager::CreateSampler(const Sampler::SamplerCreateInfo& info) {
-    return nullptr;
+    return new GlSampler(m_pDevice, info);
 }
 
 InputAssembler* OpenGlResourceManager::CreateInputAssembler(const InputAssemblerInfo& info) {
-    return nullptr;
+    return new GlInputAssembler(m_pDevice, info);
 }
 
 InputAssembler * OpenGlResourceManager::CreateInputAssembler(const InstanceInputAssemblerInfo &info) {
-    return nullptr;
+    return new GlInputAssembler(m_pDevice, info);
 }

@@ -19,9 +19,9 @@ GlBuffer::GlBuffer(OpenGlDevice* pDevice, const BufferCreateInfo& info): m_pDevi
 
     m_pDevice->RunWithContext([&](GlContext*) {
         CALL_GL(glGenBuffers(1, &m_handle));
-        CALL_GL(glBindBuffer(GL_COPY_WRITE_BUFFER, m_handle));
-        CALL_GL(glBufferData(GL_COPY_WRITE_BUFFER, info.bufferSize, info.data, m_usage));
-        CALL_GL(glBindBuffer(GL_COPY_WRITE_BUFFER, 0));
+        CALL_GL(glBindBuffer(m_target, m_handle));
+        CALL_GL(glBufferData(m_target, info.bufferSize, info.data, m_usage));
+        CALL_GL(glBindBuffer(m_target, 0));
     });
 }
 
@@ -32,13 +32,25 @@ GlBuffer::~GlBuffer() {
     m_pDevice->SubRef();
 }
 
-void GlBuffer::WriteData(const void* data, uint64_t dataSize) {
+void GlBuffer::WriteData(const void* data, uint64_t dataSize, uint64_t offset) {
+    m_pDevice->RunWithContext([&](GlContext*) {
+        CALL_GL(glBindBuffer(m_target, m_handle));
+        CALL_GL(glBufferSubData(m_target, offset, dataSize, data));
+    });
 }
 
 void GlBuffer::Map(uint64_t offset, uint64_t size, void **pData) {
+    m_pDevice->RunWithContext([&](GlContext*) {
+        CALL_GL(glBindBuffer(m_target, m_handle));
+        CALL_GL(*pData = glMapBuffer(m_target, GL_READ_WRITE));
+    });
 }
 
 void GlBuffer::UnMap() {
+    m_pDevice->RunWithContext([&](GlContext*) {
+        CALL_GL(glBindBuffer(m_target, m_handle));
+        CALL_GL(glUnmapBuffer(m_target));
+    });
 }
 
 USING_GPU_NAMESPACE_END

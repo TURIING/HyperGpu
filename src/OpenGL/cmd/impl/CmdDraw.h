@@ -11,7 +11,7 @@
 #include "../../resource/GlInputAssembler.h"
 #include "../../resource/GlImage2D.h"
 #include "../../surface/GlSurface.h"
-#include "../../pipeline/GlPipeline.h"
+#include "../../pipeline/GlGraphicPipeline.h"
 
 USING_GPU_NAMESPACE_BEGIN
 
@@ -39,7 +39,9 @@ public:
 
         auto isLastScissorEnabled = glIsEnabled(GL_SCISSOR_TEST);
         GLint lastScissorValue[4];
-        CALL_GL(glGetIntegerv(GL_SCISSOR_BOX, lastScissorValue));
+        if (isLastScissorEnabled) {
+            CALL_GL(glGetIntegerv(GL_SCISSOR_BOX, lastScissorValue));
+        }
 
         if (beginInfo.renderAttachmentType == RenderAttachmentType::Image2D) {
             std::vector<GLuint> vecAttachments;
@@ -62,6 +64,7 @@ public:
                     beginInfo.clearValue.size() == beginInfo.renderAttachment.imageCount,
                     "Number of BeginRenderInfo::clearValue needs to be equal to number of BeginRenderInfo ::renderAttachment::imageCount."
                 );
+
                 const auto imageHeight = pImage->GetSize().height;
                 const auto &renderArea = beginInfo.renderArea;
                 CALL_GL(glScissor(renderArea.offset.x, imageHeight - renderArea.offset.y, renderArea.size.width, renderArea.size.height));
@@ -84,7 +87,16 @@ public:
                     default:    LOG_ASSERT(false);
                 }
             }
-            draw(pInputAssembly, dynamic_cast<GlPipeline *>(beginInfo.pPipeline));
+
+            if (isLastScissorEnabled) {
+                CALL_GL(glEnable(GL_SCISSOR_TEST));
+                CALL_GL(glScissor(lastScissorValue[0], lastScissorValue[1], lastScissorValue[2], lastScissorValue[3]));
+            }
+            else {
+                CALL_GL(glDisable(GL_SCISSOR_TEST));
+            }
+
+            draw(pInputAssembly, dynamic_cast<GlGraphicPipeline *>(beginInfo.pPipeline));
             CALL_GL(glDeleteFramebuffers(1, &fbo));
         }
         else {
@@ -103,15 +115,19 @@ public:
                 CALL_GL(glClearColor(color.r, color.g, color.b, color.a));
                 CALL_GL(glClear(GL_COLOR_BUFFER_BIT));
             }
-            draw(pInputAssembly, dynamic_cast<GlPipeline *>(beginInfo.pPipeline));
+
+            if (isLastScissorEnabled) {
+                CALL_GL(glEnable(GL_SCISSOR_TEST));
+                CALL_GL(glScissor(lastScissorValue[0], lastScissorValue[1], lastScissorValue[2], lastScissorValue[3]));
+            }
+            else {
+                CALL_GL(glDisable(GL_SCISSOR_TEST));
+            }
+
+            draw(pInputAssembly, dynamic_cast<GlGraphicPipeline *>(beginInfo.pPipeline));
 
             CALL_GL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
             pSurface->Unbind();
-        }
-
-        if (isLastScissorEnabled) {
-            CALL_GL(glEnable(GL_SCISSOR_TEST));
-            CALL_GL(glScissor(lastScissorValue[0], lastScissorValue[1], lastScissorValue[2], lastScissorValue[3]));
         }
     }
 
@@ -119,16 +135,25 @@ public:
     }
 
 private:
-    void draw(GlInputAssembler* pInputAssembly, GlPipeline* pPipeline) {
+    static void draw(const GlInputAssembler* pInputAssembly, const GlGraphicPipeline* pPipeline) {
         pInputAssembly->Bind();
         pPipeline->Bind();
-        if (pInputAssembly->GetIndexCount() > 0) {
-            CALL_GL(glDrawElements(gPrimitiveTypeToGlType[static_cast<int>(pPipeline->GetPrimitiveType())], pInputAssembly->GetVertexCount(), GL_UNSIGNED_INT, 0));
+        if (auto instanceCount = pInputAssembly->GetInstanceCount(); instanceCount == 0) {
+            if (auto indexCount = pInputAssembly->GetIndexCount(); indexCount > 0) {
+                CALL_GL(glDrawElements(gPrimitiveTypeToGlType[TO_I32(pPipeline->GetPrimitiveType())], indexCount, GL_UNSIGNED_INT, 0));
+            }
+            else {
+                CALL_GL(glDrawArrays(gPrimitiveTypeToGlType[TO_I32(pPipeline->GetPrimitiveType())], 0, pInputAssembly->GetVertexCount()));
+            }
         }
         else {
-            CALL_GL(glDrawArrays(gPrimitiveTypeToGlType[static_cast<int>(pPipeline->GetPrimitiveType())], 0, pInputAssembly->GetVertexCount()));
+            if (auto indexCount = pInputAssembly->GetIndexCount(); indexCount > 0) {
+                CALL_GL(glDrawElementsInstanced(gPrimitiveTypeToGlType[TO_I32(pPipeline->GetPrimitiveType())], indexCount, GL_UNSIGNED_INT, 0, instanceCount));
+            }
+            else {
+                CALL_GL(glDrawArraysInstanced(gPrimitiveTypeToGlType[TO_I32(pPipeline->GetPrimitiveType())], 0, pInputAssembly->GetVertexCount(), instanceCount));
+            }
         }
-        pInputAssembly->UnBind();
     }
 
 private:

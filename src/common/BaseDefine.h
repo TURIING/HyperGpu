@@ -61,7 +61,9 @@ enum class CmdType {
     EndRenderPass,
     SetViewport,
     SetScissor,
-    Draw
+    Draw,
+    BeginDebugUtilsLabel,
+    EndDebugUtilsLabel,
 };
 
 /************************************************* Variable *********************************************************/

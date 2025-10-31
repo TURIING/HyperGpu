@@ -49,7 +49,7 @@ namespace HyperGpu {
 			uint64_t bufferSize = 0;
 			const void *data = nullptr;				// 当buffer类型为uniform时，该字段为nullptr就行
 		};
-		virtual void WriteData(const void* data, uint64_t dataSize) = 0;
+		virtual void WriteData(const void* data, uint64_t dataSize, uint64_t offset = 0) = 0;
 		virtual void Map(uint64_t offset, uint64_t size, void **pData) = 0;
 		virtual void UnMap() = 0;
 	};

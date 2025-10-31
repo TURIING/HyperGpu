@@ -7,6 +7,9 @@
 #include "GlShader.h"
 #include "../resource/GlImage2D.h"
 #include "../resource/GlSampler.h"
+#include "../resource/GlBuffer.h"
+
+USING_GPU_NAMESPACE_BEGIN
 
 constexpr int NAME_BUFFER_SIZE = 256;
 const std::unordered_map<GLenum, GLenum> gSamplerTypeToTextureType = {
@@ -51,6 +54,7 @@ GlProgram::~GlProgram() {
 void GlProgram::Bind() {
     CALL_GL(glUseProgram(m_handle));
     activateTexture();
+    activateUniformBlock();
 }
 
 void GlProgram::SetTexture(const ImageBinding &binding) {
@@ -84,7 +88,14 @@ void GlProgram::SetTexture(const ImageBinding &binding) {
 void GlProgram::SetUniformBuffer(const UniformBinding &binding) {
     LOG_ASSERT(binding.name && binding.buffer);
 
+    if (!m_uniforms.contains(binding.name)) {
+        LOG_WARNING("shader reflection information does not contain the uniform named {}.", binding.name);
+        return;
+    }
 
+    auto &pBinding = m_uniforms[binding.name];
+    auto pBuffer = dynamic_cast<GlBuffer*>(binding.buffer);
+    pBinding.pBuffer = pBuffer;
 }
 
 void GlProgram::reflectShader() {
@@ -163,7 +174,7 @@ void GlProgram::reflectTexture() {
                 };
                 break;
             }
-            default: LOG_ASSERT_INFO(false, "Unknown uniform type.");
+            default: LOG_ASSERT_INFO(false, "Unknown texture type.");
         }
     }
 }
@@ -189,3 +200,12 @@ void GlProgram::activateTexture() {
         }
     }
 }
+
+void GlProgram::activateUniformBlock() {
+    for (const auto [name, binding] : m_uniforms) {
+        LOG_ASSERT(binding.pBuffer);
+        CALL_GL(glBindBufferBase(GL_UNIFORM_BUFFER, binding.binding, binding.pBuffer->GetHandle()));
+    }
+}
+
+USING_GPU_NAMESPACE_END

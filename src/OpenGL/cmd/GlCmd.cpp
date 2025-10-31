@@ -14,6 +14,8 @@
 #include "impl/CmdSetScissor.h"
 #include "impl/CmdDraw.h"
 #include "impl/CmdBeginRenderPass.h"
+#include "impl/CmdBeginDebugUtilsLabel.h"
+#include "impl/CmdEndDebugUtilsLabel.h"
 
 GlCmd::~GlCmd() {
     for (auto pCmd: m_vecCmds) {
@@ -95,7 +97,11 @@ void GlCmd::CopyImageToBuffer(Image2D *pImage, Buffer* pBuffer, const Area &area
 }
 
 void GlCmd::BeginDebugUtilsLabel(const char *name, const Color &color) {
+    const auto cmd = allocCmd<CmdBeginDebugUtilsLabel>(name, color);
+    m_vecCmds.push_back(cmd);
 }
 
 void GlCmd::EndDebugUtilsLabel() {
+    const auto cmd = allocCmd<CmdEndDebugUtilsLabel>();
+    m_vecCmds.push_back(cmd);
 }
