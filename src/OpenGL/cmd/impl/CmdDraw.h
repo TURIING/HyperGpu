@@ -15,12 +15,6 @@
 
 USING_GPU_NAMESPACE_BEGIN
 
-constexpr GLenum gImageAspectToGlAttachmentType[] = {
-    GL_COLOR_ATTACHMENT0,           // Color
-    GL_DEPTH_ATTACHMENT,            // Depth
-    GL_STENCIL_ATTACHMENT,          // Stencil
-};
-
 class CmdDraw final: public CmdBase {
 public:
     static constexpr auto CMD_TYPE =  CmdType::Draw;
@@ -29,13 +23,44 @@ public:
 
     void Init(const DrawInfo &drawInfo, const CmdBeginRenderPass* pCmdBeginPass) {
         LOG_ASSERT(pCmdBeginPass);
-        m_drawInfo = &drawInfo;
+        m_drawInfo = drawInfo;
         m_pCmdBeginRenderPass = pCmdBeginPass;
+        m_pPipeline = dynamic_cast<GlGraphicPipeline*>(m_pCmdBeginRenderPass->GetBeginRenderInfo().pPipeline);
+        m_pPipeline->SetUniforms(drawInfo.pUniformBinding, drawInfo.uniformBindingCount);
+        m_pPipeline->SetTextures(drawInfo.pImageBinding, drawInfo.imageBindingCount);
     }
 
     void Execute(GlContext* pContext) override {
         const BeginRenderInfo& beginInfo = m_pCmdBeginRenderPass->GetBeginRenderInfo();
-        auto pInputAssembly = dynamic_cast<GlInputAssembler*>(m_drawInfo->pInputAssembler);
+        auto pInputAssembly = dynamic_cast<GlInputAssembler*>(m_drawInfo.pInputAssembler);
+
+        // Blend
+        {
+            const auto &blendInfo = m_pPipeline->GetBlendInfo();
+            if (blendInfo.enable) {
+                auto srcColorFactor = gBlendFactorToGlBlendFactor[TO_I32(blendInfo.srcColorBlendFactor)];
+                auto dstColorFactor = gBlendFactorToGlBlendFactor[TO_I32(blendInfo.dstColorBlendFactor)];
+                auto srcAlphaFactor = gBlendFactorToGlBlendFactor[TO_I32(blendInfo.srcAlphaBlendFactor)];
+                auto dstAlphaFactor = gBlendFactorToGlBlendFactor[TO_I32(blendInfo.dstAlphaBlendFactor)];
+                auto colorBlendOp = gBlendOpToGlBlendOp[TO_I32(blendInfo.colorBlendOp)];
+                auto alphaBlendOp = gBlendOpToGlBlendOp[TO_I32(blendInfo.alphaBlendOp)];
+
+                CALL_GL(glEnable(GL_BLEND));
+                CALL_GL(glBlendFuncSeparate(srcColorFactor, dstColorFactor, srcAlphaFactor, dstAlphaFactor));
+                CALL_GL(glBlendEquationSeparate(colorBlendOp, alphaBlendOp));
+                CALL_GL(glBlendColor(blendInfo.constantColor.r, blendInfo.constantColor.g, blendInfo.constantColor.b, blendInfo.constantColor.a));
+                if (blendInfo.colorWriteMask != (ColorComponentFlags::R | ColorComponentFlags::G | ColorComponentFlags::B | ColorComponentFlags::A)) {
+                    const auto red = has_flag(blendInfo.colorWriteMask, ColorComponentFlags::R);
+                    const auto green = has_flag(blendInfo.colorWriteMask, ColorComponentFlags::G);
+                    const auto blue = has_flag(blendInfo.colorWriteMask, ColorComponentFlags::B);
+                    const auto alpha = has_flag(blendInfo.colorWriteMask, ColorComponentFlags::A);
+                    CALL_GL(glColorMask(red, green, blue, alpha));
+                }
+            }
+            else {
+                CALL_GL(glDisable(GL_BLEND));
+            }
+        }
 
         auto isLastScissorEnabled = glIsEnabled(GL_SCISSOR_TEST);
         GLint lastScissorValue[4];
@@ -75,6 +100,7 @@ public:
                         const auto color = beginInfo.clearValue[i].color;
                         CALL_GL(glClearColor(color.r, color.g, color.b, color.a));
                         CALL_GL(glClear(GL_COLOR_BUFFER_BIT));
+                        break;
                     }
                     case ImageAspectFlags::Depth_Stencil: {
                         LOG_ASSERT(beginInfo.clearValue[i].type == AttachmentType::DEPTH_STENCIL);
@@ -83,6 +109,7 @@ public:
                         CALL_GL(glClearDepth(depth))
                         CALL_GL(glClearStencil(stencil));
                         CALL_GL(glClear(GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
+                        break;
                     }
                     default:    LOG_ASSERT(false);
                 }
@@ -126,7 +153,6 @@ public:
 
             draw(pInputAssembly, dynamic_cast<GlGraphicPipeline *>(beginInfo.pPipeline));
 
-            CALL_GL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
             pSurface->Unbind();
         }
     }
@@ -158,7 +184,8 @@ private:
 
 private:
     const CmdBeginRenderPass* m_pCmdBeginRenderPass = nullptr;
-    const DrawInfo *m_drawInfo = nullptr;
+    GlGraphicPipeline* m_pPipeline = nullptr;
+    DrawInfo m_drawInfo {};
 };
 
 USING_GPU_NAMESPACE_END

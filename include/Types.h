@@ -86,6 +86,14 @@ namespace HyperGpu
 		DONT_CARE,		// 不保留
 	};
 
+	enum class ColorComponentFlags {
+		R = 1 << 0,
+		G = 1 << 1,
+		B = 1 << 2,
+		A = 1 << 3,
+	};
+	ENUM_FLAG_OPERATORS(ColorComponentFlags);
+
 	struct Viewport {
 		float x      = 0;
 		float y      = 0;
@@ -155,11 +163,17 @@ namespace HyperGpu
 		Size     size;
 	};
 
+	/**
+	 * 以左上角为原点, Y轴向下增长
+	 */
 	struct ImageBlitRange {
 		Area srcArea;
 		Area dstArea;
 	};
 
+	/**
+	 * 以左上角为原点, Y轴向下增长
+	 */
 	struct ImageCopyRange {
 		Area srcArea;
 		Area dstArea;

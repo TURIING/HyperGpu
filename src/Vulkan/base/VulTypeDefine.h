@@ -132,7 +132,7 @@ struct VulPipelineColorBlendState
 
 	VulPipelineColorBlendState(const BlendInfo &info) {
 		colorBlendAttachmentState.blendEnable = info.enable ? VK_TRUE : VK_FALSE;
-		colorBlendAttachmentState.colorWriteMask	  = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+		colorBlendAttachmentState.colorWriteMask	  = static_cast<VkColorComponentFlags>(info.colorWriteMask);
 		colorBlendAttachmentState.srcColorBlendFactor = gBlendFactorToVkBlendFactor[TO_I32(info.srcColorBlendFactor)];
 		colorBlendAttachmentState.dstColorBlendFactor = gBlendFactorToVkBlendFactor[TO_I32(info.dstColorBlendFactor)];
 		colorBlendAttachmentState.srcAlphaBlendFactor = gBlendFactorToVkBlendFactor[TO_I32(info.srcAlphaBlendFactor)];

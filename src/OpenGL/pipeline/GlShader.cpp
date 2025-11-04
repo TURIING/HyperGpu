@@ -24,22 +24,19 @@ static void sCheckShaderCompileError(GLuint handle, GlShader::ShaderStage stage)
 }
 
 GlShader::GlShader(OpenGlDevice *pDevice, const char *data, ShaderStage stage): m_pDevice(pDevice) {
+    LOG_ASSERT(stage < std::size(gShaderStageToGlShaderStages));
     m_pDevice->AddRef();
-    m_pDevice->RunWithContext([&](GlContext*) {
-        LOG_ASSERT(stage < std::size(gShaderStageToGlShaderStages));
-        CALL_GL(m_handle = glCreateShader(gShaderStageToGlShaderStages[stage]));
 
-        CALL_GL(glShaderSource(m_handle, 1, &data, nullptr));
-        CALL_GL(glCompileShader(m_handle));
-        sCheckShaderCompileError(m_handle, stage);
-    });
+    CALL_GL(m_handle = glCreateShader(gShaderStageToGlShaderStages[stage]));
+
+    CALL_GL(glShaderSource(m_handle, 1, &data, nullptr));
+    CALL_GL(glCompileShader(m_handle));
+    sCheckShaderCompileError(m_handle, stage);
 }
 
 GlShader::~GlShader() {
     LOG_ASSERT(m_handle != GL_NONE);
 
-    m_pDevice->RunWithContext([=](GlContext*) {
-        CALL_GL(glDeleteShader(m_handle));
-    }, false);
+    CALL_GL(glDeleteShader(m_handle));
     m_pDevice->SubRef();
 }

@@ -16,6 +16,9 @@
 #include "impl/CmdBeginRenderPass.h"
 #include "impl/CmdBeginDebugUtilsLabel.h"
 #include "impl/CmdEndDebugUtilsLabel.h"
+#include "impl/CmdCopyImage.h"
+#include "impl/CmdCopyImageToBuffer.h"
+#include "impl/CmdCopyBufferToImage.h"
 
 GlCmd::~GlCmd() {
     for (auto pCmd: m_vecCmds) {
@@ -88,12 +91,16 @@ void GlCmd::BlitImageToSurface(Image2D* pImage, GpuSurface* surface, ImageBlitRa
 }
 
 void GlCmd::CopyImage(Image2D *pSrcImage, Image2D *pDstImage, ImageCopyRange *pRange, uint32_t rangeCount) {
+    const auto pCmd = this->allocCmd<CmdCopyImage>(pSrcImage, pDstImage, pRange, rangeCount);
+    m_vecCmds.push_back(pCmd);
 }
 
 void GlCmd::CopyBufferToImage(Image2D *pImage, const void *pData, uint64_t size, const Area &area) {
 }
 
 void GlCmd::CopyImageToBuffer(Image2D *pImage, Buffer* pBuffer, const Area &area) {
+    const auto pCmd = this->allocCmd<CmdCopyImageToBuffer>(pImage, pBuffer, area);
+    m_vecCmds.push_back(pCmd);
 }
 
 void GlCmd::BeginDebugUtilsLabel(const char *name, const Color &color) {

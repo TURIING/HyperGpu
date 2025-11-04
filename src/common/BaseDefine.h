@@ -64,6 +64,9 @@ enum class CmdType {
     Draw,
     BeginDebugUtilsLabel,
     EndDebugUtilsLabel,
+    CopyImage,
+    CopyImageToBuffer,
+    CopyBufferToImage,
 };
 
 /************************************************* Variable *********************************************************/
@@ -194,5 +197,12 @@ constexpr GLuint gBufferTypeToGlTarget[] = {
     GL_ELEMENT_ARRAY_BUFFER,    // Index
     GL_UNIFORM_BUFFER,          // Uniform
 };
+
+constexpr GLenum gImageAspectToGlAttachmentType[] = {
+    GL_COLOR_ATTACHMENT0,           // Color
+    GL_DEPTH_ATTACHMENT,            // Depth
+    GL_STENCIL_ATTACHMENT,          // Stencil
+};
+
 
 #endif //BASEDEFINE_H

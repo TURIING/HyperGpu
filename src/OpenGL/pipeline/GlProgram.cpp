@@ -32,22 +32,27 @@ static void sCheckProgramCompileError(GLuint handle) {
 
 GlProgram::GlProgram(OpenGlDevice *pDevice, const ShaderInfo &shaderInfo): m_pDevice(pDevice) {
     m_pDevice->AddRef();
-    CALL_GL(m_handle = glCreateProgram());
 
-    GlShader vertexShader(m_pDevice, static_cast<const char*>(shaderInfo.pGlVertexCode), GlShader::Vertex);
-    CALL_GL(glAttachShader(m_handle, vertexShader.GetHandle()));
+    m_pDevice->RunWithContext([&](GlContext*) {
+        CALL_GL(m_handle = glCreateProgram());
 
-    GlShader fragShader(m_pDevice, static_cast<const char*>(shaderInfo.pGlFragCode), GlShader::Fragment);
-    CALL_GL(glAttachShader(m_handle, fragShader.GetHandle()));
+        GlShader vertexShader(m_pDevice, static_cast<const char*>(shaderInfo.pGlVertexCode), GlShader::Vertex);
+        CALL_GL(glAttachShader(m_handle, vertexShader.GetHandle()));
 
-    CALL_GL(glLinkProgram(m_handle));
-    sCheckProgramCompileError(m_handle);
+        GlShader fragShader(m_pDevice, static_cast<const char*>(shaderInfo.pGlFragCode), GlShader::Fragment);
+        CALL_GL(glAttachShader(m_handle, fragShader.GetHandle()));
 
-    reflectShader();
+        CALL_GL(glLinkProgram(m_handle));
+        sCheckProgramCompileError(m_handle);
+
+        reflectShader();
+    });
 }
 
 GlProgram::~GlProgram() {
-    CALL_GL(glDeleteProgram(m_handle));
+    m_pDevice->RunWithContext([&](GlContext*) {
+        CALL_GL(glDeleteProgram(m_handle));
+    }, false);
     m_pDevice->SubRef();
 }
 
@@ -67,8 +72,6 @@ void GlProgram::SetTexture(const ImageBinding &binding) {
 
     if (binding.imageCount == 1) {
         auto &pBinding = m_textures[binding.name];
-        LOG_ASSERT_INFO(!pBinding.isArray, "The texture type should not be an array.");
-
         auto pImage = dynamic_cast<GlImage2D*>(binding.pImage[0]);
         pBinding.pImage = pImage;
         pBinding.pSampler = pImage->GetSampler();
@@ -174,7 +177,7 @@ void GlProgram::reflectTexture() {
                 };
                 break;
             }
-            default: LOG_ASSERT_INFO(false, "Unknown texture type.");
+            default: break;
         }
     }
 }
@@ -203,7 +206,7 @@ void GlProgram::activateTexture() {
 
 void GlProgram::activateUniformBlock() {
     for (const auto [name, binding] : m_uniforms) {
-        LOG_ASSERT(binding.pBuffer);
+        if (!binding.pBuffer) continue;
         CALL_GL(glBindBufferBase(GL_UNIFORM_BUFFER, binding.binding, binding.pBuffer->GetHandle()));
     }
 }

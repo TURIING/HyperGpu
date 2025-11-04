@@ -12,7 +12,7 @@ USING_GPU_NAMESPACE_BEGIN
 
 class GlComputePipeline final: public GlPipeline {
 public:
-    GlComputePipeline(GpuDevice* gpuDevice, const ComputeEnvInfo& computeEnvInfo);
+    GlComputePipeline(OpenGlDevice* gpuDevice, const ComputeEnvInfo& computeEnvInfo);
 };
 
 USING_GPU_NAMESPACE_END

@@ -16,6 +16,8 @@ public:
     GlPipeline(OpenGlDevice* pDevice, const EnvInfo &envInfo);
     ~GlPipeline() override;
     void Bind() const;
+    void SetUniforms(const UniformBinding* pUniformBinding, u32 count) const;
+    void SetTextures(const ImageBinding* pImageBinding, u32 count) const;
 
 private:
     OpenGlDevice* m_pDevice = nullptr;

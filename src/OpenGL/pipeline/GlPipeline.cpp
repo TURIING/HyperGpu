@@ -23,4 +23,16 @@ void GlPipeline::Bind() const {
     m_pProgram->Bind();
 }
 
+void GlPipeline::SetUniforms(const UniformBinding *pUniformBinding, u32 count) const {
+    for (auto i = 0; i < count; i++) {
+        m_pProgram->SetUniformBuffer(pUniformBinding[i]);
+    }
+}
+
+void GlPipeline::SetTextures(const ImageBinding *pImageBinding, u32 count) const {
+    for (auto i = 0; i < count; i++) {
+        m_pProgram->SetTexture(pImageBinding[i]);
+    }
+}
+
 USING_GPU_NAMESPACE_END

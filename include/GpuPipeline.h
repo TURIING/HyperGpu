@@ -42,6 +42,7 @@ struct BlendInfo {
 	BlendOp colorBlendOp{};
 	BlendOp alphaBlendOp{};
 	Color constantColor;
+	ColorComponentFlags colorWriteMask = ColorComponentFlags::R | ColorComponentFlags::G | ColorComponentFlags::B | ColorComponentFlags::A;
 };
 
 struct AttachmentInfo {
