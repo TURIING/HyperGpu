@@ -16,8 +16,13 @@
 #include <thread>
 #include <vulkan/vulkan.h>
 
-#if !defined(PLATFORM_MACOS) && !defined(PLATFORM_IOS)
-#include <include/GL/glew.h>
+#if defined(PLATFORM_WINDOWS) || defined(PLATFORM_ANDROID)
+#ifndef WGL_CONTEXT
+#include <GLES3/gl3.h>
+#include <GLES3/gl31.h>
+#include <GLES3/gl32.h>
+#endif
+
 #elif PLATFORM_MACOS
 #include <OpenGL/gl3.h>
 #include <OpenGL/glext.h>

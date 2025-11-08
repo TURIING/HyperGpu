@@ -145,7 +145,7 @@ constexpr GLenum gAddressModeToGLAddressMode[] = {
 
 constexpr GLuint gPixelFormatToGlFormat[] = {
     GL_RGBA,                    // R8G8B8A8
-    GL_BGRA,                    // B8G8R8A8
+    // GL_BGRA,                    // B8G8R8A8
 };
 
 constexpr GLuint gPixelFormatToDataFormat[] = {

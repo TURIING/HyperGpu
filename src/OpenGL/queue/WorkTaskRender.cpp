@@ -9,7 +9,7 @@
 #include "../cmd/GlCmd.h"
 #include "../sync/GlSemaphore.h"
 #include "../sync/GlFence.h"
-#include "HyperGpu/src/OpenGL/context/GlContext.h"
+#include "../context/GlContext.h"
 
 USING_GPU_NAMESPACE_BEGIN
 WorkTaskRender::WorkTaskRender(GlQueue *pQueue, const Queue::SubmitInfo &info): WorkTask(pQueue) {

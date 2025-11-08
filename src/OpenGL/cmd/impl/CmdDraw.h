@@ -106,7 +106,7 @@ public:
                         LOG_ASSERT(beginInfo.clearValue[i].type == AttachmentType::DEPTH_STENCIL);
                         const auto depth = beginInfo.clearValue[i].depthStencil.depth;
                         const auto stencil = beginInfo.clearValue[i].depthStencil.stencil;
-                        CALL_GL(glClearDepth(depth))
+                        CALL_GL(glClearDepthf(depth))
                         CALL_GL(glClearStencil(stencil));
                         CALL_GL(glClear(GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
                         break;

@@ -9,8 +9,8 @@
 #include "VulQueue.h"
 
 #include "VulLogicDevice.h"
-#include "HyperGpu/src/Vulkan/base/surface/VulSwapChain.h"
-#include "HyperGpu/src/Vulkan/base/sync/VulSemaphore.h"
+#include "../surface/VulSwapChain.h"
+#include "../sync/VulSemaphore.h"
 
 USING_GPU_NAMESPACE_BEGIN
 

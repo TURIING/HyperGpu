@@ -10,3 +10,9 @@
 [submodule "external/glew"]
 	path = external/glew
 	url = https://github.com/TURIING/glew
+[submodule "external/OpenGL"]
+	path = external/OpenGL
+	url = https://github.com/KhronosGroup/OpenGL-Registry
+[submodule "external/EGL"]
+	path = external/EGL
+	url = https://github.com/KhronosGroup/EGL-Registry

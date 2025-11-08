@@ -42,7 +42,7 @@ void GlBuffer::WriteData(const void* data, uint64_t dataSize, uint64_t offset) {
 void GlBuffer::Map(uint64_t offset, uint64_t size, void **pData) {
     m_pDevice->RunWithContext([&](GlContext*) {
         CALL_GL(glBindBuffer(m_target, m_handle));
-        CALL_GL(*pData = glMapBuffer(m_target, GL_READ_WRITE));
+        CALL_GL(*pData = glMapBufferRange(m_target, offset, size, GL_MAP_READ_BIT | GL_MAP_WRITE_BIT));
     });
 }
 

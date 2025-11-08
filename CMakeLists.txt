@@ -39,3 +39,5 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 #        XCODE_EMBED_FRAMEWORKS "${Vulkan_MoltenVK_LIBRARY};"
 #        XCODE_EMBED_FRAMEWORKS_CODE_SIGN_ON_COPY "YES"
 )
+
+func_post()

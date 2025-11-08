@@ -9,7 +9,7 @@
 #define RESOURCECACHE_H
 
 #include "../../../common/common.h"
-#include "HyperGpu/src/Vulkan/base/pipeline/VulPipeline.h"
+#include "../../base/pipeline/VulPipeline.h"
 
 USING_GPU_NAMESPACE_BEGIN
     struct VulAttachmentInfo;

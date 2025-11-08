@@ -13,7 +13,7 @@
 #include "../pipeline/VulPipeline.h"
 #include "../pipeline/VulRenderPass.h"
 #include "../resource/VulImage2D.h"
-#include "HyperGpu/src/Vulkan/base/device/VulInstance.h"
+#include "../device/VulInstance.h"
 
 USING_GPU_NAMESPACE_BEGIN
     VulCommandBuffer::VulCommandBuffer(VulLogicDevice* logicDevice, VulCommandPool* commandPool) : m_pLogicDevice(logicDevice), m_pCommandPool(commandPool) {

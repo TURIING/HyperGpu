@@ -12,7 +12,7 @@
 #include "../device/VulLogicDevice.h"
 #include "../device/VulPhysicalDevice.h"
 #include "../sync/VulSemaphore.h"
-#include "HyperGpu/src/Vulkan/base/resource/VulImage2D.h"
+#include "../resource/VulImage2D.h"
 
 USING_GPU_NAMESPACE_BEGIN
 

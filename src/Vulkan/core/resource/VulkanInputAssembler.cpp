@@ -9,7 +9,6 @@
 
 #include "../VulkanDevice.h"
 #include "VulkanBuffer.h"
-#include "HyperGpu/src/OpenGL/pipeline/GlShader.h"
 
 USING_GPU_NAMESPACE_BEGIN
     VulkanInputAssembler::VulkanInputAssembler(VulkanDevice* pDevice, const InputAssemblerInfo& info): m_pVulkanDevice(pDevice) {

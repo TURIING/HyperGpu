@@ -5,15 +5,19 @@
 #if PLATFORM_WINDOWS
 #include "WGlContext.h"
 
+#ifdef WGL_CONTEXT
 #include "include/GL/glew.h"
 #include <include/GL/wglew.h>
 
-#include <mutex>
 #define WGL_DONT_CARE -1
 #define WGL_TRUE 1
 #define WGL_FALSE 0
+#endif
+
+#include <mutex>
 
 namespace HyperGpu {
+#ifdef WGL_CONTEXT
 using WGLbool = int;
 
 struct WGLFBConfig {
@@ -353,13 +357,77 @@ static int choosePixelFormatWGL(HDC hdc, const WGLFBConfig* fbconfig) {
     return pixelFormat;
 }
 
+HGLRC WGlContext::createContext(HDC hdc, DWORD dwFlags, HGLRC shareDc, bool doubleBuffer, bool mutilSample) {
+    WGLFBConfig fbConfig;
+    fbConfig.redBits   = 8;
+    fbConfig.greenBits = 8;
+    fbConfig.blueBits  = 8;
+    fbConfig.alphaBits = 8;
 
+    fbConfig.depthBits		= 24;
+    fbConfig.stencilBits	= 8;
+    fbConfig.accumRedBits	= 0;
+    fbConfig.accumGreenBits = 0;
+    fbConfig.accumBlueBits	= 0;
+    fbConfig.accumAlphaBits = 0;
+    fbConfig.auxBuffers		= 0;
+    fbConfig.stereo			= 0;
+    fbConfig.samples		= mutilSample ? 4 : WGL_DONT_CARE;
+    fbConfig.sRGB			= WGL_FALSE;
+    fbConfig.transparent	= WGL_FALSE;
+    fbConfig.handle			= 0;
+    fbConfig.doublebuffer	= doubleBuffer ? WGL_TRUE : WGL_FALSE;
+
+    PIXELFORMATDESCRIPTOR pfd;
+    int					  pixelFormat = choosePixelFormatWGL(hdc, &fbConfig);
+    assert(pixelFormat > 0);
+
+    if(!DescribePixelFormat(hdc, pixelFormat, sizeof(pfd), &pfd)) {
+        assert(false);
+    }
+
+    if(!SetPixelFormat(hdc, pixelFormat, &pfd)) {
+        assert(false);
+    }
+
+    HGLRC hglrc = NULL;
+    if(WGLEW_ARB_create_context) {
+        int attribtes[] = {
+            WGL_CONTEXT_MAJOR_VERSION_ARB,
+            4,
+            WGL_CONTEXT_MINOR_VERSION_ARB,
+            3,
+            // WGL_CONTEXT_FLAGS_ARB, 0,
+            WGL_CONTEXT_PROFILE_MASK_ARB,
+            WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
+            0,
+            0,
+        };
+        // Create the OpenGL resource context (RC) and make it current to the
+        // thread
+        hglrc = wglCreateContextAttribsARB(hdc, shareDc, attribtes);
+    } else {
+        hglrc = wglCreateContext(hdc);
+        if(shareDc) {
+            wglShareLists(shareDc, hglrc);
+        }
+    }
+
+    if(hglrc == NULL) {
+        const DWORD error = GetLastError();
+        assert(false);
+    }
+
+    return hglrc;
+}
+#endif
 
 std::mutex gContextMutex;
 HDC gDefaultHD = nullptr;
 thread_local WGlContext* gLastContext = nullptr;
 
 void WGlContext::Init() {
+#ifdef WGL_CONTEXT
 	gContextMutex.lock();
 	auto hdc	= ::GetDC(nullptr);
 	gDefaultHD	= hdc;
@@ -370,92 +438,116 @@ void WGlContext::Init() {
 	wglDeleteContext(hglrc);
 	wglMakeCurrent(NULL, NULL);
 	gContextMutex.unlock();
+#endif
 }
 
 WGlContext* WGlContext::CreateContext(void* handle, WGlContext* shareContext) {
 	auto context = new WGlContext();
 	if(handle) {
-		auto hwnd	   = static_cast<HWND>(handle);
+		auto hwnd = static_cast<HWND>(handle);
 		context->m_hdc = ::GetDC(hwnd);
 	} else {
 		context->m_hdc = ::GetDC(nullptr);
 	}
 
 	gContextMutex.lock();
+#if WGL_CONTEXT
 	HGLRC share		 = shareContext ? shareContext->m_hglrc : nullptr;
 	context->m_hglrc = createContext(context->m_hdc, PFD_SUPPORT_OPENGL | PFD_DRAW_TO_WINDOW, share);
+#else
+    EGLContext share = shareContext ? shareContext->m_eglContext : nullptr;
+    auto [eglContext, eglDisplay, eglSurface] = createContext(context->m_hdc, handle, share);
+    context->m_eglContext = eglContext;
+    context->m_eglDisplay = eglDisplay;
+    context->m_eglSurface = eglSurface;
+#endif
+    context->m_hwnd = static_cast<HWND>(handle);
 	gContextMutex.unlock();
 
 	context->m_shareContext = shareContext;
 	return context;
 }
 
-HGLRC WGlContext::createContext(HDC hdc, DWORD dwFlags, HGLRC shareDc, bool doubleBuffer, bool mutilSample) {
-	WGLFBConfig fbConfig;
-	fbConfig.redBits   = 8;
-	fbConfig.greenBits = 8;
-	fbConfig.blueBits  = 8;
-	fbConfig.alphaBits = 8;
+std::tuple<EGLContext, EGLDisplay, EGLSurface> WGlContext::createContext(HDC hdc, void* handle, EGLContext shareContext, bool doubleBuffer, bool mutilSample) {
+    EGLContext eglContext = EGL_NO_CONTEXT;
+    EGLDisplay eglDisplay = EGL_NO_DISPLAY;
+    EGLSurface eglSurface = EGL_NO_SURFACE;
 
-	fbConfig.depthBits		= 24;
-	fbConfig.stencilBits	= 8;
-	fbConfig.accumRedBits	= 0;
-	fbConfig.accumGreenBits = 0;
-	fbConfig.accumBlueBits	= 0;
-	fbConfig.accumAlphaBits = 0;
-	fbConfig.auxBuffers		= 0;
-	fbConfig.stereo			= 0;
-	fbConfig.samples		= mutilSample ? 4 : WGL_DONT_CARE;
-	fbConfig.sRGB			= WGL_FALSE;
-	fbConfig.transparent	= WGL_FALSE;
-	fbConfig.handle			= 0;
-	fbConfig.doublebuffer	= doubleBuffer ? WGL_TRUE : WGL_FALSE;
+    eglDisplay = eglGetDisplay(hdc);
+    if (eglDisplay == EGL_NO_DISPLAY) {
+        throw std::runtime_error("eglGetDisplay error");
+    }
 
-	PIXELFORMATDESCRIPTOR pfd;
-	int					  pixelFormat = choosePixelFormatWGL(hdc, &fbConfig);
-	assert(pixelFormat > 0);
+    if (!eglInitialize(eglDisplay, NULL, NULL)) {
+        throw std::runtime_error("eglInitialize error");
+    }
 
-	if(!DescribePixelFormat(hdc, pixelFormat, sizeof(pfd), &pfd)) {
-		assert(false);
-	}
+    EGLConfig config;
+    EGLint numConfigs;
+    EGLint attribList[] = {
+        EGL_RED_SIZE, 8,
+        EGL_GREEN_SIZE, 8,
+        EGL_BLUE_SIZE, 8,
+        EGL_ALPHA_SIZE, 8,
+        EGL_DEPTH_SIZE, 24,
+        EGL_STENCIL_SIZE, 8,
+        EGL_SURFACE_TYPE, handle ? EGL_WINDOW_BIT : EGL_PBUFFER_BIT,
+        EGL_RENDERABLE_TYPE, EGL_OPENGL_ES3_BIT,
+        EGL_NONE
+      };
 
-	if(!SetPixelFormat(hdc, pixelFormat, &pfd)) {
-		assert(false);
-	}
+    if (!eglChooseConfig(eglDisplay, attribList, &config, 1, &numConfigs)) {
+        throw std::runtime_error("eglChooseConfig error");
+    }
 
-	HGLRC hglrc = NULL;
-	if(WGLEW_ARB_create_context) {
-		int attribtes[] = {
-			WGL_CONTEXT_MAJOR_VERSION_ARB,
-			4,
-			WGL_CONTEXT_MINOR_VERSION_ARB,
-			3,
-			// WGL_CONTEXT_FLAGS_ARB, 0,
-			WGL_CONTEXT_PROFILE_MASK_ARB,
-			WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
-			0,
-			0,
-		};
-		// Create the OpenGL resource context (RC) and make it current to the
-		// thread
-		hglrc = wglCreateContextAttribsARB(hdc, shareDc, attribtes);
-	} else {
-		hglrc = wglCreateContext(hdc);
-		if(shareDc) {
-			wglShareLists(shareDc, hglrc);
-		}
-	}
+    if (handle) {
+        eglSurface = eglCreateWindowSurface(eglDisplay, config, static_cast<EGLNativeWindowType>(handle), nullptr);
+        if (eglSurface == EGL_NO_SURFACE) {
+            throw std::runtime_error("eglCreateWindowSurface error");
+        }
+    }
+    else {
+        const EGLint pBufferAttribs[] = {
+            EGL_WIDTH, 512,
+            EGL_HEIGHT, 512,
+            EGL_NONE,
+        };
+        eglSurface = eglCreatePbufferSurface(eglDisplay, config, pBufferAttribs);
+    }
 
-	if(hglrc == NULL) {
-		const DWORD error = GetLastError();
-		assert(false);
-	}
+    EGLint contextAttribs[] = {
+        EGL_CONTEXT_MAJOR_VERSION, 3,
+        EGL_CONTEXT_MINOR_VERSION, 2,
+        EGL_NONE
+    };
 
-	return hglrc;
+    eglContext = eglCreateContext(eglDisplay, config, EGL_NO_CONTEXT, contextAttribs);
+    if (eglContext == EGL_NO_CONTEXT) {
+        throw std::runtime_error("eglCreateContext error");
+    }
+
+    return std::make_tuple(eglContext, eglDisplay, eglSurface);
 }
 
 WGlContext::~WGlContext() {
+#ifdef WGL_CONTEXT
 	wglDeleteContext(m_hglrc);
+#else
+    if (m_eglDisplay != EGL_NO_DISPLAY) {
+        eglMakeCurrent(m_eglDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+        if (m_eglContext != EGL_NO_CONTEXT) {
+            eglDestroyContext(m_eglDisplay, m_eglContext);
+        }
+        if (m_eglSurface != EGL_NO_SURFACE) {
+            eglDestroySurface(m_eglDisplay, m_eglSurface);
+        }
+        eglTerminate(m_eglDisplay);
+    }
+
+#endif
+    if (m_hdc) {
+        ReleaseDC(m_hwnd, m_hdc);
+    }
 }
 
 WGlContext* WGlContext::GetLastContext() {
@@ -467,6 +559,7 @@ void WGlContext::MakeCurrent() {
 	if(gLastContext == this) return;
 
 	gContextMutex.lock();
+#ifdef WGL_CONTEXT
 	BOOL suc = FALSE;
 	HDC preHdc = nullptr;
 	HGLRC preHglrc = nullptr;
@@ -483,22 +576,37 @@ void WGlContext::MakeCurrent() {
 	}
 
 	suc |= wglMakeCurrent(m_hdc, m_hglrc);
+	assert(suc);
+#else
+    if (!eglMakeCurrent(m_eglDisplay, m_eglSurface, m_eglSurface, m_eglContext)) {
+        throw std::runtime_error("eglMakeCurrent error");
+    }
+#endif
 	gContextMutex.unlock();
 	gLastContext = this;
-	assert(suc);
 }
 
 void WGlContext::ClearCurrent() {
 	gContextMutex.lock();
+#ifdef WGL_CONTEXT
 	wglMakeCurrent(nullptr, nullptr);
+#else
+    if (!eglMakeCurrent(m_eglDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT)) {
+        throw std::runtime_error("eglMakeCurrent error");
+    }
+#endif
 	gContextMutex.unlock();
 	gLastContext = nullptr;
 }
 
 void WGlContext::SwapBuffer() {
+#ifdef WGL_CONTEXT
 	BOOL suc = FALSE;
 	suc = ::SwapBuffers(m_hdc);
 	assert(suc);
+#else
+    eglSwapBuffers(m_eglDisplay, m_eglSurface);
+#endif
 }
 }
 
