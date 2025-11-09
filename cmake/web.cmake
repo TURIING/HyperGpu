@@ -5,3 +5,7 @@ add_subdirectory(${EXTERNAL}/glew)
 set(EXTERNAL_LIB spdlog::spdlog glew)
 set(EXTERNAL_INCLUDE ${EXTERNAL})
 file(GLOB_RECURSE SOURCE CONFIGURE_DEPENDS ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h)
+
+function(func_post)
+
+endfunction()

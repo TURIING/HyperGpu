@@ -16,3 +16,7 @@ set(EXTERNAL_LIB spdlog::spdlog ${Vulkan_LIBRARIES} ${UIKIT_LIB} ${OPENGLES_LIB}
 set(EXTERNAL_INCLUDE ${Vulkan_INCLUDE_DIR} ${EXTERNAL}/glm ${EXTERNAL}/spdlog ${EXTERNAL}/SPIRV-Reflect)
 
 file(GLOB_RECURSE SOURCE CONFIGURE_DEPENDS ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h ${PROJECT_SOURCE_DIR}/src/*.mm)
+
+function(func_post)
+
+endfunction()
