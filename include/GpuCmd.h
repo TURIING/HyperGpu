@@ -81,6 +81,7 @@ public:
 	virtual void CopyImageToBuffer(Image2D* pImage, Buffer* pBuffer, const Area &area) = 0;
 	virtual void BeginDebugUtilsLabel(const char *name, const Color &color = { 0.0, 0.0, 0.0, 0.0}) = 0;
 	virtual void EndDebugUtilsLabel() = 0;
+	virtual void GenerateMipmap(Image2D* pImage) = 0;
 };
 
 class GpuCmdManager : public GpuObject {

@@ -201,6 +201,41 @@ void VulkanCmd::EndDebugUtilsLabel() {
 	m_pCmd->EndDebugUtilsLabel();
 }
 
+void VulkanCmd::GenerateMipmap(Image2D *pImage) {
+	const auto pVulkanImage  = dynamic_cast<VulkanImage2D*>(pImage);
+	const auto pVulImage = pVulkanImage->GetHandle();
+	const auto size = pImage->GetSize();
+	auto mipmapWidth = TO_I32(size.width);
+	auto mipmapHeight = TO_I32(size.height);
+
+	const auto aspect = gImageAspectToVkImageAspectFlag[TO_U32(pImage->GetAspectFlags())];
+	std::vector<VkImageBlit> vecBlit;
+
+	for (u32 i = 1; i < pImage->GetMipLevels(); ++i) {
+		m_pCmd->TransitionImageLayout(pVulImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, aspect, i-1, 1);
+		vecBlit.clear();
+		VkImageBlit blit;
+		blit.srcSubresource = {
+			.aspectMask = aspect,
+			.mipLevel = i - 1,
+			.baseArrayLayer = 0,
+			.layerCount = 1
+		};
+		blit.srcOffsets[0] = {0 ,0, 0};
+		blit.srcOffsets[1] = {mipmapWidth, mipmapHeight, 1};
+		blit.dstSubresource = {
+			.aspectMask = aspect,
+			.mipLevel = i,
+			.baseArrayLayer = 0,
+			.layerCount = 1
+		};
+		blit.dstOffsets[0] = {0, 0, 0};
+		blit.dstOffsets[1] = {mipmapWidth > 1 ? mipmapWidth / 2 : 1, mipmapHeight > 1 ? mipmapHeight / 2 : 1, 1};
+		vecBlit.push_back(blit);
+		m_pCmd->BlitImage(pVulImage, pVulImage, vecBlit, VK_FILTER_LINEAR);
+	}
+}
+
 void VulkanCmd::BeginRenderPass(const BeginRenderInfo& beginRenderInfo) {
 	m_pPipeline = m_pVulkanDevice->GetResourceCache()->RequestPipeline(beginRenderInfo.pPipeline->renderEnvInfo);
 	auto pGraphicPipeline = dynamic_cast<VulkanGraphicPipeline*>(m_pPipeline);

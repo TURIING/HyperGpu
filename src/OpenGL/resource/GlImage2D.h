@@ -25,6 +25,7 @@ public:
     ImageUsageFlags GetUsage() const override { return m_usage; }
     NODISCARD GlSampler* GetSampler() const { return m_pSampler; }
     NODISCARD PixelFormat GetPixelFormat() const override { return m_pixelFormat; }
+    uint32_t GetMipLevels() const override { return m_mipLevels; };
 
 private:
     void init(const Image2DCreateInfo &info);
@@ -35,6 +36,7 @@ private:
     ImageAspectFlags m_aspect;
     ImageUsageFlags m_usage;
     Size m_size;
+    uint32_t m_mipLevels = 0;
     PixelFormat m_pixelFormat;
 };
 

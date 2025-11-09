@@ -14,7 +14,6 @@
 USING_GPU_NAMESPACE_BEGIN
 
 class VulLogicDevice;
-class VulCommandBuffer;
 
 struct VulImage2DCreateInfo {
     Size size;
@@ -31,18 +30,20 @@ struct VulImage2DCreateInfo {
 class VulImage2D final: public VulObject<VkImage>{
 public:
     VulImage2D(VulLogicDevice* device, const VulImage2DCreateInfo& info);
-    NODISCARD VkImageView   GetImageViewHandle() const { return m_pImageView; }
+    ~VulImage2D() override;
+    NODISCARD VkImageView GetImageViewHandle() const { return m_pImageView; }
     NODISCARD VkImageLayout GetCurrentImageLayout() const { return m_currentLayout; }
     void SetCurrentImageLayout(VkImageLayout layout) { m_currentLayout = layout; }
-    NODISCARD uint32_t GetMipLevels() const { return m_mipLevels; }
-    ~VulImage2D() override;
+    NODISCARD VkImageAspectFlags GetAspectFlag() const { return m_aspect; }
+    NODISCARD Size GetSize() const { return m_size; }
 
 private:
     VulLogicDevice* m_pLogicDevice  = nullptr;
     VkImageView     m_pImageView    = nullptr;
     VkDeviceMemory  m_pDeviceMemory = nullptr;
-    uint32_t        m_mipLevels     = 0;
     VkImageLayout   m_currentLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    VkImageAspectFlags m_aspect = VK_IMAGE_ASPECT_COLOR_BIT;
+    Size m_size;
 };
 
 USING_GPU_NAMESPACE_END

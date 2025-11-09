@@ -12,13 +12,31 @@
 
 USING_GPU_NAMESPACE_BEGIN
 
-VulImage2D::VulImage2D(VulLogicDevice* device, const VulImage2DCreateInfo& info) : m_pLogicDevice(device), m_mipLevels(info.mipLevels){
+VulImage2D::VulImage2D(VulLogicDevice* device, const VulImage2DCreateInfo& info)
+    : m_pLogicDevice(device), m_aspect(info.aspectFlags), m_size(info.size)
+{
 	m_pLogicDevice->AddRef();
 
     if (info.handle) {
         m_pHandle = info.handle;
     }
     else {
+        auto usage = info.usage;
+        // 生成mipmap需要GPU支持对该格式做线性过滤
+        if (info.mipLevels > 1) {
+            VkFormatProperties formatProperties;
+            vkGetPhysicalDeviceFormatProperties(m_pLogicDevice->GetPhysicalDevice()->GetHandle(), info.format, &formatProperties);
+
+            if (!(formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT)) {
+                throw std::runtime_error("Texture image format does not support linear blitting!");
+            }
+
+            // 如果要生成 mipmap，必须包含 VK_IMAGE_USAGE_TRANSFER_SRC_BIT（因为高层要拷贝给低层）
+            if ((usage & VK_IMAGE_USAGE_TRANSFER_SRC_BIT) == 0) {
+                usage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+            }
+        }
+
         const VkImageCreateInfo imageCreateInfo {
             .sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
             .imageType = VK_IMAGE_TYPE_2D,
@@ -32,7 +50,7 @@ VulImage2D::VulImage2D(VulLogicDevice* device, const VulImage2DCreateInfo& info)
             .arrayLayers = 1,
             .samples = info.samples,
             .tiling = VK_IMAGE_TILING_OPTIMAL,
-            .usage = info.usage,
+            .usage = usage,
             .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
             .initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
         };

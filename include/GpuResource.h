@@ -30,6 +30,7 @@ namespace HyperGpu {
 		struct Image2DCreateInfo: CommonInfo {
 			Size size;
 			PixelFormat format = PixelFormat::R8G8B8A8;
+			uint32_t mipLevels = 1;
 			ImageAspectFlags aspect = ImageAspectFlags::Color;
 			ImageUsageFlags usage = ImageUsageFlags::SAMPLED;
 			Sampler* pSampler = nullptr;
@@ -39,6 +40,7 @@ namespace HyperGpu {
 		virtual ImageUsageFlags GetUsage() const = 0;
 		virtual Size GetSize() const = 0;
 		virtual PixelFormat GetPixelFormat() const = 0;
+		virtual uint32_t GetMipLevels() const = 0;
 	};
 
 	class Buffer : public GpuObject {

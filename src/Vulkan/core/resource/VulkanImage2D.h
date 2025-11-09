@@ -31,6 +31,7 @@ public:
 	NODISCARD ImageAspectFlags GetAspectFlags() const override { return m_aspect; }
 	ImageUsageFlags GetUsage() const override { return m_usage; }
 	NODISCARD PixelFormat GetPixelFormat() const override { return m_pixelFormat; }
+    uint32_t GetMipLevels() const override { return m_mipLevels; }
 
 private:
 	VulImage2D*			  m_pImage		  = nullptr;
@@ -40,6 +41,7 @@ private:
 	Size				  m_size;
 	ImageAspectFlags	  m_aspect;
 	ImageUsageFlags		  m_usage;
+    uint32_t			  m_mipLevels     = 0;
 	PixelFormat			  m_pixelFormat;
 };
 USING_GPU_NAMESPACE_END

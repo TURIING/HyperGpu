@@ -43,6 +43,7 @@ public:
 	void CopyImageToBuffer(Image2D *pImage, Buffer* pBuffer, const Area &area) override;
 	void BeginDebugUtilsLabel(const char *name, const Color &color) override;
 	void EndDebugUtilsLabel() override;
+	void GenerateMipmap(Image2D *pImage) override;
 
 private:
 	NODISCARD static VkViewport transViewportToVkViewport(const Viewport& viewport);

@@ -44,10 +44,6 @@ VulkanImage2D::VulkanImage2D(VulkanDevice* device, const Image2DCreateInfo& info
 		.imageView	 = m_pImage->GetImageViewHandle(),
 		.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
 	};
-
-	// dynamic_cast<VulkanCmdManager*>(m_pVulkanDevice->GetCmdManager())->WithSingleCmdBuffer([&](VulCommandBuffer* pCmd) {
-	// 	pCmd->TransitionImageLayout(m_pImage, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-	// });
 }
 
 VulkanImage2D::~VulkanImage2D() {

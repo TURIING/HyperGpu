@@ -112,3 +112,6 @@ void GlCmd::EndDebugUtilsLabel() {
     const auto cmd = allocCmd<CmdEndDebugUtilsLabel>();
     m_vecCmds.push_back(cmd);
 }
+
+void GlCmd::GenerateMipmap(Image2D *pImage) {
+}

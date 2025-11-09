@@ -190,7 +190,15 @@ void VulCommandBuffer::EndDebugUtilsLabel() const {
     vkEndDebugUtilsLabelExt(m_pHandle);
 }
 
-void VulCommandBuffer::TransitionImageLayout(VulImage2D* pImage, VkImageLayout newLayout, VkImageAspectFlags aspectFlags) const {
+/**
+ * 转换图像布局
+ * @param pImage 图像对象
+ * @param newLayout 新布局
+ * @param aspectFlags 图像类型
+ * @param baseMipLevel 指定起始 mipmap 层级
+ * @param levelCount 指定要操作的 mipmap 层数量
+ */
+void VulCommandBuffer::TransitionImageLayout(VulImage2D* pImage, VkImageLayout newLayout, VkImageAspectFlags aspectFlags, u32 baseMipLevel, u32 levelCount) const {
     const auto currentLayout = pImage->GetCurrentImageLayout();
     if (currentLayout == newLayout) return;
 
@@ -203,8 +211,8 @@ void VulCommandBuffer::TransitionImageLayout(VulImage2D* pImage, VkImageLayout n
         .image = pImage->GetHandle(),
         .subresourceRange = {
                 .aspectMask = aspectFlags,
-                .baseMipLevel = 0,
-                .levelCount = pImage->GetMipLevels(),
+                .baseMipLevel = baseMipLevel,
+                .levelCount = levelCount,
                 .baseArrayLayer = 0,
                 .layerCount = 1,
         },
