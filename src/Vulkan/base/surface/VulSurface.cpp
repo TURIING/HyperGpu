@@ -22,7 +22,6 @@ VulSurface::VulSurface(VulInstance* instance, const void *handle): m_pInstance(i
     };
 
     CALL_VK(vkCreateWin32SurfaceKHR(m_pInstance->GetHandle(), &surfaceCreateInfo, nullptr, &m_pHandle));
-    LOG_INFO("Successfully created surface!");
 #elif PLATFORM_MACOS
     const VkMacOSSurfaceCreateInfoMVK surfaceCreateInfo{
         .sType = VK_STRUCTURE_TYPE_MACOS_SURFACE_CREATE_INFO_MVK,
@@ -31,7 +30,6 @@ VulSurface::VulSurface(VulInstance* instance, const void *handle): m_pInstance(i
     };
 
     CALL_VK(vkCreateMacOSSurfaceMVK(m_pInstance->GetHandle(), &surfaceCreateInfo, nullptr, &m_pHandle));
-    LOG_INFO("Successfully created surface!");
 #elif PLATFORM_IOS
     const auto layer = reinterpret_cast<const CAMetalLayer*>(handle);
     const VkMetalSurfaceCreateInfoEXT surfaceCreateInfo{
@@ -41,8 +39,8 @@ VulSurface::VulSurface(VulInstance* instance, const void *handle): m_pInstance(i
     };
 
     CALL_VK(vkCreateMetalSurfaceEXT(m_pInstance->GetHandle(), &surfaceCreateInfo, nullptr, &m_pHandle));
-    LOG_INFO("Successfully created surface!");
 #endif
+    LOG_INFO("Successfully created surface!");
 }
 
 VulSurface::~VulSurface() {

@@ -72,7 +72,7 @@ VulShader::VulShader(VulLogicDevice* logicDevice, const ShaderInfo &shaderInfo):
         spvReflectDestroyShaderModule(&spvReflectCompShaderModule);
     }
 
-    // 生成描述符布局
+    // 生成描述符集布局
     m_pDescriptorSetLayout = VulDescriptorSetLayout::Builder()
                                 .SetLogicDevice(m_pLogicDevice)
                                 .AddDescriptorBindings(descriptorSetLayoutBindInfos)
