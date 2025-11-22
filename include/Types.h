@@ -41,6 +41,7 @@ namespace HyperGpu
 	enum class PixelFormat {
 		R8G8B8A8,
 		B8G8R8A8,
+		R16G16B16A16_SFLOAT,
 	};
 	enum class ImageAspectFlags { Color, Depth_Stencil };
 	enum class ImageUsageFlags {

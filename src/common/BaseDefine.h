@@ -80,8 +80,9 @@ constexpr int THREAD_NUM = 5;
 
 /**************************************************** Type Convert ***************************************************/
 constexpr VkFormat gPixelFormatToVkFormat[] = {
-    VK_FORMAT_R8G8B8A8_UNORM,                    // R8G8B8A8
-    VK_FORMAT_B8G8R8A8_UNORM,                    // B8G8R8A8
+    VK_FORMAT_R8G8B8A8_SRGB,                    // R8G8B8A8
+    VK_FORMAT_B8G8R8A8_SRGB,                    // B8G8R8A8
+    VK_FORMAT_R16G16B16A16_SFLOAT
 };
 
 constexpr u32 gPixelFormatToSizeByte[] = {

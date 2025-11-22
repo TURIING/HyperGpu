@@ -17,11 +17,6 @@
 #include "../VulkanCmdManager.h"
 
 USING_GPU_NAMESPACE_BEGIN
-	constexpr VkFormat gPixelFormatToVkFormat[] = {
-	VK_FORMAT_R8G8B8A8_UNORM,		// R8G8B8A8
-	VK_FORMAT_B8G8R8A8_UNORM,		// B8G8R8A8
-};
-
 VulkanImage2D::VulkanImage2D(VulkanDevice* device, const Image2DCreateInfo& info)
 : m_pVulkanDevice(device), m_size(info.size), m_aspect(info.aspect), m_usage(info.usage), m_pixelFormat(info.format) {
 	m_pVulkanDevice->AddRef();
@@ -35,7 +30,6 @@ VulkanImage2D::VulkanImage2D(VulkanDevice* device, const Image2DCreateInfo& info
 		.objName = info.objName,
 	};
 	m_pImage = new VulImage2D(m_pVulkanDevice->GetLogicDevice(), vulImage2DCreateInfo);
-
 	m_pSampler = dynamic_cast<VulkanSampler*>(info.pSampler);
 	m_pSampler->AddRef();
 

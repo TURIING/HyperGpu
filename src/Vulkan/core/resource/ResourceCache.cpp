@@ -47,6 +47,8 @@ struct std::hash<ShaderInfo> {
         HASH_COMBINE(result, shaderInfo.spvVertexCodeSize);
         HASH_COMBINE(result, shaderInfo.pSpvFragCode);
         HASH_COMBINE(result, shaderInfo.spvFragCodeSize);
+        HASH_COMBINE(result, shaderInfo.pSpvCompCode);
+        HASH_COMBINE(result, shaderInfo.spvCompCodeSize);
         return result;
     }
 };
