@@ -29,7 +29,7 @@ namespace HyperGpu {
 	public:
 		struct Image2DCreateInfo: CommonInfo {
 			Size size;
-			PixelFormat format = PixelFormat::R8G8B8A8;
+			PixelFormat format = PixelFormat::R8G8B8A8_SRGB;
 			uint32_t mipLevels = 1;
 			ImageAspectFlags aspect = ImageAspectFlags::Color;
 			ImageUsageFlags usage = ImageUsageFlags::SAMPLED;

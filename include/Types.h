@@ -39,8 +39,8 @@ namespace HyperGpu
 	enum class Filter { NEAREST, LINEAR };
 	enum class AddressMode { REPEAT, MIRROR, CLAMP_TO_EDGE, CLAMP_TO_BORDER };
 	enum class PixelFormat {
-		R8G8B8A8,
-		B8G8R8A8,
+		R8G8B8A8_SRGB,
+		B8G8R8A8_SRGB,
 		R16G16B16A16_SFLOAT,
 	};
 	enum class ImageAspectFlags { Color, Depth_Stencil };
